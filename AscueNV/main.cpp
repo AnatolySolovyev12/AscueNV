@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
     bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message) 
         {
-        bot.getApi().sendMessage(message->chat->id, "Hi!");
+        bot.getApi().sendMessage(message->chat->id, "Julia, i love you!");
         });
 
 
@@ -32,8 +32,9 @@ int main(int argc, char* argv[])
         DbTelegramExport* forQuery = new DbTelegramExport();
 
         forQuery->setAny(message->text.c_str());
+      //  qDebug() << forQuery->getAny();
 
-        
+        forQuery->queryDbResult(forQuery->getAny());
 
         //qDebug() << forQuery->getAny();
 
@@ -41,7 +42,7 @@ int main(int argc, char* argv[])
             return;
         }
 
-        bot.getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString());
+        bot.getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
         //bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
 
 

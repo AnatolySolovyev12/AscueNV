@@ -33,6 +33,8 @@ public:
 
 	QString getAny();
 
+	QString getResult();
+
 
 	QSqlDatabase mw_db;
 

@@ -8,7 +8,9 @@ DbTelegramExport::DbTelegramExport(QObject* parent) : QObject(parent)
 }
 
 DbTelegramExport::~DbTelegramExport()
-{}
+{
+	mw_db.close();
+}
 
 void DbTelegramExport::connectDataBase()
 {
@@ -47,6 +49,7 @@ void DbTelegramExport::queryDbResult(QString any)
 	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
 	queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+	//qDebug() << queryString;
 	query.exec(queryString);
 
 	query.next();
@@ -54,12 +57,13 @@ void DbTelegramExport::queryDbResult(QString any)
 	iD = query.value(0).toInt();
 
 	queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
-
+	//qDebug() << queryString;
 	query.exec(queryString);
 	query.next();
 	iD = query.value(0).toInt();
 
 	queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
+	//qDebug() << queryString;
 	query.exec(queryString);
 	query.next();
 
@@ -67,6 +71,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 
 	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+	//qDebug() << queryString;
 
 	query.exec(queryString);
 	query.next();
@@ -74,33 +79,38 @@ void DbTelegramExport::queryDbResult(QString any)
 
 
 	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
+	//qDebug() << queryString;
 
 	query.exec(queryString);
 	query.next();
 	night = query.value(0).toString();
 
 	queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+	//qDebug() << queryString;
 	query.exec(queryString);
 	query.next();
 	iD = query.value(0).toInt();
 
 	queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
+	//qDebug() << queryString;
 	query.exec(queryString);
 	query.next();
 	guid = query.value(0).toString();
 
-	mw_db.close();
-}
 
+}
 
 void DbTelegramExport::setAny(QString anyString)
 {
 	anyTelegramString = anyString;
 }
 
-
 QString DbTelegramExport::getAny()
 {
-	anyTelegramString = day + "   " + night + "   " + guid;
 	return anyTelegramString;
+}
+
+QString DbTelegramExport::getResult()
+{
+	return day + "  " + night + "   " + "\n" + guid;
 }
