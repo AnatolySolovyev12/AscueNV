@@ -23,8 +23,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="main.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </QtMoc>
+    </ClCompile>
   </ItemGroup>
 </Project>
