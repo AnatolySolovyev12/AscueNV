@@ -43,6 +43,7 @@ private:
 	QString day;
 	QString night;
 	QString guid;
+	QString dateDay;
 	QString anyTelegramString;
 
 

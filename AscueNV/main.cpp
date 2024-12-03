@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
     bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message) 
         {
-        bot.getApi().sendMessage(message->chat->id, "Julia, i love you!");
+        bot.getApi().sendMessage(message->chat->id, "Hi!");
         });
 
 

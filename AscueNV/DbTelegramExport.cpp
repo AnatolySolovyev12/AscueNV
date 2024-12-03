@@ -69,16 +69,17 @@ void DbTelegramExport::queryDbResult(QString any)
 
 	iD = query.value(0).toInt();
 
-
-	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+	queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+	//queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
 	//qDebug() << queryString;
 
 	query.exec(queryString);
 	query.next();
 	day = query.value(0).toString();
+	dateDay = query.value(1).toString();
 
-
-	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
+	queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+//	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
 	//qDebug() << queryString;
 
 	query.exec(queryString);
@@ -112,5 +113,5 @@ QString DbTelegramExport::getAny()
 
 QString DbTelegramExport::getResult()
 {
-	return day + "  " + night + "   " + "\n" + guid;
+	return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid;
 }
