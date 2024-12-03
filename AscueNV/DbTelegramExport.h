@@ -44,6 +44,11 @@ private:
 	QString night;
 	QString guid;
 	QString dateDay;
+	QString IdUSPD;
+	QString fullIp;
+
+
+
 	QString anyTelegramString;
 
 

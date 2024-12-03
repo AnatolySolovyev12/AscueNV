@@ -24,19 +24,34 @@ int main(int argc, char* argv[])
 
     bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message) {
         
-
-
-
         printf("User wrote %s\n", message->text.c_str());
+
+        QString messegeString = message->text.c_str();
+
+        if (messegeString.length() > 20)
+        {
+            bot.getApi().sendMessage(message->chat->id, "Incorrect length");
+            return;
+        }
 
         DbTelegramExport* forQuery = new DbTelegramExport();
 
-        forQuery->setAny(message->text.c_str());
-      //  qDebug() << forQuery->getAny();
+        forQuery->setAny(messegeString);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         forQuery->queryDbResult(forQuery->getAny());
-
-        //qDebug() << forQuery->getAny();
 
         if (StringTools::startsWith(message->text, "/start")) {
             return;

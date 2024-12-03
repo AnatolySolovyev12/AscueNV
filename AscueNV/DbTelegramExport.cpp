@@ -23,13 +23,10 @@ void DbTelegramExport::connectDataBase()
 
 	if (!mw_db.open()) // открываем БД. Если не открывает то вернёт false
 	{
-
-
 		mw_db.lastError().databaseText(); // если что-то пойдёт не так то пишем это в переменные
 		mw_db.lastError().driverText();
 
 		qDebug() << "Cannot open database: " << mw_db.lastError();
-
 	}
 }
 
@@ -47,6 +44,16 @@ void DbTelegramExport::queryDbResult(QString any)
 	curDate = curDate.addDays(-1);
 
 	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+
+	queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
+	query.exec(queryString);
+	query.next();
+	IdUSPD = query.value(0).toString();
+
+	queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
+	query.exec(queryString);
+	query.next();
+	fullIp += query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
 	queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 	//qDebug() << queryString;
@@ -97,8 +104,6 @@ void DbTelegramExport::queryDbResult(QString any)
 	query.exec(queryString);
 	query.next();
 	guid = query.value(0).toString();
-
-
 }
 
 void DbTelegramExport::setAny(QString anyString)
@@ -113,5 +118,5 @@ QString DbTelegramExport::getAny()
 
 QString DbTelegramExport::getResult()
 {
-	return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid;
+	return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid + "\n\n" + fullIp;
 }
