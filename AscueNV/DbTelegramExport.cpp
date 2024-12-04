@@ -4,20 +4,19 @@
 
 DbTelegramExport::DbTelegramExport(QObject* parent) : QObject(parent)
 {
-	connectDataBase();
+	//connectDataBase();
 }
 
 DbTelegramExport::~DbTelegramExport()
 {
-	mw_db.close();
 }
 
 void DbTelegramExport::connectDataBase()
 {
-	QSqlDatabase mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
+	mw_db = QSqlDatabase::addDatabase("QODBC"); // Для раблоты ODBC в Windows необходимо задвать пользовательский DNS в администрировании системы. Иначен не будет работать.
 
 	// mw_db.setHostName(myParamForSmtp->hostName); // хост где лежит БД
-	mw_db.setDatabaseName("DBEG"); // указываем имя пользовательского DNS который был создан в системе ранее.
+	mw_db.setDatabaseName(odbcName); // указываем имя пользовательского DNS который был создан в системе ранее.
 	mw_db.setUserName("solexp");
 	mw_db.setPassword("RootToor#");
 
@@ -28,82 +27,114 @@ void DbTelegramExport::connectDataBase()
 
 		qDebug() << "Cannot open database: " << mw_db.lastError();
 	}
+
 }
 
 void DbTelegramExport::queryDbResult(QString any)
 {
-	QSqlQuery query;
-	QString queryString;
+	while (resultBool == false)
+	{
+		connectDataBase();
 
-	int iD = 0;
+		QSqlQuery query;
+		QString queryString;
 
-	int guidId;
+		int iD = 0;
 
-	QDate curDate = QDate::currentDate();
+		int guidId;
 
-	curDate = curDate.addDays(-1);
+		QDate curDate = QDate::currentDate();
 
-	QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
+		curDate = curDate.addDays(-1);
 
-	queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
-	query.exec(queryString);
-	query.next();
-	IdUSPD = query.value(0).toString();
+		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-	queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
-	query.exec(queryString);
-	query.next();
-	fullIp += query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
-
-	queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 	//qDebug() << queryString;
-	query.exec(queryString);
+		query.exec(queryString);
+		query.next();
+		iD = query.value(0).toInt();
 
-	query.next();
+		if (!iD && odbcName == "DBEN")
+		{
+			mw_db.close();
+			mw_db.removeDatabase(QSqlDatabase::defaultConnection);
+			break;
+		}
 
-	iD = query.value(0).toInt();
+		if (!iD)
+		{
+			odbcName = "DBEN";
+			mw_db.close();
+			mw_db.removeDatabase(QSqlDatabase::defaultConnection);
+			continue;
+		}
 
-	queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
-	//qDebug() << queryString;
-	query.exec(queryString);
-	query.next();
-	iD = query.value(0).toInt();
+		queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
+		query.exec(queryString);
+		query.next();
+		IdUSPD = query.value(0).toString();
 
-	queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
-	//qDebug() << queryString;
-	query.exec(queryString);
-	query.next();
+		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
+		query.exec(queryString);
+		query.next();
+		fullIp += query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
-	iD = query.value(0).toInt();
+		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
+		//qDebug() << queryString;
+		query.exec(queryString);
+		query.next();
+		iD = query.value(0).toInt();
 
-	queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
-	//queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
-	//qDebug() << queryString;
+		queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
+		//qDebug() << queryString;
+		query.exec(queryString);
+		query.next();
 
-	query.exec(queryString);
-	query.next();
-	day = query.value(0).toString();
-	dateDay = query.value(1).toString();
+		iD = query.value(0).toInt();
 
-	queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-//	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
-	//qDebug() << queryString;
+		if(odbcName == "DBEN")
+			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+		else
+			queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
+		//queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
+		//qDebug() << queryString;
 
-	query.exec(queryString);
-	query.next();
-	night = query.value(0).toString();
+		query.exec(queryString);
+		query.next();
+		day = query.value(0).toString();
+		dateDay = query.value(1).toString();
 
-	queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
-	//qDebug() << queryString;
-	query.exec(queryString);
-	query.next();
-	iD = query.value(0).toInt();
+		if (odbcName == "DBEN")
+			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+		else
+		    queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
+		//	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
+			//qDebug() << queryString;
 
-	queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
-	//qDebug() << queryString;
-	query.exec(queryString);
-	query.next();
-	guid = query.value(0).toString();
+		query.exec(queryString);
+		query.next();
+		night = query.value(0).toString();
+
+		queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
+		//qDebug() << queryString;
+		query.exec(queryString);
+		query.next();
+		iD = query.value(0).toInt();
+
+		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
+		//qDebug() << queryString;
+		query.exec(queryString);
+		query.next();
+		guid = query.value(0).toString();
+
+		resultBool = true;
+
+		mw_db.close();
+	}
+
+	mw_db.removeDatabase(QSqlDatabase::defaultConnection);
+	resultBool = false;
 }
 
 void DbTelegramExport::setAny(QString anyString)
