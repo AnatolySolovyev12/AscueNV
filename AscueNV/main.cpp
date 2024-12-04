@@ -11,10 +11,7 @@ int main(int argc, char* argv[])
 {
     QCoreApplication a(argc, argv);
 
-
-
     TgBot::Bot bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
-
 
     bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message) 
         {
@@ -28,11 +25,30 @@ int main(int argc, char* argv[])
 
         QString messegeString = message->text.c_str();
 
-        if (messegeString.length() > 20)
+        messegeString = messegeString.trimmed();
+
+        if (messegeString.length() < 6)
         {
-            bot.getApi().sendMessage(message->chat->id, "Incorrect length");
+            bot.getApi().sendMessage(message->chat->id, "Incorrect length. Need more");
             return;
         }
+
+        if (messegeString.length() > 16)
+        {
+            bot.getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
+            return;
+        }
+
+        for (auto& val : messegeString)
+        {
+            if (val.isNumber())
+                continue;
+            
+
+            bot.getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
+            return;
+        }
+
 
         DbTelegramExport* forQuery = new DbTelegramExport();
 
