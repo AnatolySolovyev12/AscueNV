@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message) {
 
 		bot.getApi().sendMessage(message->chat->id, "Hi!");
-		
+
 		});
 
 	bot.getEvents().onAnyMessage([&bot](TgBot::Message::Ptr message) {
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 			return;
 		}
 
-		DbTelegramExport * forQuery = new DbTelegramExport();
+		DbTelegramExport* forQuery = new DbTelegramExport();
 
 		forQuery->setAny(messegeString);
 
