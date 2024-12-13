@@ -26,27 +26,17 @@ TcpClient::~TcpClient()
 
 void TcpClient::connectToServer(const QString& host, quint16 port)
 {
-
 	socket->connectToHost(QHostAddress(host), port);
 	qDebug() << "Connect to " + QHostAddress(host).toString();
 
-	 while (!connectedState)
+
+	/* while (!connectedState)
 	 {
-		 QTimer::singleShot(3000, [this, &host, &port]() {
+		 QTimer::singleShot(3000, [this]() {
 			 qDebug() << "Trying connect to host: 10.0.7.116:8888";
-			 socket->connectToHost(QHostAddress(host), port);
+			 socket->connectToHost(QHostAddress("10.0.7.116"), 8888);
 			 });
-	 }
-
-	 while (connectedState)
-	 {
-
-			 QTimer::singleShot(15000, [this]() {
-				 exchange();
-				 });
-	 }
-
-
+	 }*/
 
 }
 
@@ -533,11 +523,9 @@ void TcpClient::exchange()
 
 			myTimer->start(15000);
 			});
-
 	}
 	else
 	{
-
 		qDebug() << "Socket was close";
 		myTimer->stop();
 		socket->close();
@@ -547,9 +535,7 @@ void TcpClient::exchange()
 
 bool TcpClient::getReadyForAnswer()
 {
-
 	return readyForAnswer;
-
 }
 
 
@@ -571,7 +557,6 @@ QString TcpClient::getAnswerString()
 
 void TcpClient::connectToServerWithGemor(QString any)
 {
-	readyForAnswer = false;
 	temporaryStringForIp = any;
 	for (auto& val : temporaryStringForIp)
 	{

@@ -29,15 +29,9 @@
     <ClCompile Include="DbTelegramExport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TcpClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DbTelegramExport.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="TcpClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
