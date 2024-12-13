@@ -20,12 +20,12 @@ public:
     void exchange();
     void summAnswer(QString& any);
     QString returnResultString();
+
     bool getReadyForAnswer();
     void setReadyForAnswer();
     void setUnReadyForAnswer();
     QString getAnswerString();
     void connectToServerWithGemor(QString any);
-    bool readyForAnswer = true;
 
 signals:
     void messageReceived(const QString& message);
@@ -51,7 +51,7 @@ private:
     QString temporaryStringForPort;
     bool temporaryBool = false;
 
-
+    bool readyForAnswer = false;
 };
 
 #endif // TCPCLIENT_H
