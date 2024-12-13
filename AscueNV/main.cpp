@@ -67,10 +67,6 @@ int main(int argc, char* argv[])
 
 
 
-
-
-
-
 		forQuery->queryDbResult(forQuery->getAny());
 
 		//forQuery->removeAllConnection();
