@@ -99,6 +99,7 @@
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
+    <ClCompile Include="TcpClientForTelegram.cpp" />
     <ClCompile Include="TelegramJacket.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TelegramJacket.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="TcpClientForTelegram.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

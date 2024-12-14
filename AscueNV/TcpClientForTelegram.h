@@ -7,25 +7,19 @@
 #include <QTimer>
 
 
-class TcpClient : public QObject
+class TcpClientForTelegram : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpClient(QObject* parent = nullptr);
+    explicit TcpClientForTelegram(QString ipString, QObject* parent = nullptr);
 
-    ~TcpClient();
+    ~TcpClientForTelegram();
 
     void connectToServer(const QString& host, quint16 port);
     void sendMessage(const QByteArray& message);
     void exchange();
     void summAnswer(QString& any);
     QString returnResultString();
-
-    bool getReadyForAnswer();
-    void setReadyForAnswer();
-    void setUnReadyForAnswer();
-    QString getAnswerString();
-    void connectToServerWithGemor(QString any);
 
 signals:
     void messageReceived(const QString& message);
@@ -45,13 +39,7 @@ private:
     int counterForResend = 0;
     QString answerString;
     QString ip = "";
-    int port = 0;
-
-    QString temporaryStringForIp;
-    QString temporaryStringForPort;
-    bool temporaryBool = false;
-
-    bool readyForAnswer = false;
+    int port = 8888;
 };
 
 #endif // TCPCLIENT_H

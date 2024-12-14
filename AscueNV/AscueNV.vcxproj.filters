@@ -29,9 +29,21 @@
     <ClCompile Include="DbTelegramExport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TelegramJacket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpClientForTelegram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DbTelegramExport.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TelegramJacket.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TcpClientForTelegram.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
