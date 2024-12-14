@@ -50,7 +50,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-	//qDebug() << queryString;
+		//qDebug() << queryString;
 		query.exec(queryString);
 		query.next();
 		iD = query.value(0).toInt();
@@ -78,7 +78,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
 		query.exec(queryString);
 		query.next();
-		fullIp += query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
+		fullIp = query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
 		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
 		//qDebug() << queryString;
