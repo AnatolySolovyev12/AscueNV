@@ -11,7 +11,7 @@ class TcpClientForTelegram : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpClientForTelegram(QString ipString, QObject* parent = nullptr);
+    explicit TcpClientForTelegram(QObject* parent = nullptr);
 
     ~TcpClientForTelegram();
 
@@ -20,9 +20,10 @@ public:
     void exchange();
     void summAnswer(QString& any);
     QString returnResultString();
+    void startToConnect(QString any);
 
 signals:
-    void messageReceived(const QString& message);
+    void messageReceived(const QString message);
 
 private slots:
     void onConnected();
