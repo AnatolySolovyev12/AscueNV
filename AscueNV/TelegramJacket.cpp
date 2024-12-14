@@ -7,23 +7,26 @@
 TelegramJacket::TelegramJacket(QObject* parent)
 	: QObject(parent)
 {
+	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
+
 	messageTest = new TgBot::Message::Ptr();
 
-	myTimer = new QTimer();
-	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	
-	
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 3); ////////////////////////////////////////////////////////////
 
-	myTimer->setInterval(7000);
+
+
+	myTimer = new QTimer();
+
+
+	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
+	myTimer->setInterval(200);
 	myTimer->start();
 
 	
 
-	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
+	
 
-	longPoll = new TgBot::TgLongPoll(*bot);
-
-	tcpObj = new TcpClientForTelegram();
+	
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
@@ -48,45 +51,54 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		//messegeInTelegram = validation(message->text.c_str());
 
 		messegeInTelegram = message->text.c_str();
-
+		
 		if (messegeInTelegram == "/result")
 		{
 			messegeFromTcp = tcpObj->returnResultString();
+			if (messegeFromTcp == "") messegeFromTcp = "empty";
+			//messegeFromTcp = "empty";
 			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
-			messegeFromTcp = "";
-			tcpObj->resetAnswerString();
+			//messegeFromTcp = "empty";
+			//tcpObj->resetAnswerString();
 			return;
 		}
-
+		
 		if (messegeInTelegram.length() < 6)
 		{
+			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
 			return;
 		}
 		
 		if (messegeInTelegram.length() < 6)
 		{
+			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
 			return;
 		}
 
 		if (messegeInTelegram.length() > 16)
 		{
+			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
 			return ;
 		}
 
 		for (auto& val : messegeInTelegram)
 		{
-			if (val == '/' && messegeInTelegram[0] == '/')
+			int counter = 0;
+
+			if (val == '/' && messegeInTelegram[0] == '/' && counter == 0) /// надо рихтовать с палками
 			{
 				currentNeed = true;
+				counter++;
 				continue;
 			}
 
 			if (val.isNumber())
 				continue;
 
+			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
 			return ;
 		}
@@ -98,6 +110,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		if (currentNeed)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
+			forQuery->setAny(messegeInTelegram);
 		}
 		else
 		{
@@ -107,7 +120,8 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		forQuery->queryDbResult(forQuery->getAny());
 
 
-		if (currentNeed)
+
+		if (currentNeed && (messegeInTelegram != ""))
 		{
 			for (auto& val : forQuery->getIpForTcp())
 			{
@@ -115,18 +129,24 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				ipFromDbTelegram += val;
 			}
 
+			delete tcpObj;
+			tcpObj = nullptr;
+
+			tcpObj = new TcpClientForTelegram();
 			tcpObj->startToConnect(ipFromDbTelegram);
+			currentNeed = false;
+			ipFromDbTelegram = "";
 		}
 		
+
 		
 		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
 
 		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		
-		
+		messegeInTelegram = "";
 		
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
-
 
 		delete forQuery;
 		forQuery = nullptr;
