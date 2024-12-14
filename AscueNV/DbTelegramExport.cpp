@@ -50,7 +50,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
 		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-	//qDebug() << queryString;
+		//qDebug() << queryString;
 		query.exec(queryString);
 		query.next();
 		iD = query.value(0).toInt();
@@ -137,7 +137,7 @@ void DbTelegramExport::queryDbResult(QString any)
 	resultBool = false;
 }
 
-void DbTelegramExport::setAny(QString anyString)
+void DbTelegramExport::setAny(QString &anyString)
 {
 	anyTelegramString = anyString;
 }

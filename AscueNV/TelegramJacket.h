@@ -3,6 +3,7 @@
 #include <QObject>
 #include <stdio.h>
 #include <tgbot/tgbot.h>
+#include <DbTelegramExport.h>
 
 class TelegramJacket : QObject
 {
@@ -11,6 +12,11 @@ class TelegramJacket : QObject
 public:
 	TelegramJacket(QObject* parent = nullptr);
 	~TelegramJacket();
+
+
+	QString validation(std::string any);
+
+
 
 
 private slots:
@@ -27,8 +33,11 @@ private:
 
 
 
-	QTimer* myTimer;
+	QTimer* myTimer = nullptr;;
 
+	DbTelegramExport* forQuery = nullptr;
+
+	QString messegeInTelegram;
 
 
 

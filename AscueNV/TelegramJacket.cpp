@@ -10,20 +10,26 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	messageTest = new TgBot::Message::Ptr();
 
 	myTimer = new QTimer();
-
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-
-	myTimer->setInterval(5000);
-
+	myTimer->setInterval(7000);
 	myTimer->start();
 
+	forQuery = new DbTelegramExport();
 
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
+	longPoll = new TgBot::TgLongPoll(*bot);
 
-	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr messageTest) {
 
-		bot->getApi().sendMessage(messageTest->chat->id, "Hi!");
+
+
+
+
+
+
+	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
+
+		bot->getApi().sendMessage(message->chat->id, "Hi!");
 
 		});
 
@@ -32,65 +38,41 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		printf("User wrote %s\n", message->text.c_str());
 
-		QString messegeString = message->text.c_str();
-
-		messegeString = messegeString.trimmed();
-
-		if (messegeString.length() < 6)
-		{
-			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need more");
-			return;
-		}
-
-		if (messegeString.length() > 16)
-		{
-			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
-			return;
-		}
-
-		for (auto& val : messegeString)
-		{
-			if (val.isNumber())
-				continue;
-
-
-			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
-			return;
-		}
-
-
-		//DbTelegramExport* forQuery = new DbTelegramExport();
-
-		//forQuery->setAny(messegeString);
+		messegeInTelegram = validation(message->text.c_str());
+		
 
 
 
 
+		forQuery->setAny(messegeInTelegram);
 
-
-
-
-
-
-		//forQuery->queryDbResult(forQuery->getAny());
+		forQuery->queryDbResult(forQuery->getAny());
 
 		//forQuery->removeAllConnection();
 
-		if (StringTools::startsWith(message->text, "/start")) {
-			return;
-		}
 
-		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
-		bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
+
+		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
+		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
 
 
 		//delete forQuery;
 		//forQuery = nullptr;
 
+
+
+
+		if (StringTools::startsWith(message->text, "/start")) {
+			return;
+		}
 		});
 
 
-	longPoll = new TgBot::TgLongPoll(*bot);
+
+
+
+
+
 
 	try {
 		printf("Bot username: %s\n", bot->getApi().getMe()->username.c_str());
@@ -106,9 +88,44 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	catch (TgBot::TgException& e) {
 		printf("error: %s\n", e.what());
 	}
-
-
 }
+
+
+
+
+
+
+
+
+QString TelegramJacket::validation(std::string any)
+{
+	QString messegeString = QString::fromStdString(any);
+
+	messegeString = messegeString.trimmed();
+
+	if (messegeString.length() < 6)
+	{
+		return "Incorrect length. Need more";
+	}
+
+	if (messegeString.length() > 16)
+	{
+		return "Incorrect length. Need less";
+	}
+
+	for (auto& val : messegeString)
+	{
+		if (val.isNumber())
+			continue;
+
+		return "Incorrect symbol in number";
+	}
+
+	return messegeString;
+}
+
+
+
 
 void TelegramJacket::updateLongPoll()
 {
