@@ -33,12 +33,12 @@ private:
 
 	TgBot::Message::Ptr * messageTest;
 
-
+	bool currentNeed = false;
 
 	QTimer* myTimer = nullptr;
 
 	QString messegeInTelegram;
-	QString messegeFromTcp;
+	QString messegeFromTcp = "empty";
 	QString ipFromDbTelegram;
 
 	DbTelegramExport* forQuery = nullptr;

@@ -505,6 +505,7 @@ void TcpClientForTelegram::exchange()
 		myTimer->stop();
 		socket->close();
 		qDebug() << '\n' << answerString;
+		ip = "";
 
 		//emit messageReceived(answerString);
 	}
@@ -515,4 +516,9 @@ void TcpClientForTelegram::startToConnect(QString any)
 {
 	ip = any;
 	connectToServer(ip, port);
+}
+
+void TcpClientForTelegram::resetAnswerString()
+{
+	answerString = "";
 }

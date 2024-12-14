@@ -21,6 +21,7 @@ public:
     void summAnswer(QString& any);
     QString returnResultString();
     void startToConnect(QString any);
+    void resetAnswerString();
 
 signals:
     void messageReceived(const QString message);
