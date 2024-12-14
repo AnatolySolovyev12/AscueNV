@@ -1,30 +1,34 @@
-#include "TcpClient.h"
+#include "TcpClientForTelegram.h"
 
 #include <QTextStream>
 
 
-TcpClient::TcpClient(QObject* parent) : QObject(parent), socket(new QTcpSocket(this))
+TcpClientForTelegram::TcpClientForTelegram(QString ipString, QObject* parent) : QObject(parent), socket(new QTcpSocket(this)), ip(ipString)
 {
-	QTextStream in(stdin);
-	QTextStream out(stdout);
+	//QTextStream in(stdin);
+	//QTextStream out(stdout);
 
 	myTimer = new QTimer();
-	connect(socket, &QTcpSocket::connected, this, &TcpClient::onConnected);
-	connect(socket, &QTcpSocket::disconnected, this, &TcpClient::onDisconnected);
-	connect(socket, &QTcpSocket::readyRead, this, &TcpClient::onReadyRead);
-	connect(socket, &QTcpSocket::errorOccurred, this, &TcpClient::onErrorOccurred);
-	connect(myTimer, &QTimer::timeout, this, &TcpClient::exchange);
+	connect(socket, &QTcpSocket::connected, this, &TcpClientForTelegram::onConnected);
+	connect(socket, &QTcpSocket::disconnected, this, &TcpClientForTelegram::onDisconnected);
+	connect(socket, &QTcpSocket::readyRead, this, &TcpClientForTelegram::onReadyRead);
+	connect(socket, &QTcpSocket::errorOccurred, this, &TcpClientForTelegram::onErrorOccurred);
+	connect(myTimer, &QTimer::timeout, this, &TcpClientForTelegram::exchange);
 
+	//out << "Enter IP:" << Qt::endl;
+	//in >> ip;
+
+	connectToServer(ip, port);
 }
 
-TcpClient::~TcpClient()
+TcpClientForTelegram::~TcpClientForTelegram()
 {
 	if (socket->isOpen()) {
 		socket->close();
 	}
 }
 
-void TcpClient::connectToServer(const QString& host, quint16 port)
+void TcpClientForTelegram::connectToServer(const QString& host, quint16 port)
 {
 	socket->connectToHost(QHostAddress(host), port);
 	qDebug() << "Connect to " + QHostAddress(host).toString();
@@ -40,7 +44,7 @@ void TcpClient::connectToServer(const QString& host, quint16 port)
 
 }
 
-void TcpClient::sendMessage(const QByteArray& message)
+void TcpClientForTelegram::sendMessage(const QByteArray& message)
 {
 
 
@@ -59,32 +63,25 @@ void TcpClient::sendMessage(const QByteArray& message)
 	}
 }
 
-void TcpClient::onConnected()
+void TcpClientForTelegram::onConnected()
 {
 	// connectedState = true;
 	qDebug() << "Connected to server.";
 	exchange();
 }
 
-void TcpClient::onDisconnected()
+void TcpClientForTelegram::onDisconnected()
 {
 	connectedState = false;
 	qDebug() << "Disconnected from server.";
-	readyForAnswer = true;
 }
 
-void TcpClient::onReadyRead()
+void TcpClientForTelegram::onReadyRead()
 {
 	QByteArray data = socket->readAll();
 	//QString message = QString::fromUtf8(data);
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
-
-
-
-
-
-
 
 	if (counterForResend >= 2 && counterForResend != 16)
 	{
@@ -92,23 +89,18 @@ void TcpClient::onReadyRead()
 		summAnswer(temporaryAnswer);
 	}
 
-
-
-
-
-
 	myTimer->stop();
 	counterForResend++;
 
 	exchange();
 }
 
-void TcpClient::onErrorOccurred(QAbstractSocket::SocketError socketError)
+void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
 	qDebug() << "Socket error:" << socketError << socket->errorString();
 }
 
-void TcpClient::summAnswer(QString& any)
+void TcpClientForTelegram::summAnswer(QString& any)
 {
 	bool ok;
 	bool minus = false;
@@ -162,9 +154,6 @@ void TcpClient::summAnswer(QString& any)
 		qDebug() << "after convert " + frankenshteinString << '\n';
 	}
 
-
-
-
 	if (counterForResend == 6 || counterForResend == 11 || counterForResend == 12 || counterForResend == 13)
 	{
 		if (minus)
@@ -178,9 +167,6 @@ void TcpClient::summAnswer(QString& any)
 		//answerString += temporaryAnswer + ' ';
 		qDebug() << "after convert " + temporaryAnswer << '\n';
 	}
-
-
-
 
 	if (counterForResend == 7 || counterForResend == 8 || counterForResend == 9 || counterForResend == 10 || counterForResend == 14 || counterForResend == 15)
 	{
@@ -222,23 +208,14 @@ void TcpClient::summAnswer(QString& any)
 		}
 		qDebug() << "after convert " + frankenshteinString << '\n';
 	}
-
-
-
-
-
-	//qDebug() << "after convert " + frankenshteinString << '\n';
-	//answerString += frankenshteinString + ' ';
-
-
 }
 
-QString TcpClient::returnResultString()
+QString TcpClientForTelegram::returnResultString()
 {
 	return answerString;
 }
 
-void TcpClient::exchange()
+void TcpClientForTelegram::exchange()
 {
 	if (counterForResend != 17)
 	{
@@ -526,62 +503,8 @@ void TcpClient::exchange()
 	}
 	else
 	{
-		qDebug() << "Socket was close";
 		myTimer->stop();
 		socket->close();
-		qDebug() << '\n' << '\n' << answerString;
+		qDebug() << '\n' << answerString;
 	}
-}
-
-bool TcpClient::getReadyForAnswer()
-{
-	return readyForAnswer;
-}
-
-
-
-void TcpClient::setReadyForAnswer()
-{
-	readyForAnswer = true;
-}
-
-void TcpClient::setUnReadyForAnswer()
-{
-	readyForAnswer = false;
-}
-
-QString TcpClient::getAnswerString()
-{
-	return answerString;
-}
-
-void TcpClient::connectToServerWithGemor(QString any)
-{
-	temporaryStringForIp = any;
-	for (auto& val : temporaryStringForIp)
-	{
-
-		if (val != ':' && !temporaryBool)
-		{
-			ip += val;
-		}
-
-		if (val == ':')
-		{
-			temporaryBool = true;
-			continue;
-		}
-
-		if (temporaryBool) temporaryStringForPort += val;
-	}
-
-	port = temporaryStringForPort.toInt();
-
-	//out << "Enter IP:" << Qt::endl;
-	//in >> ip;
-
-	qDebug() << ip << port;
-
-	connectToServer(ip, port);
-
 }
