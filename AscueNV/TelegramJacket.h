@@ -33,7 +33,7 @@ private:
 
 	TgBot::Message::Ptr * messageTest;
 
-
+	bool currentNeed = false;
 
 	QTimer* myTimer = nullptr;
 

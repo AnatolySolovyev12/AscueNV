@@ -25,54 +25,99 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	tcpObj = new TcpClientForTelegram();
 
-
-
-
-
-
-
-
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
 		bot->getApi().sendMessage(message->chat->id, "Hi!");
 
 		});
 
-
+	/*
 	bot->getEvents().onCommand("result", [this](TgBot::Message::Ptr message) {
 
 		messegeFromTcp = tcpObj->returnResultString();
 		bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
+		messegeFromTcp = "";
 
 		});
-
+    */
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 
 		printf("User wrote %s\n", message->text.c_str());
 
-		messegeInTelegram = validation(message->text.c_str());
+		//messegeInTelegram = validation(message->text.c_str());
+
+		messegeInTelegram = message->text.c_str();
+
+		if (messegeInTelegram == "/result")
+		{
+			messegeFromTcp = tcpObj->returnResultString();
+			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
+			messegeFromTcp = "";
+			tcpObj->resetAnswerString();
+			return;
+		}
+
+		if (messegeInTelegram.length() < 6)
+		{
+			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
+			return;
+		}
+		
+		if (messegeInTelegram.length() < 6)
+		{
+			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
+			return;
+		}
+
+		if (messegeInTelegram.length() > 16)
+		{
+			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
+			return ;
+		}
+
+		for (auto& val : messegeInTelegram)
+		{
+			if (val == '/' && messegeInTelegram[0] == '/')
+			{
+				currentNeed = true;
+				continue;
+			}
+
+			if (val.isNumber())
+				continue;
+
+			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
+			return ;
+		}
 		
 
 		forQuery = new DbTelegramExport();
 
 		//myTimer->setInterval(100000);
-
-		forQuery->setAny(messegeInTelegram);
+		if (currentNeed)
+		{
+			messegeInTelegram = messegeInTelegram.sliced(1);
+		}
+		else
+		{
+			forQuery->setAny(messegeInTelegram);
+		}
 
 		forQuery->queryDbResult(forQuery->getAny());
 
 
-		for (auto& val : forQuery->getIpForTcp())
+		if (currentNeed)
 		{
-			if (val == ':') break;
-			ipFromDbTelegram += val;
+			for (auto& val : forQuery->getIpForTcp())
+			{
+				if (val == ':') break;
+				ipFromDbTelegram += val;
+			}
+
+			tcpObj->startToConnect(ipFromDbTelegram);
 		}
-
-
-
-
-		tcpObj->startToConnect(ipFromDbTelegram);
+		
 		
 		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
 
@@ -117,18 +162,17 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	}
 }
 
-void TelegramJacket::setIntervalAfterGetString(QString)
+
+
+
+
+void TelegramJacket::setIntervalAfterGetString(QString) // пока не требуется /////////////////////////////////////
 {
 	myTimer->setInterval(7000);
 	//messegeFromTcp = any;
 }
 
-
-
-
-
-
-QString TelegramJacket::validation(std::string any)
+QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
 {
 	QString messegeString = QString::fromStdString(any);
 
@@ -155,10 +199,7 @@ QString TelegramJacket::validation(std::string any)
 	return messegeString;
 }
 
-
-
-
-void TelegramJacket::updateLongPoll()
+void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
 	try {
 
@@ -170,9 +211,6 @@ void TelegramJacket::updateLongPoll()
 	}
 
 }
-
-
-
 
 TelegramJacket::~TelegramJacket()
 {}
