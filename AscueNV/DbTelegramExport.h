@@ -22,6 +22,8 @@ public:
 	QString getAny();
 	QString getResult();
 
+	QString getIpForTcp();
+
 private:
 
 	QString day;
@@ -35,6 +37,8 @@ private:
 
 	bool resultBool = false;
 	QString odbcName = "DBEG";
+
+	QString ipForTcp;
 
 };
 

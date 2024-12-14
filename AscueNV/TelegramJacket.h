@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
+#include <TcpClientForTelegram.h>
 
 class TelegramJacket : QObject
 {
@@ -21,6 +22,7 @@ public:
 
 private slots:
 	void updateLongPoll();
+	void setIntervalAfterGetString(QString);
 
 
 private:
@@ -33,11 +35,17 @@ private:
 
 
 
-	QTimer* myTimer = nullptr;;
+	QTimer* myTimer = nullptr;
+
+	QString messegeInTelegram;
+	QString messegeFromTcp;
+	QString ipFromDbTelegram;
 
 	DbTelegramExport* forQuery = nullptr;
 
-	QString messegeInTelegram;
+	TcpClientForTelegram* tcpObj = nullptr;
+
+	
 
 
 

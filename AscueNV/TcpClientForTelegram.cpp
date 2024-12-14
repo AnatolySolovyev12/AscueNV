@@ -3,7 +3,7 @@
 #include <QTextStream>
 
 
-TcpClientForTelegram::TcpClientForTelegram(QString ipString, QObject* parent) : QObject(parent), socket(new QTcpSocket(this)), ip(ipString)
+TcpClientForTelegram::TcpClientForTelegram(QObject* parent) : QObject(parent), socket(new QTcpSocket(this))
 {
 	//QTextStream in(stdin);
 	//QTextStream out(stdout);
@@ -18,7 +18,6 @@ TcpClientForTelegram::TcpClientForTelegram(QString ipString, QObject* parent) : 
 	//out << "Enter IP:" << Qt::endl;
 	//in >> ip;
 
-	connectToServer(ip, port);
 }
 
 TcpClientForTelegram::~TcpClientForTelegram()
@@ -506,5 +505,14 @@ void TcpClientForTelegram::exchange()
 		myTimer->stop();
 		socket->close();
 		qDebug() << '\n' << answerString;
+
+		//emit messageReceived(answerString);
 	}
+}
+
+
+void TcpClientForTelegram::startToConnect(QString any)
+{
+	ip = any;
+	connectToServer(ip, port);
 }

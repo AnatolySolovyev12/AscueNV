@@ -11,6 +11,9 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	myTimer = new QTimer();
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
+	
+	
+
 	myTimer->setInterval(7000);
 	myTimer->start();
 
@@ -19,6 +22,8 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
 	longPoll = new TgBot::TgLongPoll(*bot);
+
+	tcpObj = new TcpClientForTelegram();
 
 
 
@@ -34,6 +39,14 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		});
 
 
+	bot->getEvents().onCommand("result", [this](TgBot::Message::Ptr message) {
+
+		messegeFromTcp = tcpObj->returnResultString();
+		bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
+
+		});
+
+
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 
 		printf("User wrote %s\n", message->text.c_str());
@@ -43,12 +56,25 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery = new DbTelegramExport();
 
+		//myTimer->setInterval(100000);
 
 		forQuery->setAny(messegeInTelegram);
 
 		forQuery->queryDbResult(forQuery->getAny());
 
 
+		for (auto& val : forQuery->getIpForTcp())
+		{
+			if (val == ':') break;
+			ipFromDbTelegram += val;
+		}
+
+
+
+
+		tcpObj->startToConnect(ipFromDbTelegram);
+		
+		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
 
 		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		
@@ -91,7 +117,11 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	}
 }
 
-
+void TelegramJacket::setIntervalAfterGetString(QString)
+{
+	myTimer->setInterval(7000);
+	//messegeFromTcp = any;
+}
 
 
 

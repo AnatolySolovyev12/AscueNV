@@ -80,6 +80,8 @@ void DbTelegramExport::queryDbResult(QString any)
 		query.next();
 		fullIp = query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
+		ipForTcp = query.value(2).toString();
+
 		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
 		//qDebug() << queryString;
 		query.exec(queryString);
@@ -150,4 +152,10 @@ QString DbTelegramExport::getAny()
 QString DbTelegramExport::getResult()
 {
 	return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid + "\n\n" + fullIp;
+}
+
+
+QString DbTelegramExport::getIpForTcp()
+{
+	return ipForTcp;
 }
