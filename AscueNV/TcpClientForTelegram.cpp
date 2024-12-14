@@ -149,12 +149,62 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			frankenshteinString.push_front(temporaryAnswer);
 		}
 
+		switch (counterForResend)
+		{
+		case 2:
+		{
+			answerString += "A+ ";
+			break;
+		}
+		case 3:
+		{
+			answerString += "\nA- ";
+			break;
+		}
+		case 4:
+		{
+			answerString += "\nR+ ";
+			break;
+		}
+		case 5:
+		{
+			answerString += "\nR- ";
+			break;
+		}
+		break;
+		};
+
 		answerString += frankenshteinString + ' ';
 		qDebug() << "after convert " + frankenshteinString << '\n';
 	}
 
 	if (counterForResend == 6 || counterForResend == 11 || counterForResend == 12 || counterForResend == 13)
 	{
+		switch (counterForResend)
+		{
+		case 6:
+		{
+			answerString += "\nRelay ";
+			break;
+		}
+		case 11:
+		{
+			answerString += "\nPS ";
+			break;
+		}
+		case 12:
+		{
+			answerString += "\nPA ";
+			break;
+		}
+		case 13:
+		{
+			answerString += "\nPR ";
+			break;
+		}
+		break;
+		};
+
 		if (minus)
 		{
 			answerString += '-' + temporaryAnswer + ' ';
@@ -195,6 +245,41 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		else {
 			frankenshteinString.push_front(",");
 			frankenshteinString.push_front(temporaryAnswer);
+		}
+
+		switch (counterForResend)
+		{
+		case 7:
+		{
+			answerString += "\nI ";
+			break;
+		}
+		case 8:
+		{
+			answerString += "\nI neutral ";
+			break;
+		}
+		case 9:
+		{
+			answerString += "\nU ";
+			break;
+		}
+		case 10:
+		{
+			answerString += "\nFr ";
+			break;
+		}
+		case 14:
+		{
+			answerString += "\ncos (f) ";
+			break;
+		}
+		case 15:
+		{
+			answerString += "\nI diff ";
+			break;
+		}
+		break;
 		}
 
 		if (minus)

@@ -11,8 +11,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 3); ////////////////////////////////////////////////////////////
-
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 4); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
 
 
 	myTimer = new QTimer();
@@ -60,13 +59,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
 			//messegeFromTcp = "empty";
 			//tcpObj->resetAnswerString();
-			return;
-		}
-		
-		if (messegeInTelegram.length() < 6)
-		{
-			messegeInTelegram = "";
-			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
 			return;
 		}
 		
@@ -133,7 +125,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			tcpObj = nullptr;
 
 			tcpObj = new TcpClientForTelegram();
-			tcpObj->startToConnect(ipFromDbTelegram);
+			tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
 			currentNeed = false;
 			ipFromDbTelegram = "";
 		}
