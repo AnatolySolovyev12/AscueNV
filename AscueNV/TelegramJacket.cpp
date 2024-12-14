@@ -19,7 +19,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	myTimer->setInterval(200);
+	myTimer->setInterval(1500);
 	myTimer->start();
 
 	
