@@ -1,13 +1,24 @@
-#include "TelegramBotClass.h"
-#include "QString"
+#include "TelegramJacket.h"
+#include <qtimer.h>
+#include <qdebug.h>
 
 
-TelegramBotClass::TelegramBotClass()
+
+TelegramJacket::TelegramJacket(QObject* parent)
+	: QObject(parent)
 {
+	messageTest = new TgBot::Message::Ptr();
+
+	myTimer = new QTimer();
+
+	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
+
+	myTimer->setInterval(5000);
+
+	myTimer->start();
+
+
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
-
-
-
 
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr messageTest) {
@@ -15,10 +26,6 @@ TelegramBotClass::TelegramBotClass()
 		bot->getApi().sendMessage(messageTest->chat->id, "Hi!");
 
 		});
-
-
-
-
 
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
@@ -51,7 +58,7 @@ TelegramBotClass::TelegramBotClass()
 			return;
 		}
 
-		
+
 		//DbTelegramExport* forQuery = new DbTelegramExport();
 
 		//forQuery->setAny(messegeString);
@@ -83,26 +90,45 @@ TelegramBotClass::TelegramBotClass()
 		});
 
 
-
-
-
+	longPoll = new TgBot::TgLongPoll(*bot);
 
 	try {
 		printf("Bot username: %s\n", bot->getApi().getMe()->username.c_str());
-
 		TgBot::TgLongPoll longPoll(*bot);
 
+		/*
 		while (true) {
 			//printf("Long poll started\n");
 			longPoll.start();
 		}
+		*/
 	}
 	catch (TgBot::TgException& e) {
 		printf("error: %s\n", e.what());
 	}
+
+
 }
 
-TelegramBotClass::~TelegramBotClass()
+void TelegramJacket::updateLongPoll()
 {
+	try {
+
+		qDebug() << "test longPoll with timer";
+		longPoll->start();
+	}
+	catch (TgBot::TgException& e) {
+		printf("error: %s\n", e.what());
+	}
 
 }
+
+
+
+
+TelegramJacket::~TelegramJacket()
+{}
+
+
+
+
