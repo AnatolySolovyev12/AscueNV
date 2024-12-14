@@ -14,7 +14,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	myTimer->setInterval(7000);
 	myTimer->start();
 
-	forQuery = new DbTelegramExport();
+	
 
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
@@ -41,7 +41,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		messegeInTelegram = validation(message->text.c_str());
 		
 
-
+		forQuery = new DbTelegramExport();
 
 
 		forQuery->setAny(messegeInTelegram);
@@ -57,8 +57,8 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
 
 
-		//delete forQuery;
-		//forQuery = nullptr;
+		delete forQuery;
+		forQuery = nullptr;
 
 
 
