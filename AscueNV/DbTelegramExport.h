@@ -18,7 +18,7 @@ public:
 
 	void connectDataBase();
 	void queryDbResult(QString any);
-	void setAny(QString &anyString);
+	void setAny(QString anyString);
 	QString getAny();
 	QString getResult();
 

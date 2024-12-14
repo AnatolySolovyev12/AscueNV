@@ -78,7 +78,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
 		query.exec(queryString);
 		query.next();
-		fullIp += query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
+		fullIp = query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
 		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
 		//qDebug() << queryString;
@@ -137,7 +137,7 @@ void DbTelegramExport::queryDbResult(QString any)
 	resultBool = false;
 }
 
-void DbTelegramExport::setAny(QString &anyString)
+void DbTelegramExport::setAny(QString anyString)
 {
 	anyTelegramString = anyString;
 }

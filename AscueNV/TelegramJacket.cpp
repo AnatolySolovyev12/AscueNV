@@ -48,11 +48,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery->queryDbResult(forQuery->getAny());
 
-		//forQuery->removeAllConnection();
-
 
 
 		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
+		
+		
+		
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
 
 
