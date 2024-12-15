@@ -53,7 +53,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		
 		if (messegeInTelegram == "/result")
 		{
-			messegeFromTcp = tcpObj->returnResultString();
+			if (tcpObj != nullptr)
+			{
+				messegeFromTcp = tcpObj->returnResultString();
+			}
 			if (messegeFromTcp == "") messegeFromTcp = "empty";
 			//messegeFromTcp = "empty";
 			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());

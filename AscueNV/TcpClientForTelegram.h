@@ -42,6 +42,7 @@ private:
     QString answerString;
     QString ip = "";
     int port = 8888;
+    int reTransmitQuery = 0;
 };
 
 #endif // TCPCLIENT_H

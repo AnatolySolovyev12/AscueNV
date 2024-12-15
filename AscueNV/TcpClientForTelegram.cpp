@@ -90,7 +90,7 @@ void TcpClientForTelegram::onReadyRead()
 
 	myTimer->stop();
 	counterForResend++;
-
+	reTransmitQuery++;
 	exchange();
 }
 
@@ -582,7 +582,15 @@ void TcpClientForTelegram::exchange()
 			}
 			*/
 
+			if (reTransmitQuery == 5)
+			{
+				myTimer->stop();
+				socket->close();
+				ip = "";
+				answerString += "\nNo or stopped responses from remote socket";
+			}
 			myTimer->start(15000);
+			reTransmitQuery++;
 			});
 	}
 	else
@@ -591,6 +599,7 @@ void TcpClientForTelegram::exchange()
 		socket->close();
 		qDebug() << '\n' << answerString;
 		ip = "";
+		reTransmitQuery = 0;
 
 		//emit messageReceived(answerString);
 	}
