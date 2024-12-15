@@ -45,7 +45,7 @@ private:
 
 	TcpClientForTelegram* tcpObj = nullptr;
 
-	
+	int counterForSlesh = 0;
 
 
 
