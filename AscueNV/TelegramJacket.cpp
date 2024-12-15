@@ -78,12 +78,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		for (auto& val : messegeInTelegram)
 		{
-			int counter = 0;
+			
 
-			if (val == '/' && messegeInTelegram[0] == '/' && counter == 0) /// надо рихтовать с палками
+			if (val == '/' && counterForSlesh == 0) /// надо рихтовать с палками
 			{
 				currentNeed = true;
-				counter++;
+				counterForSlesh++;
 				continue;
 			}
 
@@ -91,10 +91,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				continue;
 
 			messegeInTelegram = "";
+			currentNeed = false;
 			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
 			return ;
 		}
 		
+		counterForSlesh = 0;
 
 		forQuery = new DbTelegramExport();
 
