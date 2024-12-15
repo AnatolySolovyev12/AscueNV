@@ -13,7 +13,7 @@ TcpClientForTelegram::TcpClientForTelegram(QObject* parent) : QObject(parent), s
 	connect(socket, &QTcpSocket::disconnected, this, &TcpClientForTelegram::onDisconnected);
 	connect(socket, &QTcpSocket::readyRead, this, &TcpClientForTelegram::onReadyRead);
 	connect(socket, &QTcpSocket::errorOccurred, this, &TcpClientForTelegram::onErrorOccurred);
-	connect(myTimer, &QTimer::timeout, this, &TcpClientForTelegram::exchange);
+	connect(myTimer, &QTimer::timeout, this, &TcpClientForTelegram::exchangeFromTimer);
 
 	//out << "Enter IP:" << Qt::endl;
 	//in >> ip;
@@ -84,13 +84,13 @@ void TcpClientForTelegram::onReadyRead()
 
 	if (counterForResend >= 2 && counterForResend != 16)
 	{
-		QString temporaryAnswer = data.toHex();///////////////////////////////
+		QString temporaryAnswer = data.toHex();
 		summAnswer(temporaryAnswer);
 	}
 
 	myTimer->stop();
 	counterForResend++;
-	reTransmitQuery++;
+	reTransmitQuery = 0;
 	exchange();
 }
 
@@ -576,21 +576,28 @@ void TcpClientForTelegram::exchange()
 
 
 			/*
-			if (!socket->waitForReadyRead(30000))
+			if (!socket->waitForReadyRead(30000)) ///////////////////////////////
 			{
 				qDebug() << "Nothing to read....";
 			}
 			*/
 
-			if (reTransmitQuery == 5)
+			/*
+			if (reTransmitQuery >= 5) //////////////////////////
 			{
 				myTimer->stop();
 				socket->close();
 				ip = "";
 				answerString += "\nNo or stopped responses from remote socket";
 			}
+			*/
+			if (reTransmitQuery >= 4)
+			{
+				counterForResend = 17;
+				answerString += "\nNo or stopped responses from remote socket";
+			}
+
 			myTimer->start(15000);
-			reTransmitQuery++;
 			});
 	}
 	else
@@ -615,4 +622,10 @@ void TcpClientForTelegram::startToConnect(QString any)
 void TcpClientForTelegram::resetAnswerString()
 {
 	answerString = "";
+}
+
+void TcpClientForTelegram::exchangeFromTimer()
+{
+	++reTransmitQuery;
+	exchange();
 }

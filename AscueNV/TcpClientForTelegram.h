@@ -31,7 +31,7 @@ private slots:
     void onDisconnected();
     void onReadyRead();
     void onErrorOccurred(QAbstractSocket::SocketError socketError);
-
+    void exchangeFromTimer();
 
 private:
     QTcpSocket* socket;
