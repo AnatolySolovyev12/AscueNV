@@ -40,7 +40,6 @@ void DbTelegramExport::queryDbResult(QString any)
 		QString queryString;
 
 		int iD = 0;
-
 		int guidId;
 
 		QDate curDate = QDate::currentDate();
@@ -54,6 +53,8 @@ void DbTelegramExport::queryDbResult(QString any)
 		query.exec(queryString);
 		query.next();
 		iD = query.value(0).toInt();
+
+		idFromDB = iD; // проверка на возврат пустого iD
 
 		if (!iD && odbcName == "DBEN")
 		{
@@ -151,7 +152,10 @@ QString DbTelegramExport::getAny()
 
 QString DbTelegramExport::getResult()
 {
-	return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid + "\n\n" + fullIp;
+	if (!idFromDB) // проверка на возврат пустого iD
+		return "Not found device in DB";
+	else
+		return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid + "\n\n" + fullIp;
 }
 
 

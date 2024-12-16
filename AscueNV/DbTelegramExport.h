@@ -26,6 +26,7 @@ public:
 
 private:
 
+	int idFromDB = 0;
 	QString day;
 	QString night;
 	QString guid;

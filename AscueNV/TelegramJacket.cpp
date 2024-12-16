@@ -1,4 +1,4 @@
-#include "TelegramJacket.h"
+п»ї#include "TelegramJacket.h"
 #include <qtimer.h>
 #include <qdebug.h>
 
@@ -11,7 +11,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 4); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 4); // РµСЃР»Рё timeout = 3 С‚Рѕ РїРёС€РµС‚ РјСѓСЃРѕСЂ РІ result-РЅСѓСЋ СЃС‚СЂРѕРєСѓ TcpCLient-Р°. Р’РёРґРёРјРѕ С‡РµРіРѕ С‚Рѕ РЅРµ СѓСЃРїРµРІР°РµС‚.
 
 
 	myTimer = new QTimer();
@@ -83,7 +83,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		{
 			
 
-			if (val == '/' && counterForSlesh == 0) /// надо рихтовать с палками
+			if (val == '/' && counterForSlesh == 0) /// РЅР°РґРѕ СЂРёС…С‚РѕРІР°С‚СЊ СЃ РїР°Р»РєР°РјРё
 			{
 				currentNeed = true;
 				counterForSlesh++;
@@ -111,10 +111,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		}
 		else
 		{
-			forQuery->setAny(messegeInTelegram);
+			forQuery->setAny(messegeInTelegram); ////////////РІРµСЂРѕСЏС‚РЅРѕ Р»РёС€РЅСЏСЏ РІРѕР·РЅСЏ. РЎС‚РѕРёС‚ РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ
 		}
 
-		forQuery->queryDbResult(forQuery->getAny());
+		forQuery->queryDbResult(forQuery->getAny());////////////РІРµСЂРѕСЏС‚РЅРѕ Р»РёС€РЅСЏСЏ РІРѕР·РЅСЏ. РЎРўРѕРёС‚ РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ
 
 
 
@@ -126,18 +126,28 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				ipFromDbTelegram += val;
 			}
 
-			delete tcpObj;
-			tcpObj = nullptr;
+			if (ipFromDbTelegram != "")
+			{
+				delete tcpObj;
+				tcpObj = nullptr;
 
-			tcpObj = new TcpClientForTelegram();
-			tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
-			currentNeed = false;
-			ipFromDbTelegram = "";
+				tcpObj = new TcpClientForTelegram();
+
+				bot->getApi().sendMessage(message->chat->id, "We started trying to get current values вЂ‹вЂ‹from the device " + forQuery->getAny().toStdString());
+
+				tcpObj->startToConnect(ipFromDbTelegram); // РґРѕР±Р°РІРёС‚СЊ РїСЂРѕРІРµСЂРєСѓ РЅР° РїСѓСЃС‚РѕР№ IP
+				currentNeed = false;
+				ipFromDbTelegram = "";
+			}
+			else
+			{
+				bot->getApi().sendMessage(message->chat->id, "Not found ip adress for this device. Check your number and try again" );
+			}
 		}
 		
 
 		
-		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
+		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// РїСЂСЏРј РІ РјРµС‚РѕРґРµ РїРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ РѕР±СЉРµРєС‚Р°
 
 		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		
@@ -183,13 +193,13 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 
-void TelegramJacket::setIntervalAfterGetString(QString) // пока не требуется /////////////////////////////////////
+void TelegramJacket::setIntervalAfterGetString(QString) // РїРѕРєР° РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ /////////////////////////////////////
 {
 	myTimer->setInterval(7000);
 	//messegeFromTcp = any;
 }
 
-QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
+QString TelegramJacket::validation(std::string any)   // РџРѕРєР° РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ //////////////////////////////////////
 {
 	QString messegeString = QString::fromStdString(any);
 
@@ -216,7 +226,7 @@ QString TelegramJacket::validation(std::string any)   // Пока не требуется /////
 	return messegeString;
 }
 
-void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
+void TelegramJacket::updateLongPoll() // РѕР±РЅРѕРІР»СЏРµРј longPoll Р·Р° СЃС‡С‘С‚ РїРµСЂРёРѕРґРёС‡РµСЃРєРѕРіРѕ С‚Р°Р№РјРµСЂР°
 {
 	try {
 
