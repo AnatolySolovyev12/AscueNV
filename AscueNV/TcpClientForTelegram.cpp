@@ -97,6 +97,7 @@ void TcpClientForTelegram::onReadyRead()
 void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
 	qDebug() << "Socket error:" << socketError << socket->errorString();
+	answerString += socket->errorString() + '.' + " No connection or bad signal";
 }
 
 void TcpClientForTelegram::summAnswer(QString& any)
