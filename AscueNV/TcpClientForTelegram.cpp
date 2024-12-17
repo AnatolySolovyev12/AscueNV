@@ -190,17 +190,17 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		}
 		case 11:
 		{
-			answerString += "\nPS ";
+			answerString += "\nS (full) ";
 			break;
 		}
 		case 12:
 		{
-			answerString += "\nPA ";
+			answerString += "\nP (active) ";
 			break;
 		}
 		case 13:
 		{
-			answerString += "\nPR ";
+			answerString += "\nQ (reactive) ";
 			break;
 		}
 		break;
