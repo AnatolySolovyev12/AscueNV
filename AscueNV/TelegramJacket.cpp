@@ -133,10 +133,9 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 				tcpObj = new TcpClientForTelegram();
 
-				bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString());
+				bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
 
 				tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
-				currentNeed = false;
 				ipFromDbTelegram = "";
 			}
 			else
@@ -148,9 +147,11 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		
 		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
-
-		bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
-		
+		if (!currentNeed)
+		{
+			bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
+		}
+		currentNeed = false;
 		messegeInTelegram = "";
 		
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
