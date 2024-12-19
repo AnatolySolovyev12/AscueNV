@@ -7,7 +7,7 @@ TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : seria
 {
 	//QTextStream in(stdin);
 	//QTextStream out(stdout);
-	qDebug() << serialStringForProtocol;
+	//qDebug() << serialStringForProtocol;
 	myTimer = new QTimer();
 	connect(socket, &QTcpSocket::connected, this, &TcpClientForTelegram::onConnected);
 	connect(socket, &QTcpSocket::disconnected, this, &TcpClientForTelegram::onDisconnected);
@@ -58,21 +58,21 @@ void TcpClientForTelegram::sendMessage(const QByteArray& message)
 		qDebug() << "TX >> " << message.toHex();
 	}
 	else {
-		qDebug() << "Not connected to server.";
+		qDebug() << "\nNot connected to server.";
 	}
 }
 
 void TcpClientForTelegram::onConnected()
 {
 	// connectedState = true;
-	qDebug() << "Connected to server.";
+	qDebug() << "\nConnected to server\n";
 	exchange();
 }
 
 void TcpClientForTelegram::onDisconnected()
 {
 	connectedState = false;
-	qDebug() << "Disconnected from server.";
+	qDebug() << "\nDisconnected from server.";
 }
 
 void TcpClientForTelegram::onReadyRead()
@@ -84,7 +84,7 @@ void TcpClientForTelegram::onReadyRead()
 
 	if (data.toHex().length() < 42)
 	{
-		qDebug() << "incorrect RX. Resend";
+		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
 		myTimer->stop();
 		exchange();
@@ -119,7 +119,7 @@ void TcpClientForTelegram::onReadyRead()
 
 void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
-	qDebug() << "Socket error:" << socketError << socket->errorString();
+	qDebug() << "\nSocket error:" << socketError << socket->errorString();
 	answerString += socket->errorString() + '.' + " No connection or bad signal";
 }
 
@@ -897,7 +897,7 @@ void TcpClientForTelegram::exchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 17;
-					answerString += "\nNo or stopped responses from remote socket";
+					answerString += "\nNo, stopped or incorrect responses from remote socket";
 				}
 
 				myTimer->start(12000);

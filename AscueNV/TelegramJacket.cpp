@@ -179,7 +179,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 	try {
-		printf("Bot username: %s\n", bot->getApi().getMe()->username.c_str());
+		printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
 		TgBot::TgLongPoll longPoll(*bot);
 
 		/*
