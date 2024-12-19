@@ -3,11 +3,11 @@
 #include <QTextStream>
 
 
-TcpClientForTelegram::TcpClientForTelegram(QObject* parent) : QObject(parent), socket(new QTcpSocket(this))
+TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : serialStringForProtocol(any),QObject(parent), socket(new QTcpSocket(this))
 {
 	//QTextStream in(stdin);
 	//QTextStream out(stdout);
-
+	qDebug() << serialStringForProtocol;
 	myTimer = new QTimer();
 	connect(socket, &QTcpSocket::connected, this, &TcpClientForTelegram::onConnected);
 	connect(socket, &QTcpSocket::disconnected, this, &TcpClientForTelegram::onDisconnected);
@@ -82,7 +82,7 @@ void TcpClientForTelegram::onReadyRead()
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
 
-	if (false) ////////////////////////////////////////////
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		if (counterForResend >= 2 && counterForResend != 16)
 		{
@@ -90,7 +90,7 @@ void TcpClientForTelegram::onReadyRead()
 			summAnswer(temporaryAnswer);
 		}
 	}
-	if (true) /////////////////////////////////////////////////
+	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
 	{
 		if (counterForResend >= 2 && counterForResend != 30)
 		{
@@ -114,7 +114,7 @@ void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketEr
 
 void TcpClientForTelegram::summAnswer(QString& any)
 {
-	if (false)
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		bool ok;
 		bool minus = false;
@@ -309,7 +309,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		}
 	}
 
-	if (true)
+	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
 	{
 		bool ok;
 		bool minus = false;
@@ -390,62 +390,62 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			}
 			case 6:
 			{
-				answerString += "\nA+ f1 ";
+				answerString += "\nA+ L1 ";
 				break;
 			}
 			case 7:
 			{
-				answerString += "\nA+ f2 ";
+				answerString += "\nA+ L2 ";
 				break;
 			}
 			case 8:
 			{
-				answerString += "\nA+ f3 ";
+				answerString += "\nA+ L3 ";
 				break;
 			}
 			case 9:
 			{
-				answerString += "\nA- f1 ";
+				answerString += "\nA- L1 ";
 				break;
 			}
 			case 10:
 			{
-				answerString += "\nA- f2 ";
+				answerString += "\nA- L2 ";
 				break;
 			}
 			case 11:
 			{
-				answerString += "\nA- f3 ";
+				answerString += "\nA- L3 ";
 				break;
 			}
 			case 12:
 			{
-				answerString += "\nR+ f1 ";
+				answerString += "\nR+ L1 ";
 				break;
 			}
 			case 13:
 			{
-				answerString += "\nR+ f2 ";
+				answerString += "\nR+ L2 ";
 				break;
 			}
 			case 14:
 			{
-				answerString += "\nR+ f3 ";
+				answerString += "\nR+ L3 ";
 				break;
 			}
 			case 15:
 			{
-				answerString += "\nR- f1 ";
+				answerString += "\nR- L1 ";
 				break;
 			}
 			case 16:
 			{
-				answerString += "\nR- f2 ";
+				answerString += "\nR- L2 ";
 				break;
 			}
 			case 17:
 			{
-				answerString += "\nR- f3 ";
+				answerString += "\nR- L3 ";
 				break;
 			}
 
@@ -529,32 +529,32 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			{
 			case 19:
 			{
-				answerString += "\nI f1 ";
+				answerString += "\nI L1 ";
 				break;
 			}
 			case 20:
 			{
-				answerString += "\nI f2 ";
+				answerString += "\nI L2 ";
 				break;
 			}
 			case 21:
 			{
-				answerString += "\nI f3 ";
+				answerString += "\nI L3 ";
 				break;
 			}
 			case 22:
 			{
-				answerString += "\nU f1 ";
+				answerString += "\nU L1 ";
 				break;
 			}
 			case 23:
 			{
-				answerString += "\nU f2 ";
+				answerString += "\nU L2 ";
 				break;
 			}
 			case 24:
 			{
-				answerString += "\nU f3 ";
+				answerString += "\nU L3 ";
 				break;
 			}
 			case 25:
@@ -590,7 +590,7 @@ QString TcpClientForTelegram::returnResultString()
 
 void TcpClientForTelegram::exchange()
 {
-	if (false)
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 
 		if (counterForResend != 17)
@@ -904,7 +904,7 @@ void TcpClientForTelegram::exchange()
 		}
 	}
 
-	if (true)
+	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
 	{
 
 		if (counterForResend != 31)

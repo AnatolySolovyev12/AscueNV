@@ -128,10 +128,19 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 			if (ipFromDbTelegram != "")
 			{
+				int count = 0; 
+				serialStringForProtocolinTelegram = "";
+
+				for (auto& val : messegeInTelegram)
+				{
+					if (count == 3) break;
+					serialStringForProtocolinTelegram += val;
+					++count;
+				}
 				delete tcpObj;
 				tcpObj = nullptr;
 
-				tcpObj = new TcpClientForTelegram();
+				tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 				bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
 

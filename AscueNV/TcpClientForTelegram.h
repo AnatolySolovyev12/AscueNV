@@ -11,7 +11,7 @@ class TcpClientForTelegram : public QObject
 {
     Q_OBJECT
 public:
-    explicit TcpClientForTelegram(QObject* parent = nullptr);
+    explicit TcpClientForTelegram(QString any, QObject* parent = nullptr);
 
     ~TcpClientForTelegram();
 
@@ -43,6 +43,7 @@ private:
     QString ip = "";
     int port = 8888;
     int reTransmitQuery = 0;
+    QString serialStringForProtocol;
 };
 
 #endif // TCPCLIENT_H

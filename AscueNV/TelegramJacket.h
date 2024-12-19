@@ -40,6 +40,7 @@ private:
 	QString messegeInTelegram;
 	QString messegeFromTcp = "empty";
 	QString ipFromDbTelegram;
+	QString serialStringForProtocolinTelegram;
 
 	DbTelegramExport* forQuery = nullptr;
 
