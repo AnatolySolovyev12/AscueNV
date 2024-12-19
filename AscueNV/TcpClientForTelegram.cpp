@@ -55,7 +55,7 @@ void TcpClientForTelegram::sendMessage(const QByteArray& message)
 			//socket->write(byteArray);
 
 		socket->write(message);
-		qDebug() << "TX >> " << message;
+		qDebug() << "TX >> " << message.toHex();
 	}
 	else {
 		qDebug() << "Not connected to server.";
@@ -81,6 +81,17 @@ void TcpClientForTelegram::onReadyRead()
 	//QString message = QString::fromUtf8(data);
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
+
+	if (data.toHex().length() < 42)
+	{
+		qDebug() << "incorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+
+
 
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
@@ -595,7 +606,7 @@ void TcpClientForTelegram::exchange()
 
 		if (counterForResend != 17)
 		{
-			QTimer::singleShot(2000, [this]() {
+			QTimer::singleShot(500, [this]() {
 
 				QString hexValueZero = QString::number(0, 16);
 				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
@@ -889,7 +900,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo or stopped responses from remote socket";
 				}
 
-				myTimer->start(15000);
+				myTimer->start(12000);
 				});
 		}
 		else
@@ -909,7 +920,7 @@ void TcpClientForTelegram::exchange()
 
 		if (counterForResend != 31)
 		{
-			QTimer::singleShot(2000, [this]() {
+			QTimer::singleShot(500, [this]() {
 
 				QString hexValueZero = QString::number(0, 16);
 				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
@@ -1430,7 +1441,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo or stopped responses from remote socket";
 				}
 
-				myTimer->start(15000);
+				myTimer->start(12000);
 				});
 		}
 		else

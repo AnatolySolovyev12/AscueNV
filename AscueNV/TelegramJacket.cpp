@@ -11,22 +11,17 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 4); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 5); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
 
 
 	myTimer = new QTimer();
 
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	myTimer->setInterval(1500);
+	myTimer->setInterval(1000);
 	myTimer->start();
 
 	
-
-	
-
-	
-
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
 		bot->getApi().sendMessage(message->chat->id, "Hi!");
@@ -240,7 +235,7 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 {
 	try {
 
-		qDebug() << "test longPoll with timer";
+		//qDebug() << "test longPoll with timer";
 		longPoll->start();
 	}
 	catch (TgBot::TgException& e) {
