@@ -160,6 +160,13 @@ void TcpClientForTelegram::summAnswer(QString& any)
 				temporaryAnswer.push_front("0");
 			}
 
+			if (temporaryAnswer.length() == 4)
+			{
+				temporaryAnswer.push_front("0");
+				temporaryAnswer.push_front("0");
+				temporaryAnswer.push_front("0");
+			}
+
 			frankenshteinString = temporaryAnswer.last(6);
 			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(6);
