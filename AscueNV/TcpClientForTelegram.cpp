@@ -527,6 +527,13 @@ void TcpClientForTelegram::summAnswer(QString& any)
 				temporaryAnswer.push_front("0");
 			}
 
+			if (temporaryAnswer.length() == 0)
+			{
+				temporaryAnswer.push_front("0");
+				temporaryAnswer.push_front("0");
+				temporaryAnswer.push_front("0"); // добавлен эксперементально
+			}
+
 			frankenshteinString = temporaryAnswer.last(3);
 			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(3);
