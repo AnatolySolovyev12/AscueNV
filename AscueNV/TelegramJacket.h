@@ -34,6 +34,9 @@ private:
 	TgBot::Message::Ptr * messageTest;
 
 	bool currentNeed = false;
+	bool relayCounterOn = false;
+	bool relayCounterOff = false;
+
 
 	QTimer* myTimer = nullptr;
 

@@ -21,7 +21,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	myTimer->setInterval(1000);
 	myTimer->start();
 
-	
+
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
 		bot->getApi().sendMessage(message->chat->id, "Hi!");
@@ -36,7 +36,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		messegeFromTcp = "";
 
 		});
-    */
+	*/
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 
@@ -45,7 +45,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		//messegeInTelegram = validation(message->text.c_str());
 
 		messegeInTelegram = message->text.c_str();
-		
+
 		if (messegeInTelegram == "/result")
 		{
 			if (tcpObj != nullptr)
@@ -59,7 +59,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			//tcpObj->resetAnswerString();
 			return;
 		}
-		
+
 		if (messegeInTelegram.length() < 6)
 		{
 			messegeInTelegram = "";
@@ -71,12 +71,21 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		{
 			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
-			return ;
+			return;
 		}
 
 		for (auto& val : messegeInTelegram)
 		{
-			
+			if ((val == '_' || val == '>') && counterForSlesh == 0) /// надо рихтовать с палками
+			{
+				if (val == '_')
+					relayCounterOn = true;
+				else
+					relayCounterOff = true;
+
+				counterForSlesh++;
+				continue;
+			}
 
 			if (val == '/' && counterForSlesh == 0) /// надо рихтовать с палками
 			{
@@ -90,16 +99,18 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 			messegeInTelegram = "";
 			currentNeed = false;
+			relayCounterOn = false;
+			relayCounterOff = false;
 			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
-			return ;
+			return;
 		}
-		
+
 		counterForSlesh = 0;
 
 		forQuery = new DbTelegramExport();
 
 		//myTimer->setInterval(100000);
-		if (currentNeed)
+		if (currentNeed || relayCounterOn || relayCounterOff)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
 			forQuery->setAny(messegeInTelegram);
@@ -109,7 +120,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			forQuery->setAny(messegeInTelegram); ////////////вероятно лишняя возня. Стоит оптимизировать
 		}
 
-		forQuery->queryDbResult(forQuery->getAny());////////////вероятно лишняя возня. СТоит оптимизировать
+		forQuery->queryDbResult(forQuery->getAny()); ////////////вероятно лишняя возня. СТоит оптимизировать
 
 
 
@@ -123,7 +134,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 			if (ipFromDbTelegram != "")
 			{
-				int count = 0; 
+				int count = 0;
 				serialStringForProtocolinTelegram = "";
 
 				for (auto& val : messegeInTelegram)
@@ -144,20 +155,86 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			}
 			else
 			{
-				bot->getApi().sendMessage(message->chat->id, "Not found ip adress for this device. Check your number and try again" );
+				bot->getApi().sendMessage(message->chat->id, "Not found ip adress for this device. Check your number and try again");
 			}
 		}
-		
 
-		
+
+
+
+
+
+
+
+
+
+
+
+		if ((relayCounterOn || relayCounterOff) && (messegeInTelegram != ""))
+		{
+			for (auto& val : forQuery->getIpForTcp())
+			{
+				if (val == ':') break;
+				ipFromDbTelegram += val;
+			}
+
+			if (ipFromDbTelegram != "")
+			{
+				int count = 0;
+				serialStringForProtocolinTelegram = "";
+
+				for (auto& val : messegeInTelegram)
+				{
+					if (count == 3)
+					{
+						if (relayCounterOn)
+							serialStringForProtocolinTelegram.push_front('_');
+						else
+							serialStringForProtocolinTelegram.push_front('>');
+						break;
+					}
+					serialStringForProtocolinTelegram += val;
+					++count;
+				}
+				delete tcpObj;
+				tcpObj = nullptr;
+
+				tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+
+				if (relayCounterOn)
+					bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+				else
+					bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+
+				tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
+				ipFromDbTelegram = "";
+			}
+			else
+			{
+				bot->getApi().sendMessage(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
 		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
-		if (!currentNeed)
+		if (!currentNeed && !relayCounterOn && !relayCounterOff)
 		{
 			bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		}
 		currentNeed = false;
+		relayCounterOn = false;
+		relayCounterOff = false;
 		messegeInTelegram = "";
-		
+
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
 
 		delete forQuery;
