@@ -118,11 +118,11 @@ void TcpClientForTelegram::onReadyRead()
 		}
 
 	}
-	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103") && counterForResend == 4)
+	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104") && counterForResend == 4)
 	{
 		answerString += "\nRelay was connect";
 	}
-	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103") && counterForResend == 4)
+	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") && counterForResend == 4)
 	{
 		answerString += "\nRelay was disconnect";
 	}
@@ -916,23 +916,6 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-
-				/*
-				if (!socket->waitForReadyRead(30000)) ///////////////////////////////
-				{
-					qDebug() << "Nothing to read....";
-				}
-				*/
-
-				/*
-				if (reTransmitQuery >= 5) //////////////////////////
-				{
-					myTimer->stop();
-					socket->close();
-					ip = "";
-					answerString += "\nNo or stopped responses from remote socket";
-				}
-				*/
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 17;
@@ -1457,23 +1440,6 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-
-				/*
-				if (!socket->waitForReadyRead(30000)) ///////////////////////////////
-				{
-					qDebug() << "Nothing to read....";
-				}
-				*/
-
-				/*
-				if (reTransmitQuery >= 5) //////////////////////////
-				{
-					myTimer->stop();
-					socket->close();
-					ip = "";
-					answerString += "\nNo or stopped responses from remote socket";
-				}
-				*/
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 31;
@@ -1495,7 +1461,7 @@ void TcpClientForTelegram::exchange()
 		}
 	}
 
-	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103") // включение реле
+	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102") // включение реле
 	{
 
 		if (counterForResend != 5)
@@ -1534,7 +1500,7 @@ void TcpClientForTelegram::exchange()
 				}
 
 
-				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103")) //  проверка подлинности при включении реле
+				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //  проверка подлинности при включении реле
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 B3 55 E5 CE 9A 8F C9 5A 4B BD 68 37 E6 C1 0E 1C 2E 13 7E
 
@@ -1547,10 +1513,9 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + nullVal + hexValue5;
 
 					sendMessage(testArray);
-
 				}
 				
-				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103")) // проверка подлинности при отключении реле
+				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // проверка подлинности при отключении реле
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 5A F9 3E D6 AA A0 0C 7F C5 6E 15 D6 88 60 D8 C1 B0 0E 7E
 					// \x00 \x00 \x00\x00 \x00\x00 
@@ -1563,7 +1528,6 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + nullVal + hexValue5;
 
 					sendMessage(testArray);
-
 				}
 
 				if (counterForResend == 3)
@@ -1579,10 +1543,9 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
 
 					sendMessage(testArray);
-
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103")) //включение реле
+				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //включение реле
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 02 01 0F 00 A5 83 7E
 
@@ -1597,7 +1560,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103")) // отключение реле
+				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // отключение реле
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 01 01 0F 00 68 A6 7E
 
@@ -1612,23 +1575,6 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-
-				/*
-				if (!socket->waitForReadyRead(30000)) ///////////////////////////////
-				{
-					qDebug() << "Nothing to read....";
-				}
-				*/
-
-				/*
-				if (reTransmitQuery >= 5) //////////////////////////
-				{
-					myTimer->stop();
-					socket->close();
-					ip = "";
-					answerString += "\nNo or stopped responses from remote socket";
-				}
-				*/
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 5;
@@ -1649,9 +1595,7 @@ void TcpClientForTelegram::exchange()
 			//emit messageReceived(answerString);
 		}
 	}
-	
 }
-
 
 void TcpClientForTelegram::startToConnect(QString any)
 {
