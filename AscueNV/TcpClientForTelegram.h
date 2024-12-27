@@ -20,6 +20,7 @@ public:
     void exchange();
     void summAnswer(QString& any);
     QString returnResultString();
+    void setResultString(QString any);
     void startToConnect(QString any);
     void resetAnswerString();
 

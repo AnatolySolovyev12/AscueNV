@@ -638,6 +638,11 @@ QString TcpClientForTelegram::returnResultString()
 	return answerString;
 }
 
+void TcpClientForTelegram::setResultString(QString any)
+{
+	 answerString+=any+'\n';
+}
+
 void TcpClientForTelegram::exchange()
 {
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
