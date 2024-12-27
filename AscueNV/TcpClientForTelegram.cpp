@@ -89,8 +89,8 @@ void TcpClientForTelegram::onReadyRead()
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
 
-	/*
-	if (data.toHex().length() < 42) ////////////////////////надо корректировать защиту
+	
+	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////надо корректировать защиту
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -98,7 +98,35 @@ void TcpClientForTelegram::onReadyRead()
 		exchange();
 		return;
 	}
-	*/
+
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103") && (counterForResend != 16)) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && (counterForResend != 30)) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+
+
+	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && counterForResend >= 2) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+	
 
 
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
