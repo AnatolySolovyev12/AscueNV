@@ -75,6 +75,13 @@ void TcpClientForTelegram::onDisconnected()
 	qDebug() << "\nDisconnected from server.";
 }
 
+
+
+
+
+
+
+
 void TcpClientForTelegram::onReadyRead()
 {
 	QByteArray data = socket->readAll();
@@ -82,7 +89,8 @@ void TcpClientForTelegram::onReadyRead()
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
 
-	if (data.toHex().length() < 42)
+	
+	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////надо корректировать защиту
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -91,6 +99,34 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103") && (counterForResend != 16)) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && (counterForResend != 30)) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+
+
+	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && counterForResend >= 2) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		exchange();
+		return;
+	}
+	
 
 
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
@@ -110,6 +146,14 @@ void TcpClientForTelegram::onReadyRead()
 		}
 
 	}
+	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104") && counterForResend == 4)
+	{
+		answerString += "\nRelay was connect";
+	}
+	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") && counterForResend == 4)
+	{
+		answerString += "\nRelay was disconnect";
+	}
 
 	myTimer->stop();
 	counterForResend++;
@@ -117,11 +161,27 @@ void TcpClientForTelegram::onReadyRead()
 	exchange();
 }
 
+
+
+
+
+
+
+
+
 void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
 	qDebug() << "\nSocket error:" << socketError << socket->errorString();
 	answerString += socket->errorString() + '.' + " No connection or bad signal";
 }
+
+
+
+
+
+
+
+
 
 void TcpClientForTelegram::summAnswer(QString& any)
 {
@@ -606,6 +666,11 @@ QString TcpClientForTelegram::returnResultString()
 	return answerString;
 }
 
+void TcpClientForTelegram::setResultString(QString any)
+{
+	 answerString+=any+'\n';
+}
+
 void TcpClientForTelegram::exchange()
 {
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
@@ -884,23 +949,6 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-
-				/*
-				if (!socket->waitForReadyRead(30000)) ///////////////////////////////
-				{
-					qDebug() << "Nothing to read....";
-				}
-				*/
-
-				/*
-				if (reTransmitQuery >= 5) //////////////////////////
-				{
-					myTimer->stop();
-					socket->close();
-					ip = "";
-					answerString += "\nNo or stopped responses from remote socket";
-				}
-				*/
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 17;
@@ -1425,23 +1473,6 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-
-				/*
-				if (!socket->waitForReadyRead(30000)) ///////////////////////////////
-				{
-					qDebug() << "Nothing to read....";
-				}
-				*/
-
-				/*
-				if (reTransmitQuery >= 5) //////////////////////////
-				{
-					myTimer->stop();
-					socket->close();
-					ip = "";
-					answerString += "\nNo or stopped responses from remote socket";
-				}
-				*/
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 31;
@@ -1462,9 +1493,142 @@ void TcpClientForTelegram::exchange()
 			//emit messageReceived(answerString);
 		}
 	}
-	
-}
 
+	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102") // включение реле
+	{
+
+		if (counterForResend != 5)
+		{
+			QTimer::singleShot(500, [this]() {
+
+				QString hexValueZero = QString::number(0, 16);
+				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+
+				if (counterForResend == 0)
+				{
+					//7E A0 1F 02 21 61 93 FF 13 81 80 12 05 01 F0 06 01 F0 07 04 00 00 00 01 08 04 00 00 00 01 F9 CB 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1F\x02\x21\x61\x93\xFF\x13\x81\x80\x12\x05\x01\xF0\x06\x01\xF0\x07\x04";
+					QByteArray hexValue2 = "\x01\x08\x04";
+					QByteArray hexValue3 = "\x01\xF9\xCB\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + nullVal + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 1)
+				{
+					//7E A0 4D 02 21 61 10 86 C6 E6 E6 00 60 3E A1 09 06 07 60 85 74 05 08 01 01 8A 02 07 80 8B 07 60 85 74 05 08 02 02 AC 12 80 10 5A 82 E6 42 88 CD BB 0F A4 96 2C DE F3 5F 3C 50 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 00 7E 1F FF FF A3 DF 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x4D\x02\x21\x61\x10\x86\xC6\xE6\xE6";
+					QByteArray hexValue2 = "\x60\x3E\xA1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\x8A\x02\x07\x80\x8B\x07\x60\x85\x74\x05\x08\x02\x02\xAC\x12\x80\x10\x5A\x82\xE6\x42\x88\xCD\xBB\x0F\xA4\x96\x2C\xDE\xF3\x5F\x3C\x50\xBE\x10\x04\x0E\x01";
+					QByteArray hexValue3 = "\x06\x5F\x1F\x04";
+					QByteArray hexValue4 = "\x7E\x1F\xFF\xFF\xA3\xDF\x7E";
+
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + nullVal + hexValue4;
+
+					sendMessage(testArray);
+				}
+
+
+				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //  проверка подлинности при включении реле
+				{
+					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 B3 55 E5 CE 9A 8F C9 5A 4B BD 68 37 E6 C1 0E 1C 2E 13 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x2C\x02\x21\x61\x32\x61\x6E\xE6\xE6";
+					QByteArray hexValue2 = "\xC3\x01\xC1";
+					QByteArray hexValue3 = "\x0F";
+					QByteArray hexValue4 = "\x28";
+					QByteArray hexValue5 = "\xFF\x01\x01\x09\x10\xB3\x55\xE5\xCE\x9A\x8F\xC9\x5A\x4B\xBD\x68\x37\xE6\xC1\x0E\x1C\x2E\x13\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+				
+				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // проверка подлинности при отключении реле
+				{
+					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 5A F9 3E D6 AA A0 0C 7F C5 6E 15 D6 88 60 D8 C1 B0 0E 7E
+					// \x00 \x00 \x00\x00 \x00\x00 
+					QByteArray hexValue1 = "\x7E\xA0\x2C\x02\x21\x61\x32\x61\x6E\xE6\xE6";
+					QByteArray hexValue2 = "\xC3\x01\xC1";
+					QByteArray hexValue3 = "\x0F";
+					QByteArray hexValue4 = "\x28";
+					QByteArray hexValue5 = "\xFF\x01\x01\x09\x10\x5A\xF9\x3E\xD6\xAA\xA0\x0C\x7F\xC5\x6E\x15\xD6\x88\x60\xD8\xC1\xB0\x0E\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 3)
+				{
+					//7E A0 1A 02 21 61 54 18 87 E6 E6 00 C0 01 C1 00 46 00 00 60 03 0A FF 04 00 FE 31 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x61\x54\x18\x87\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x46";
+					QByteArray hexValue4 = "\x60\x03\x0A\xFF\x04";
+					QByteArray hexValue5 = "\xFE\x31\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //включение реле
+				{
+					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 02 01 0F 00 A5 83 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1C\x02\x21\x61\x76\x90\xBE\xE6\xE6";
+					QByteArray hexValue2 = "\xC3\x01\xC1";
+					QByteArray hexValue3 = "\x46";
+					QByteArray hexValue4 = "\x60\x03\x0A\xFF\x02\x01\x0F";
+					QByteArray hexValue5 = "\xA5\x83\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // отключение реле
+				{
+					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 01 01 0F 00 68 A6 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1C\x02\x21\x61\x76\x90\xBE\xE6\xE6";
+					QByteArray hexValue2 = "\xC3\x01\xC1";
+					QByteArray hexValue3 = "\x46";
+					QByteArray hexValue4 = "\x60\x03\x0A\xFF\x01\x01\x0F";
+					QByteArray hexValue5 = "\x68\xA6\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (reTransmitQuery >= 4)
+				{
+					counterForResend = 5;
+					answerString += "\nNo, stopped or incorrect responses from remote socket";
+				}
+
+				myTimer->start(12000);
+				});
+		}
+		else
+		{
+			myTimer->stop();
+			socket->close();
+			qDebug() << '\n' << answerString;
+			ip = "";
+			reTransmitQuery = 0;
+
+			//emit messageReceived(answerString);
+		}
+	}
+}
 
 void TcpClientForTelegram::startToConnect(QString any)
 {
