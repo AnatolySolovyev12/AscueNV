@@ -143,6 +143,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
+
 				delete tcpObj;
 				tcpObj = nullptr;
 
