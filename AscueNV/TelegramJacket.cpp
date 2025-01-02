@@ -143,16 +143,25 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
-				delete tcpObj;
-				tcpObj = nullptr;
 
-				tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
-				tcpObj->setResultString(messegeInTelegram);
+				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
+				{
+					delete tcpObj;
+					tcpObj = nullptr;
 
-				bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+					messegeInTelegram += '\n';
+					tcpObj->setResultString(messegeInTelegram);
 
-				tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
-				ipFromDbTelegram = "";
+					bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+
+					tcpObj->startToConnect(ipFromDbTelegram);
+					ipFromDbTelegram = "";
+				}
+				else
+				{
+					bot->getApi().sendMessage(message->chat->id, "Incorrect device for this command");
+				}
 			}
 			else
 			{
@@ -197,18 +206,26 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
-				delete tcpObj;
-				tcpObj = nullptr;
 
-				tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
+				{
+					delete tcpObj;
+					tcpObj = nullptr;
 
-				if (relayCounterOn)
-					bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+
+					if (relayCounterOn)
+						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+					else
+						bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+
+					tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
+					ipFromDbTelegram = "";
+				}
 				else
-					bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
-
-				tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
-				ipFromDbTelegram = "";
+				{
+					bot->getApi().sendMessage(message->chat->id, "Incorrect device for this command");
+				}
 			}
 			else
 			{
