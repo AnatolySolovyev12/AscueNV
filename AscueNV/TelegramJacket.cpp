@@ -210,6 +210,8 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
+					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+
 					if (relayCounterOn)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 					else
