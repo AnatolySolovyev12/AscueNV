@@ -966,7 +966,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			//emit messageReceived(answerString);
+			emit messageReceived();
 		}
 	}
 
@@ -1490,7 +1490,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			//emit messageReceived(answerString);
+			emit messageReceived();
 		}
 	}
 
@@ -1625,7 +1625,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			//emit messageReceived(answerString);
+			emit messageReceived();
 		}
 	}
 }

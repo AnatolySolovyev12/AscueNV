@@ -15,14 +15,14 @@ public:
 	~TelegramJacket();
 
 
-	QString validation(std::string any);
+	//QString validation(std::string any);
 
-
+	
 
 
 private slots:
 	void updateLongPoll();
-	void setIntervalAfterGetString(QString);
+	void setIntervalAfterGetString();
 
 
 private:
@@ -53,6 +53,6 @@ private:
 
 	QList <QString> numberList{ "101", "102", "103", "104", "/101", "/102", "/103" ,"/104",">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104" };
 
-
+	int64_t myChat = 0;
 
 };

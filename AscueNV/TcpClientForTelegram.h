@@ -25,7 +25,7 @@ public:
     void resetAnswerString();
 
 signals:
-    void messageReceived(const QString message);
+    void messageReceived();
 
 private slots:
     void onConnected();
