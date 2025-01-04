@@ -3,7 +3,6 @@
 #include <qdebug.h>
 
 
-
 TelegramJacket::TelegramJacket(QObject* parent)
 	: QObject(parent)
 {
@@ -13,30 +12,17 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	longPoll = new TgBot::TgLongPoll(*bot, 100, 5); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
 
-
 	myTimer = new QTimer();
-
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
 	myTimer->setInterval(1000);
 	myTimer->start();
 
-
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
-		bot->getApi().sendMessage(message->chat->id, "Hi!");
-
+		bot->getApi().sendMessage(message->chat->id, "<serial number> - some parameters\n</><serial number> - current values\n<_><serial number> - relay on\n<>><serial number> - relay off");
+		myChat = message->chat->id;
 		});
-
-	/*
-	bot->getEvents().onCommand("result", [this](TgBot::Message::Ptr message) {
-
-		messegeFromTcp = tcpObj->returnResultString();
-		bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
-		messegeFromTcp = "";
-
-		});
-	*/
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 
@@ -45,6 +31,11 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		//messegeInTelegram = validation(message->text.c_str());
 
 		messegeInTelegram = message->text.c_str();
+
+		if (messegeInTelegram == "/start")
+		{
+			return;
+		}
 
 		if (messegeInTelegram == "/result")
 		{
@@ -122,8 +113,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery->queryDbResult(forQuery->getAny()); ////////////вероятно лишняя возня. СТоит оптимизировать
 
-
-
 		if (currentNeed && (messegeInTelegram != ""))
 		{
 			for (auto& val : forQuery->getIpForTcp())
@@ -146,14 +135,19 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
+					myChat = message->chat->id; // фиксируем id чата для автовывода сообщения после опроса текущих
+
 					delete tcpObj;
 					tcpObj = nullptr;
 
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+
+					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+
 					messegeInTelegram += '\n';
 					tcpObj->setResultString(messegeInTelegram);
 
-					bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+					bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
 					tcpObj->startToConnect(ipFromDbTelegram);
 					ipFromDbTelegram = "";
@@ -209,17 +203,19 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
+					myChat = message->chat->id;
+
 					delete tcpObj;
 					tcpObj = nullptr;
 
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 					if (relayCounterOn)
-						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 					else
-						bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and after send: /result. Repeat if it needed.");
+						bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
-					tcpObj->startToConnect(ipFromDbTelegram); // добавить проверку на пустой IP
+					tcpObj->startToConnect(ipFromDbTelegram);
 					ipFromDbTelegram = "";
 				}
 				else
@@ -243,7 +239,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 
-		//connect(tcpObj, SIGNAL(status(QString)), this, SLOT(setIntervalAfterGetString(QString)));// прям в методе после создания объекта
+
 		if (!currentNeed && !relayCounterOn && !relayCounterOff)
 		{
 			bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
@@ -293,12 +289,13 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 
-void TelegramJacket::setIntervalAfterGetString(QString) // пока не требуется /////////////////////////////////////
+void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
-	myTimer->setInterval(7000);
-	//messegeFromTcp = any;
+	messegeFromTcp = tcpObj->returnResultString();
+	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
 }
 
+/*
 QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
 {
 	QString messegeString = QString::fromStdString(any);
@@ -325,6 +322,7 @@ QString TelegramJacket::validation(std::string any)   // Пока не треб�
 
 	return messegeString;
 }
+*/
 
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
