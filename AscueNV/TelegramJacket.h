@@ -34,6 +34,7 @@ private:
 	TgBot::Message::Ptr * messageTest;
 
 	bool currentNeed = false;
+	bool vecNeed = false;
 	bool relayCounterOn = false;
 	bool relayCounterOff = false;
 
@@ -51,7 +52,7 @@ private:
 
 	int counterForSlesh = 0;
 
-	QList <QString> numberList{ "101", "102", "103", "104", "/101", "/102", "/103" ,"/104",">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104" };
+	QList <QString> numberList{ "101", "102", "103", "104", "106", "/101", "/102", "/103" ,"/104", "/106", ">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104", "*102","*104", "*106"};
 
 	int64_t myChat = 0;
 

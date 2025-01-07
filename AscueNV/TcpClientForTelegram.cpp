@@ -3,7 +3,7 @@
 #include <QTextStream>
 
 
-TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : serialStringForProtocol(any),QObject(parent), socket(new QTcpSocket(this))
+TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : serialStringForProtocol(any), QObject(parent), socket(new QTcpSocket(this))
 {
 	//QTextStream in(stdin);
 	//QTextStream out(stdout);
@@ -66,7 +66,11 @@ void TcpClientForTelegram::onConnected()
 {
 	// connectedState = true;
 	qDebug() << "\nConnected to server\n";
-	exchange();
+
+	if (serialStringForProtocol == "*102" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+		vecExchange();
+	else
+		exchange();
 }
 
 void TcpClientForTelegram::onDisconnected()
@@ -89,7 +93,7 @@ void TcpClientForTelegram::onReadyRead()
 	// emit messageReceived(message);
 	qDebug() << "RX << " << data.toHex();
 
-	
+
 	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////надо корректировать защиту
 	{
 		qDebug() << "\nincorrect RX. Resend";
@@ -126,7 +130,7 @@ void TcpClientForTelegram::onReadyRead()
 		exchange();
 		return;
 	}
-	
+
 
 
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
@@ -158,7 +162,11 @@ void TcpClientForTelegram::onReadyRead()
 	myTimer->stop();
 	counterForResend++;
 	reTransmitQuery = 0;
-	exchange();
+
+	if (serialStringForProtocol == "*102" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+		vecExchange();
+	else
+		exchange();
 }
 
 
@@ -668,7 +676,7 @@ QString TcpClientForTelegram::returnResultString()
 
 void TcpClientForTelegram::setResultString(QString any)
 {
-	 answerString+=any+'\n';
+	answerString += any + '\n';
 }
 
 void TcpClientForTelegram::exchange()
@@ -1089,7 +1097,7 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue5 = "\xFF\x02";
 					QByteArray hexValue6 = "\x35\xA8\x7E";
 
-					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal +  hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					sendMessage(testArray);
 				}
@@ -1494,7 +1502,7 @@ void TcpClientForTelegram::exchange()
 		}
 	}
 
-	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102") // включение реле
+	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102") // включение/отключение реле
 	{
 
 		if (counterForResend != 5)
@@ -1547,11 +1555,11 @@ void TcpClientForTelegram::exchange()
 
 					sendMessage(testArray);
 				}
-				
+
 				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // проверка подлинности при отключении реле
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 5A F9 3E D6 AA A0 0C 7F C5 6E 15 D6 88 60 D8 C1 B0 0E 7E
-					// \x00 \x00 \x00\x00 \x00\x00 
+
 					QByteArray hexValue1 = "\x7E\xA0\x2C\x02\x21\x61\x32\x61\x6E\xE6\xE6";
 					QByteArray hexValue2 = "\xC3\x01\xC1";
 					QByteArray hexValue3 = "\x0F";
@@ -1644,5 +1652,310 @@ void TcpClientForTelegram::resetAnswerString()
 void TcpClientForTelegram::exchangeFromTimer()
 {
 	++reTransmitQuery;
-	exchange();
+	if (serialStringForProtocol == "*102" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+		vecExchange();
+	else
+		exchange();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void TcpClientForTelegram::vecExchange()
+{
+	if (serialStringForProtocol == "*102" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	{
+		if (counterForResend != 11)
+		{
+			QTimer::singleShot(500, [this]() {
+
+				QString hexValueZero = QString::number(0, 16);
+				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+				
+				/* // Версия начала из конфигуратора
+				if (counterForResend == 0)
+				{
+					//7ea014022121937512818007050204000601efcbb37e
+
+					QByteArray hexValue1 = "\x7e\xa0\x14\x02\x21\x21\x93\x75\x12\x81\x80\x07\x05\x02\x04";
+					QByteArray hexValue2 = "\x06\x01\xef\xcb\xb3\x7e";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 1)
+				{
+					//7ea02c02212110172ae6e600601da109060760857405080101be10040e01000000065f1f04007fffff04003a187e
+
+					QByteArray hexValue1 = "\x7e\xa0\x2c\x02\x21\x21\x10\x17\x2a\xe6\xe6";
+					QByteArray hexValue2 = "\x60\x1d\xa1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\xbe\x10\x04\x0e\x01";
+					QByteArray hexValue3 = "\x06\x5f\x1f\x04";
+					QByteArray hexValue4 = "\x7f\xff\xff\x04";
+					QByteArray hexValue5 = "\x3a\x18\x7e";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 2) // Серийник
+				{
+					//7ea01a022121324ec7e6e600c001c1000100002a0000ff020012807e
+
+					QByteArray hexValue1 = "\x7e\xa0\x1a\x02\x21\x21\x32\x4e\xc7\xe6\xe6";
+					QByteArray hexValue2 = "\xc0\x01\xc1";
+					QByteArray hexValue3 = "\x01";
+					QByteArray hexValue4 = "\x2a";
+					QByteArray hexValue5 = "\xff\x02";
+					QByteArray hexValue6 = "\x12\x80\x7e";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + nullVal + hexValue5 + nullVal + hexValue6;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 3) // Версия
+				{
+					//7ea01a022121981ecde6e600c001c100010000000201ff02004f267e
+
+					QByteArray hexValue1 = "\x7e\xa0\x1a\x02\x21\x21\x98\x1e\xcd\xe6\xe6";
+					QByteArray hexValue2 = "\xc0\x01\xc1";
+					QByteArray hexValue3 = "\x01";
+					QByteArray hexValue4 = "\x02\x01\xff\x02";
+					QByteArray hexValue5 = "\x4f\x26\x7e";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+
+				}
+				*/
+				if (counterForResend == 0) // тест со входом в текущие
+				{
+					qDebug() << "Start 1";
+
+					//7E A0 21 02 21 41 93 A5 85 81 80 14 05 02 08 00 06 02 08 00 07 04 00 00 00 07 08 04 00 00 00 07 B3 C6 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x21\x02\x21\x41\x93\xA5\x85\x81\x80\x14\x05\x02\x08";
+					QByteArray hexValue2 = "\x06\x02\x08";
+					QByteArray hexValue3 = "\x07\x04";
+					QByteArray hexValue4 = "\x07\x08\x04";
+					QByteArray hexValue5 = "\x07\xB3\xC6\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + nullVal + hexValue4 + nullVal + nullVal + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 1)
+				{
+					qDebug() << "Start 2";
+
+					//7E A0 45 02 21 41 10 95 BF E6 E6 00 60 36 A1 09 06 07 60 85 74 05 08 01 01 8A 02 07 80 8B 07 60 85 74 05 08 02 01 AC 0A 80 08 30 30 30 30 30 30 30 30 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 20 1E 5D FF FF BB 9B 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x45\x02\x21\x41\x10\x95\xBF\xE6\xE6";
+					QByteArray hexValue2 = "\x60\x36\xA1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\x8A\x02\x07\x80\x8B\x07\x60\x85\x74\x05\x08\x02\x01\xAC\x0A\x80\x08\x30\x30\x30\x30\x30\x30\x30\x30\xBE\x10\x04\x0E\x01";
+					QByteArray hexValue3 = "\x06\x5F\x1F\x04";
+					QByteArray hexValue4 = "\x20\x1E\x5D\xFF\xFF\xBB\x9B\x7E";
+
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + hexValue4;
+
+					sendMessage(testArray);
+				}
+
+
+				if (counterForResend == 2)
+				{
+					qDebug() << "Version";
+					//7E A0 1A 02 21 41 32 1B A2 E6 E6 00 C0 01 C1 00 01 00 00 00 02 01 FF 02 00 4F 26 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x32\x1B\xA2\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x01";
+					QByteArray hexValue4 = "\x02\x01\xFF\x02";
+					QByteArray hexValue5 = "\x4F\x26\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+
+				if (counterForResend == 3)
+				{
+					qDebug() << "Type";
+
+					//7E A0 1A 02 21 41 54 2B A4 E6 E6 00 C0 01 C1 00 01 00 00 60 01 01 FF 02 00 32 BC 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x54\x2B\xA4\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x01";
+					QByteArray hexValue4 = "\x60\x01\x01\xFF\x02";
+					QByteArray hexValue5 = "\x32\xBC\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+
+				if (counterForResend == 4) 
+				{
+					qDebug() << "Serial";
+
+					//7ea01a022141984ba8e6e600c001c100010000600100ff020089a07e
+
+					QByteArray hexValue1 = "\x7e\xa0\x1a\x02\x21\x41\x98\x4b\xa8\xe6\xe6";
+					QByteArray hexValue2 = "\xc0\x01\xc1";
+					QByteArray hexValue3 = "\x01";
+					QByteArray hexValue4 = "\x60\x01";
+					QByteArray hexValue5 = "\xff\x02";
+					QByteArray hexValue6 = "\x89\xa0\x7e";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 5)
+				{
+					qDebug() << "fUab";
+
+					//7E A0 1A 02 21 41 54 2B A4 E6 E6 00 C0 01 C1 00 03 01 00 51 07 0A FF 02 00 01 9E 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x54\x2B\xA4\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x0A\xFF\x02";
+					QByteArray hexValue5 = "\x01\x9E\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 6)
+				{
+					qDebug() << "fUac";
+
+
+					//7E A0 1A 02 21 41 DC 6B AC E6 E6 00 C0 01 C1 00 03 01 00 51 07 02 FF 02 00 D9 7B 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\xDC\x6B\xAC\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x02\xFF\x02";
+					QByteArray hexValue5 = "\xD9\x7B\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 7)
+				{
+					qDebug() << "fUbc";
+
+
+					//7E A0 1A 02 21 41 DC 6B AC E6 E6 00 C0 01 C1 00 03 01 00 51 07 15 FF 02 00 59 EF 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\xDC\x6B\xAC\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x15\xFF\x02";
+					QByteArray hexValue5 = "\x59\xEF\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 8)
+				{
+					qDebug() << "fUIa";
+
+					//7E A0 1A 02 21 41 10 0B A0 E6 E6 00 C0 01 C1 00 03 01 00 51 07 04 FF 02 00 43 30 7E 
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x10\x0B\xA0\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x04\xFF\x02";
+					QByteArray hexValue5 = "\x43\x30\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 9)
+				{
+					qDebug() << "fUIb";
+
+
+					//7E A0 1A 02 21 41 98 4B A8 E6 E6 00 C0 01 C1 00 03 01 00 51 07 0F FF 02 00 56 F0 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x98\x4B\xA8\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x0F\xFF\x02";
+					QByteArray hexValue5 = "\x56\xF0\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 10)
+				{
+					qDebug() << "fUIc";
+
+
+					//7E A0 1A 02 21 41 10 0B A0 E6 E6 00 C0 01 C1 00 03 01 00 51 07 1A FF 02 00 A0 5D 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x10\x0B\xA0\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\xC1";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x51\x07\x1A\xFF\x02";
+					QByteArray hexValue5 = "\xA0\x5D\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5;
+
+					sendMessage(testArray);
+				}
+
+				if (reTransmitQuery >= 11)
+				{
+					counterForResend = 6;
+					answerString += "\nNo or stopped responses from remote socket";
+				}
+
+				myTimer->start(12000);
+				});
+		}
+		else
+		{
+			myTimer->stop();
+			socket->close();
+			qDebug() << '\n' << answerString;
+			ip = "";
+			reTransmitQuery = 0;
+
+			emit messageReceived();
+		}
+	}
 }

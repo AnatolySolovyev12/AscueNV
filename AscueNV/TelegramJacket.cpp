@@ -78,9 +78,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				continue;
 			}
 
-			if (val == '/' && counterForSlesh == 0) /// надо рихтовать с палками
+			if ((val == '/' || val == '*')&& counterForSlesh == 0) /// надо рихтовать с палками /////////////////////
 			{
-				currentNeed = true;
+				if (val == '/')
+					currentNeed = true;
+				else
+					vecNeed = true;
 				counterForSlesh++;
 				continue;
 			}
@@ -90,6 +93,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 			messegeInTelegram = "";
 			currentNeed = false;
+			vecNeed = false;
 			relayCounterOn = false;
 			relayCounterOff = false;
 			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
@@ -101,7 +105,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		forQuery = new DbTelegramExport();
 
 		//myTimer->setInterval(100000);
-		if (currentNeed || relayCounterOn || relayCounterOff)
+		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
 			forQuery->setAny(messegeInTelegram);
@@ -113,7 +117,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery->queryDbResult(forQuery->getAny()); ////////////вероятно лишняя возня. СТоит оптимизировать
 
-		if (currentNeed && (messegeInTelegram != ""))
+		if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
 		{
 			for (auto& val : forQuery->getIpForTcp())
 			{
@@ -132,6 +136,9 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
+				
+				if (vecNeed)
+					serialStringForProtocolinTelegram.push_front('*');
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
@@ -242,13 +249,14 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 
 
-		if (!currentNeed && !relayCounterOn && !relayCounterOff)
+		if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed)
 		{
 			bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		}
 		currentNeed = false;
 		relayCounterOn = false;
 		relayCounterOff = false;
+		vecNeed = false;
 		messegeInTelegram = "";
 
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);

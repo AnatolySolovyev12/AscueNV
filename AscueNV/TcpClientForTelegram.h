@@ -24,6 +24,8 @@ public:
     void startToConnect(QString any);
     void resetAnswerString();
 
+    void vecExchange();
+
 signals:
     void messageReceived();
 
