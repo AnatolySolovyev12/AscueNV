@@ -1798,9 +1798,9 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (reTransmitQuery >= 10)
+				if (reTransmitQuery >= 4)
 				{
-					counterForResend = 6;
+					counterForResend = 10;
 					answerString += "\nNo or stopped responses from remote socket";
 				}
 
