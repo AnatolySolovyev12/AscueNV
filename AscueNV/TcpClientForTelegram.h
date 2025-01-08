@@ -6,7 +6,6 @@
 #include <QHostAddress>
 #include <QTimer>
 
-
 class TcpClientForTelegram : public QObject
 {
     Q_OBJECT
@@ -19,10 +18,13 @@ public:
     void sendMessage(const QByteArray& message);
     void exchange();
     void summAnswer(QString& any);
+    void summAnswervector(QString& any);
     QString returnResultString();
     void setResultString(QString any);
     void startToConnect(QString any);
     void resetAnswerString();
+
+    void vecExchange();
 
 signals:
     void messageReceived();
