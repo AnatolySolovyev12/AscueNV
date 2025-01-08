@@ -14,16 +14,11 @@ public:
 	TelegramJacket(QObject* parent = nullptr);
 	~TelegramJacket();
 
-
 	//QString validation(std::string any);
-
-	
-
 
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString();
-
 
 private:
 
@@ -38,7 +33,6 @@ private:
 	bool relayCounterOn = false;
 	bool relayCounterOff = false;
 
-
 	QTimer* myTimer = nullptr;
 
 	QString messegeInTelegram;
@@ -52,8 +46,7 @@ private:
 
 	int counterForSlesh = 0;
 
-	QList <QString> numberList{ "101", "102", "103", "104", "106", "/101", "/102", "/103" ,"/104", "/106", ">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104", "*102","*104", "*106"};
+	QList <QString> numberList{ "101", "102", "103", "104", "106", "/101", "/102", "/103" ,"/104", "/106", ">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104", "*101", "*102", "*103", "*104", "*106"};
 
 	int64_t myChat = 0;
-
 };
