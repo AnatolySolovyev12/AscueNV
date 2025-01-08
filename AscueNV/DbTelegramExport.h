@@ -1,12 +1,10 @@
 #pragma once
 
-
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QtNetwork/QSslSocket>
-
 
 class DbTelegramExport : QObject
 {
@@ -40,8 +38,4 @@ private:
 	QString odbcName = "DBEG";
 
 	QString ipForTcp;
-
 };
-
-
-

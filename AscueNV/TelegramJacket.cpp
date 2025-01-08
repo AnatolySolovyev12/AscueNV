@@ -20,7 +20,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
-		bot->getApi().sendMessage(message->chat->id, "<serial number> - some parameters\n</><serial number> - current values\n<_><serial number> - relay on\n<>><serial number> - relay off");
+		bot->getApi().sendMessage(message->chat->id, "<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
 		myChat = message->chat->id;
 		});
 
@@ -78,9 +78,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				continue;
 			}
 
-			if (val == '/' && counterForSlesh == 0) /// надо рихтовать с палками
+			if ((val == '/' || val == '*')&& counterForSlesh == 0) /// надо рихтовать с палками /////////////////////
 			{
-				currentNeed = true;
+				if (val == '/')
+					currentNeed = true;
+				else
+					vecNeed = true;
 				counterForSlesh++;
 				continue;
 			}
@@ -90,6 +93,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 			messegeInTelegram = "";
 			currentNeed = false;
+			vecNeed = false;
 			relayCounterOn = false;
 			relayCounterOff = false;
 			bot->getApi().sendMessage(message->chat->id, "Incorrect symbol in number");
@@ -101,7 +105,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		forQuery = new DbTelegramExport();
 
 		//myTimer->setInterval(100000);
-		if (currentNeed || relayCounterOn || relayCounterOff)
+		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
 			forQuery->setAny(messegeInTelegram);
@@ -113,7 +117,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery->queryDbResult(forQuery->getAny()); ////////////вероятно лишняя возня. СТоит оптимизировать
 
-		if (currentNeed && (messegeInTelegram != ""))
+		if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
 		{
 			for (auto& val : forQuery->getIpForTcp())
 			{
@@ -132,6 +136,9 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
+				
+				if (vecNeed)
+					serialStringForProtocolinTelegram.push_front('*');
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
@@ -147,7 +154,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					messegeInTelegram += '\n';
 					tcpObj->setResultString(messegeInTelegram);
 
-					bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+					if(currentNeed)
+						bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+					else
+						bot->getApi().sendMessage(message->chat->id, "We started trying to get vector and identification parameters ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and you get a messege. Also you can get these if you send: /result. Repeat if it needed.");
 
 					tcpObj->startToConnect(ipFromDbTelegram);
 					ipFromDbTelegram = "";
@@ -162,17 +172,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				bot->getApi().sendMessage(message->chat->id, "Not found ip adress for this device. Check your number and try again");
 			}
 		}
-
-
-
-
-
-
-
-
-
-
-
 
 		if ((relayCounterOn || relayCounterOff) && (messegeInTelegram != ""))
 		{
@@ -231,24 +230,14 @@ TelegramJacket::TelegramJacket(QObject* parent)
 			}
 		}
 
-
-
-
-
-
-
-
-
-
-
-
-		if (!currentNeed && !relayCounterOn && !relayCounterOff)
+		if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed)
 		{
 			bot->getApi().sendMessage(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		}
 		currentNeed = false;
 		relayCounterOn = false;
 		relayCounterOff = false;
+		vecNeed = false;
 		messegeInTelegram = "";
 
 		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
@@ -256,20 +245,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		delete forQuery;
 		forQuery = nullptr;
 
-
-
-
 		if (StringTools::startsWith(message->text, "/start")) {
 			return;
 		}
 		});
-
-
-
-
-
-
-
 
 	try {
 		printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
@@ -286,10 +265,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		printf("error: %s\n", e.what());
 	}
 }
-
-
-
-
 
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
@@ -336,7 +311,6 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 	catch (TgBot::TgException& e) {
 		printf("error: %s\n", e.what());
 	}
-
 }
 
 TelegramJacket::~TelegramJacket()
