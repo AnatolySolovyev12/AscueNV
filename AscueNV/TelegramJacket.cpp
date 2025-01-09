@@ -10,7 +10,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 4); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 5); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
 
 	myTimer = new QTimer();
 
