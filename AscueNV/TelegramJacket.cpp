@@ -3,6 +3,13 @@
 #include <qdebug.h>
 
 
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
+#include <string>
+
+
 TelegramJacket::TelegramJacket(QObject* parent)
 	: QObject(parent)
 {
@@ -22,6 +29,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		bot->getApi().sendMessage(message->chat->id, "<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
 		myChat = message->chat->id;
+
 		});
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
@@ -270,6 +278,7 @@ void TelegramJacket::setIntervalAfterGetString() // автовывод сооб�
 {
 	messegeFromTcp = tcpObj->returnResultString();
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
+	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 }
 
 /*
