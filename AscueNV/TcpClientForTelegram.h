@@ -28,6 +28,7 @@ public:
 
 signals:
     void messageReceived();
+    void messageError();
 
 private slots:
     void onConnected();
