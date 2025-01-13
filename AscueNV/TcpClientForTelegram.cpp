@@ -101,6 +101,15 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
+	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		vecExchange();
+		return;
+	}
+
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		if (counterForResend >= 2 && counterForResend != 16)
@@ -1803,7 +1812,8 @@ void TcpClientForTelegram::vecExchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 10;
-					answerString += "\nNo or stopped responses from remote socket";
+					answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+					emit messageError();
 				}
 
 				myTimer->start(12000);
@@ -1824,6 +1834,8 @@ void TcpClientForTelegram::vecExchange()
 
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
+	qDebug() << "Length = " + any.length();
+
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
 		bool ok;
