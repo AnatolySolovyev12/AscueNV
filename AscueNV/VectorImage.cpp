@@ -12,9 +12,6 @@ VectorImage::~VectorImage()
 
 void VectorImage::generalFunc(QString any)
 {
-
-	//QString general = "104000052160\n\nSerial 104000052160\nSoftVer 1.6.19\nfUab 119 \nfUac 117 \nfUbc 124 \nfUIa 1 \nfUIb 0 \nfUIc 1 ";
-
 	QString general = any;
 	QString temporary = general.sliced(49);
 	QList <QString> valuesList;
@@ -26,6 +23,8 @@ void VectorImage::generalFunc(QString any)
 
 	for (auto& val : temporary)
 	{
+		if (val == '\n') continue;
+
 		if (val.isSpace())
 		{
 			if (!space)
@@ -68,8 +67,6 @@ void VectorImage::generalFunc(QString any)
 	painter.drawLine(startPoint, endPoint);
 
 	//UIa
-
-	printf("UIa\n"); ///////////////////////
 
 	double angleUIa = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
@@ -146,7 +143,7 @@ void VectorImage::generalFunc(QString any)
 	painter.drawLine(startPoint, UbcLineEndPoint);
 
 	//UIc
-	printf("UIc\n");
+
 	endPoint = UbcLineEndPoint;
 
 	double angleUIc = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());

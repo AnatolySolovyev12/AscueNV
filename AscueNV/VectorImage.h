@@ -9,12 +9,9 @@
 #include <QPointF>
 #include <cmath>
 
-class VectorImage  : public QObject
+class VectorImage : public QObject
 {
 	Q_OBJECT
-
-signals:
-	void messageReceived();
 
 public:
 	VectorImage(QObject* parent);
@@ -22,5 +19,8 @@ public:
 
 
 	void generalFunc(QString any);
+
+signals:
+	void messageReceived();
 
 };

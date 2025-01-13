@@ -284,17 +284,18 @@ void TelegramJacket::setIntervalAfterGetString() // автовывод сооб�
 	editImage = new VectorImage(this);
 	editImage->generalFunc(messegeFromTcp);
 
-	QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+	//QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
 
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
-
+	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 }
 
+/*
 void TelegramJacket::setVectorAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 }
-
+*/
 /*
 QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
 {
