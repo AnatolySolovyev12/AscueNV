@@ -5,6 +5,7 @@
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
+#include <VectorImage.h>
 
 class TelegramJacket : QObject
 {
@@ -19,6 +20,7 @@ public:
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString();
+	//void setVectorAfterGetString();
 
 private:
 
@@ -49,4 +51,10 @@ private:
 	QList <QString> numberList{ "101", "102", "103", "104", "106", "/101", "/102", "/103" ,"/104", "/106", ">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104", "*101", "*102", "*103", "*104", "*106"};
 
 	int64_t myChat = 0;
+
+	//const std::string photoFilePath = "C:/Users/admin/source/repos/AscueNV/AscueNV/x64/Release/vectorP.jpg";
+    const std::string photoFilePath = "mod_vectorP.png";
+	const std::string photoMimeType = "image/png";
+
+	VectorImage* editImage = nullptr;
 };

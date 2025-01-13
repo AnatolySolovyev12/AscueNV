@@ -3,6 +3,13 @@
 #include <qdebug.h>
 
 
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
+#include <string>
+
+
 TelegramJacket::TelegramJacket(QObject* parent)
 	: QObject(parent)
 {
@@ -22,6 +29,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		bot->getApi().sendMessage(message->chat->id, "<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
 		myChat = message->chat->id;
+
 		});
 
 	bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
@@ -269,9 +277,25 @@ TelegramJacket::TelegramJacket(QObject* parent)
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	messegeFromTcp = tcpObj->returnResultString();
+
+	delete editImage;
+	editImage = nullptr;
+
+	editImage = new VectorImage(this);
+	editImage->generalFunc(messegeFromTcp);
+
+	//QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
+	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 }
 
+/*
+void TelegramJacket::setVectorAfterGetString() // автовывод сообщения после получения текущих от счётчика
+{
+	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
+}
+*/
 /*
 QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
 {
@@ -315,7 +339,3 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 
 TelegramJacket::~TelegramJacket()
 {}
-
-
-
-
