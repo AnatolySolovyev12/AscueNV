@@ -13,6 +13,9 @@ class VectorImage  : public QObject
 {
 	Q_OBJECT
 
+signals:
+	void messageReceived();
+
 public:
 	VectorImage(QObject* parent);
 	~VectorImage();

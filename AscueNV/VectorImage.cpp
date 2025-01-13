@@ -1,5 +1,6 @@
 #include "VectorImage.h"
 
+
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
 {
@@ -9,10 +10,44 @@ VectorImage::VectorImage(QObject* parent)
 VectorImage::~VectorImage()
 {}
 
-
-
 void VectorImage::generalFunc(QString any)
 {
+
+	//QString general = "104000052160\n\nSerial 104000052160\nSoftVer 1.6.19\nfUab 119 \nfUac 117 \nfUbc 124 \nfUIa 1 \nfUIb 0 \nfUIc 1 ";
+
+	QString general = any;
+	QString temporary = general.sliced(49);
+	QList <QString> valuesList;
+
+	QString test;
+	general = "";
+
+	bool space = false;
+
+	for (auto& val : temporary)
+	{
+		if (val.isSpace())
+		{
+			if (!space)
+			{
+				space = true;
+				continue;
+			}
+
+			if (space)
+			{
+				space = false;
+				valuesList.push_back(test);
+				test = "";
+				continue;
+			}
+		}
+		if (space)
+		{
+			test += val;
+			continue;
+		}
+	}
 
 	//QImage image("C:/Users/PavlovAA/source/repos/TestProject/TestProject/x64/Release/vectorP.png");
 
@@ -21,7 +56,6 @@ void VectorImage::generalFunc(QString any)
 	QPainter painter(&image); // класс общей рисовальни для создания графических объектов
 
 	//Ua
-
 
 	QPointF startPoint(133, 150);  // x y центр векторки
 
@@ -33,23 +67,23 @@ void VectorImage::generalFunc(QString any)
 
 	painter.drawLine(startPoint, endPoint);
 
-
-
 	//UIa
+
+	printf("UIa\n"); ///////////////////////
 
 	double angleUIa = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	double UIlength = 100; // Длина второй линии
+	double UIlength = 100;
 
-	// Угол для второй линии в градусах (например, 45 градусов относительно первой)
-	double radAngleUIa = qDegreesToRadians(4);
+	
+	double radAngleUIa = qDegreesToRadians(valuesList[3].toInt());
 
 	double totalAngleUIa = angleUIa + radAngleUIa; // Совокупный угол
 
-	// Вычисляем конечные координаты второй линии
+
 	QPointF UIaLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIa), startPoint.y() + UIlength * sin(totalAngleUIa));
 
-	painter.setPen(QPen(QPen(QColor(244, 189, 0)))); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	painter.setPen(QPen(QPen(QColor(244, 189, 0)))); 
 
 	painter.drawLine(startPoint, UIaLineEndPoint);
 
@@ -57,17 +91,17 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUa = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	double length = 124; // Длина второй линии
+	double length = 124; 
 
-	// Угол для второй линии в градусах (например, 45 градусов относительно первой)
-	double radAngleUb = qDegreesToRadians(119);
+	
+	double radAngleUb = qDegreesToRadians(valuesList[0].toInt());
 
-	double totalAngleAB = angleUa + radAngleUb; // Совокупный угол
+	double totalAngleAB = angleUa + radAngleUb; 
 
-	// Вычисляем конечные координаты второй линии
+	
 	QPointF UabLineEndPoint(startPoint.x() + length * cos(totalAngleAB), startPoint.y() + length * sin(totalAngleAB));
 
-	painter.setPen(QPen(Qt::green)); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	painter.setPen(QPen(Qt::green));
 
 	painter.drawLine(startPoint, UabLineEndPoint);
 
@@ -77,17 +111,17 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUIb = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	UIlength = 100; // Длина второй линии
+	UIlength = 100; 
 
-	// Угол для второй линии в градусах (например, 45 градусов относительно первой)
-	double radAngleUIb = qDegreesToRadians(351);
+	
+	double radAngleUIb = qDegreesToRadians(valuesList[4].toInt());
 
-	double totalAngleUIb = angleUIb + radAngleUIb; // Совокупный угол
+	double totalAngleUIb = angleUIb + radAngleUIb; 
 
-	// Вычисляем конечные координаты второй линии
+	
 	QPointF UIbLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIb), startPoint.y() + UIlength * sin(totalAngleUIb));
 
-	painter.setPen(QPen(QPen(QColor(55, 189, 55)))); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	painter.setPen(QPen(QPen(QColor(55, 189, 55)))); 
 
 	painter.drawLine(startPoint, UIbLineEndPoint);
 
@@ -97,37 +131,37 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUb = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	length = 124; // Длина второй линии
+	length = 124; 
 
-	// Угол для второй линии в градусах (например, 45 градусов относительно первой)
-	double radAngleUc = qDegreesToRadians(124);
 
-	double totalAngleBC = angleUb + radAngleUc; // Совокупный угол
+	double radAngleUc = qDegreesToRadians(valuesList[2].toInt());
 
-	// Вычисляем конечные координаты второй линии
+	double totalAngleBC = angleUb + radAngleUc; 
+
+	
 	QPointF UbcLineEndPoint(startPoint.x() + length * cos(totalAngleBC), startPoint.y() + length * sin(totalAngleBC));
 
-	painter.setPen(QPen(Qt::red)); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	painter.setPen(QPen(Qt::red)); 
 
 	painter.drawLine(startPoint, UbcLineEndPoint);
 
 	//UIc
-
+	printf("UIc\n");
 	endPoint = UbcLineEndPoint;
 
 	double angleUIc = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	UIlength = 100; // Длина второй линии
+	UIlength = 100; 
 
-	// Угол для второй линии в градусах (например, 45 градусов относительно первой)
-	double radAngleUIc = qDegreesToRadians(35);
 
-	double totalAngleUIc = angleUIc + radAngleUIc; // Совокупный угол
+	double radAngleUIc = qDegreesToRadians(valuesList[5].toInt());
 
-	// Вычисляем конечные координаты второй линии
+	double totalAngleUIc = angleUIc + radAngleUIc;
+
+
 	QPointF UIcLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIc), startPoint.y() + UIlength * sin(totalAngleUIc));
 
-	painter.setPen(QPen(QPen(QColor(193, 23, 23)))); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	painter.setPen(QPen(QPen(QColor(193, 23, 23))));
 
 	painter.drawLine(startPoint, UIcLineEndPoint);
 
@@ -136,6 +170,8 @@ void VectorImage::generalFunc(QString any)
 
 	// Сохраняем изменённое изображение в файл
 	image.save("mod_vectorP.png");
+
+	emit messageReceived();
 
 	return;
 }

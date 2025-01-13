@@ -277,12 +277,22 @@ TelegramJacket::TelegramJacket(QObject* parent)
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	messegeFromTcp = tcpObj->returnResultString();
-	editImage = new VectorImage(this);
-	editImage->generalFunc(messegeFromTcp);
-	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
-	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 
 	delete editImage;
+	editImage = nullptr;
+
+	editImage = new VectorImage(this);
+	editImage->generalFunc(messegeFromTcp);
+
+	QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+
+	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
+
+}
+
+void TelegramJacket::setVectorAfterGetString() // автовывод сообщения после получения текущих от счётчика
+{
+	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 }
 
 /*
@@ -328,7 +338,3 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 
 TelegramJacket::~TelegramJacket()
 {}
-
-
-
-

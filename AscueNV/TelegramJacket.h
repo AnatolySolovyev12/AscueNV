@@ -20,6 +20,7 @@ public:
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString();
+	void setVectorAfterGetString();
 
 private:
 
@@ -52,8 +53,8 @@ private:
 	int64_t myChat = 0;
 
 	//const std::string photoFilePath = "C:/Users/admin/source/repos/AscueNV/AscueNV/x64/Release/vectorP.jpg";
-    const std::string photoFilePath = "vectorP.jpg";
-	const std::string photoMimeType = "image/jpeg";
+    const std::string photoFilePath = "vectorP.png";
+	const std::string photoMimeType = "image/png";
 
 	VectorImage* editImage = nullptr;
 };
