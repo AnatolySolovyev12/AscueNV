@@ -20,7 +20,7 @@ public:
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString();
-	//void setVectorAfterGetString();
+	void setStopForVector();
 
 private:
 
@@ -34,6 +34,7 @@ private:
 	bool vecNeed = false;
 	bool relayCounterOn = false;
 	bool relayCounterOff = false;
+	bool stopVector = false;
 
 	QTimer* myTimer = nullptr;
 
