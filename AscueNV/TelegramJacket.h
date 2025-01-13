@@ -5,6 +5,7 @@
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
+#include <VectorImage.h>
 
 class TelegramJacket : QObject
 {
@@ -50,6 +51,9 @@ private:
 
 	int64_t myChat = 0;
 
-	const std::string photoFilePath = "C:/Users/admin/source/repos/AscueNV/AscueNV/x64/Release/vectorP.jpg";
+	//const std::string photoFilePath = "C:/Users/admin/source/repos/AscueNV/AscueNV/x64/Release/vectorP.jpg";
+    const std::string photoFilePath = "vectorP.jpg";
 	const std::string photoMimeType = "image/jpeg";
+
+	VectorImage* editImage = nullptr;
 };

@@ -277,8 +277,12 @@ TelegramJacket::TelegramJacket(QObject* parent)
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	messegeFromTcp = tcpObj->returnResultString();
+	editImage = new VectorImage(this);
+	editImage->generalFunc(messegeFromTcp);
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
 	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
+
+	delete editImage;
 }
 
 /*
