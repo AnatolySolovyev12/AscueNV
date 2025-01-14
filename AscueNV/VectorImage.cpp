@@ -1,5 +1,5 @@
 #include "VectorImage.h"
-
+#include <iostream>
 
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
@@ -13,7 +13,7 @@ VectorImage::~VectorImage()
 void VectorImage::generalFunc(QString any)
 {
 	QString general = any;
-	QString temporary = general.sliced(49);
+	QString temporary = general.sliced(88);
 	QList <QString> valuesList;
 
 	QString test;
@@ -46,6 +46,11 @@ void VectorImage::generalFunc(QString any)
 			test += val;
 			continue;
 		}
+	}
+
+	for (auto& val : valuesList)
+	{
+		std::cout << val.toStdString() << " ";
 	}
 
 	//QImage image("C:/Users/PavlovAA/source/repos/TestProject/TestProject/x64/Release/vectorP.png");
