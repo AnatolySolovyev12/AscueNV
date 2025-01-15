@@ -61,13 +61,21 @@ void VectorImage::generalFunc(QString any)
 
 	//Ua
 
-	QPointF startPoint(133, 150);  // x y центр векторки
+	QPointF startPoint(472, 455);  // x y центр векторки
 
-	QPointF endPoint(133, 26);
+	QPointF endPoint(471, 30);
 
-	QPointF IendPoint(133, 26);
+	//QPointF IendPoint(133, 26);
 
-	painter.setPen(QPen(QColor(247, 227, 60))); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+	QPen vectorPen;
+
+	vectorPen.setColor(QColor(254, 251, 107));
+
+	vectorPen.setWidth(8);
+	
+	painter.setPen(vectorPen); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
+
+	//painter.setPen(QPen(QColor(247, 227, 60))); // присваиваем объект пера с типом стиля кисти по умолчанию Qt::SolidPattern
 
 	painter.drawLine(startPoint, endPoint);
 
@@ -75,7 +83,7 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUIa = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	double UIlength = 100;
+	double UIlength = 350;
 
 	
 	double radAngleUIa = qDegreesToRadians(valuesList[3].toInt());
@@ -85,7 +93,10 @@ void VectorImage::generalFunc(QString any)
 
 	QPointF UIaLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIa), startPoint.y() + UIlength * sin(totalAngleUIa));
 
-	painter.setPen(QPen(QPen(QColor(244, 189, 0)))); 
+	//painter.setPen(QPen(QPen(QColor(244, 189, 0)))); 
+	vectorPen.setColor(QColor(244, 189, 0));
+
+	painter.setPen(vectorPen);
 
 	painter.drawLine(startPoint, UIaLineEndPoint);
 
@@ -93,7 +104,7 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUa = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	double length = 124; 
+	double length = 425; 
 
 	
 	double radAngleUb = qDegreesToRadians(valuesList[0].toInt());
@@ -103,7 +114,11 @@ void VectorImage::generalFunc(QString any)
 	
 	QPointF UabLineEndPoint(startPoint.x() + length * cos(totalAngleAB), startPoint.y() + length * sin(totalAngleAB));
 
-	painter.setPen(QPen(Qt::green));
+	//painter.setPen(QPen(Qt::green));
+
+	vectorPen.setColor(QColor(155, 252, 37));
+
+	painter.setPen(vectorPen);
 
 	painter.drawLine(startPoint, UabLineEndPoint);
 
@@ -113,17 +128,19 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUIb = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	UIlength = 100; 
+	UIlength = 350; 
 
 	
 	double radAngleUIb = qDegreesToRadians(valuesList[4].toInt());
 
 	double totalAngleUIb = angleUIb + radAngleUIb; 
 
-	
 	QPointF UIbLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIb), startPoint.y() + UIlength * sin(totalAngleUIb));
 
-	painter.setPen(QPen(QPen(QColor(55, 189, 55)))); 
+	//painter.setPen(QPen(QPen(QColor(55, 189, 55)))); 
+	vectorPen.setColor(QColor(55, 189, 55));
+
+	painter.setPen(vectorPen);
 
 	painter.drawLine(startPoint, UIbLineEndPoint);
 
@@ -133,17 +150,19 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUb = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	length = 124; 
-
+	length = 425; 
 
 	double radAngleUc = qDegreesToRadians(valuesList[2].toInt());
 
 	double totalAngleBC = angleUb + radAngleUc; 
 
-	
 	QPointF UbcLineEndPoint(startPoint.x() + length * cos(totalAngleBC), startPoint.y() + length * sin(totalAngleBC));
 
-	painter.setPen(QPen(Qt::red)); 
+	//painter.setPen(QPen(Qt::red)); 
+
+	vectorPen.setColor(QColor(245, 145, 139));
+
+	painter.setPen(vectorPen);
 
 	painter.drawLine(startPoint, UbcLineEndPoint);
 
@@ -153,7 +172,7 @@ void VectorImage::generalFunc(QString any)
 
 	double angleUIc = atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
 
-	UIlength = 100; 
+	UIlength = 350; 
 
 
 	double radAngleUIc = qDegreesToRadians(valuesList[5].toInt());
@@ -163,7 +182,11 @@ void VectorImage::generalFunc(QString any)
 
 	QPointF UIcLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIc), startPoint.y() + UIlength * sin(totalAngleUIc));
 
-	painter.setPen(QPen(QPen(QColor(193, 23, 23))));
+	//painter.setPen(QPen(QPen(QColor(193, 23, 23))));
+
+	vectorPen.setColor(QColor(240, 40, 30));
+
+	painter.setPen(vectorPen);
 
 	painter.drawLine(startPoint, UIcLineEndPoint);
 
