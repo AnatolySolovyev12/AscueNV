@@ -48,10 +48,12 @@ void VectorImage::generalFunc(QString any)
 		}
 	}
 
+	/*
 	for (auto& val : valuesList)
 	{
 		std::cout << val.toStdString() << " ";
 	}
+	*/
 
 	//QImage image("C:/Users/PavlovAA/source/repos/TestProject/TestProject/x64/Release/vectorP.png");
 
