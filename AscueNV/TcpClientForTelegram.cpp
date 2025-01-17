@@ -936,7 +936,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo, stopped or incorrect responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1459,7 +1459,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo or stopped responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1594,7 +1594,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo, stopped or incorrect responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1865,7 +1865,7 @@ void TcpClientForTelegram::vecExchange()
 					emit messageError();
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1889,7 +1889,14 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 	{
 		bool ok;
 		bool minus = false;
-		QString temporaryAnswer = any.sliced(36);
+		
+		QString temporaryAnswer;
+
+		if (counterForResend > 3 && (any.length() == 96)) // защита от сдвоенного ответа
+			temporaryAnswer = any.sliced(84);
+		else
+			temporaryAnswer = any.sliced(36);
+
 		temporaryAnswer.chop(6);
 		QString frankenshteinString;
 
