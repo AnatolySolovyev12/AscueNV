@@ -35,6 +35,9 @@
     <ClCompile Include="TcpClientForTelegram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VectorImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DbTelegramExport.h">
@@ -44,6 +47,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="TcpClientForTelegram.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="VectorImage.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

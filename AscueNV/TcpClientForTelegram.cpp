@@ -101,6 +101,15 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
+	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")) ////////////////////////надо корректировать защиту
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		vecExchange();
+		return;
+	}
+
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		if (counterForResend >= 2 && counterForResend != 16)
@@ -129,7 +138,7 @@ void TcpClientForTelegram::onReadyRead()
 
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
-		if (counterForResend >= 2 && counterForResend != 10)
+		if (counterForResend >= 2 && counterForResend != 13)
 		{
 			QString temporaryAnswer = data.toHex();
 			summAnswervector(temporaryAnswer);
@@ -151,6 +160,8 @@ void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketEr
 {
 	qDebug() << "\nSocket error:" << socketError << socket->errorString();
 	answerString += socket->errorString() + '.' + " No connection or bad signal";
+	emit messageError();
+	emit messageReceived();
 }
 
 void TcpClientForTelegram::summAnswer(QString& any)
@@ -357,7 +368,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		}
 	}
 
-	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
+	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") ////
 	{
 		bool ok;
 		bool minus = false;
@@ -925,7 +936,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo, stopped or incorrect responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1448,7 +1459,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo or stopped responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1583,7 +1594,7 @@ void TcpClientForTelegram::exchange()
 					answerString += "\nNo, stopped or incorrect responses from remote socket";
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1606,6 +1617,7 @@ void TcpClientForTelegram::startToConnect(QString any)
 }
 
 void TcpClientForTelegram::resetAnswerString()
+
 {
 	answerString = "";
 }
@@ -1623,7 +1635,7 @@ void TcpClientForTelegram::vecExchange()
 {
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
-		if (counterForResend != 10)
+		if (counterForResend != 13)
 		{
 			QTimer::singleShot(500, [this]() {
 
@@ -1675,13 +1687,12 @@ void TcpClientForTelegram::vecExchange()
 
 					sendMessage(testArray);
 				}
+				
 				/*
-				if (counterForResend == 3)
+				if (counterForResend == 3) //Type
 				{
-					qDebug() << "Type";
-
 					//7E A0 1A 02 21 41 54 2B A4 E6 E6 00 C0 01 C1 00 01 00 00 60 01 01 FF 02 00 32 BC 7E
-
+					
 					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x54\x2B\xA4\xE6\xE6";
 					QByteArray hexValue2 = "\xC0\x01\xC1";
 					QByteArray hexValue3 = "\x01";
@@ -1693,6 +1704,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 				*/
+
 				if (counterForResend == 3) //version
 				{
 					//7E A0 1A 02 21 41 32 1B A2 E6 E6 00 C0 01 C1 00 01 00 00 00 02 01 FF 02 00 4F 26 7E
@@ -1707,8 +1719,56 @@ void TcpClientForTelegram::vecExchange()
 
 					sendMessage(testArray);
 				}
+				
+				if (counterForResend == 4) // I (phase 1)
+				{
+					//7E A0 1A 02 21 41 76 3B A6 E6 E6 00 C0 01 41 00 03 01 00 33 07 00 FF 02 00 53 5F 7E
 
-				if (counterForResend == 4) //fUab
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x76\x3B\xA6\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\x41";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x33\x07";
+					QByteArray hexValue5 = "\xFF\x02";
+					QByteArray hexValue6 = "\x53\x5F\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 5) // I (phase 2)
+				{
+					//7E A0 1A 02 21 41 76 3B A6 E6 E6 00 C0 01 41 00 03 01 00 33 07 00 FF 02 00 53 5F 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x76\x3B\xA6\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\x41";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x33\x07";
+					QByteArray hexValue5 = "\xFF\x02";
+					QByteArray hexValue6 = "\x53\x5F\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 6) // I (phase 3)
+				{
+					//7E A0 1A 02 21 41 98 4B A8 E6 E6 00 C0 01 41 00 03 01 00 47 07 00 FF 02 00 FE 8A 7E
+
+					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x98\x4B\xA8\xE6\xE6";
+					QByteArray hexValue2 = "\xC0\x01\x41";
+					QByteArray hexValue3 = "\x03\x01";
+					QByteArray hexValue4 = "\x47\x07";
+					QByteArray hexValue5 = "\xFF\x02";
+					QByteArray hexValue6 = "\xFE\x8A\x7E";
+
+					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
+
+					sendMessage(testArray);
+				}
+
+				if (counterForResend == 7) //fUab
 				{
 					//7E A0 1A 02 21 41 54 2B A4 E6 E6 00 C0 01 C1 00 03 01 00 51 07 0A FF 02 00 01 9E 7E
 
@@ -1723,7 +1783,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 5) // fUac
+				if (counterForResend == 8) // fUac
 				{
 					//7E A0 1A 02 21 41 DC 6B AC E6 E6 00 C0 01 C1 00 03 01 00 51 07 02 FF 02 00 D9 7B 7E
 
@@ -1738,7 +1798,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 6) //fUbc
+				if (counterForResend == 9) //fUbc
 				{
 					//7E A0 1A 02 21 41 DC 6B AC E6 E6 00 C0 01 C1 00 03 01 00 51 07 15 FF 02 00 59 EF 7E
 
@@ -1753,7 +1813,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 7) //fUIa
+				if (counterForResend == 10) //fUIa
 				{
 					//7E A0 1A 02 21 41 10 0B A0 E6 E6 00 C0 01 C1 00 03 01 00 51 07 04 FF 02 00 43 30 7E 
 
@@ -1768,7 +1828,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 8) //fUIb
+				if (counterForResend == 11) //fUIb
 				{
 					//7E A0 1A 02 21 41 98 4B A8 E6 E6 00 C0 01 C1 00 03 01 00 51 07 0F FF 02 00 56 F0 7E
 
@@ -1783,7 +1843,7 @@ void TcpClientForTelegram::vecExchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 9) //fUIc
+				if (counterForResend == 12) //fUIc
 				{
 					//7E A0 1A 02 21 41 10 0B A0 E6 E6 00 C0 01 C1 00 03 01 00 51 07 1A FF 02 00 A0 5D 7E
 
@@ -1800,11 +1860,12 @@ void TcpClientForTelegram::vecExchange()
 
 				if (reTransmitQuery >= 4)
 				{
-					counterForResend = 10;
-					answerString += "\nNo or stopped responses from remote socket";
+					counterForResend = 13;
+					answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+					emit messageError();
 				}
 
-				myTimer->start(12000);
+				myTimer->start(20000);
 				});
 		}
 		else
@@ -1822,11 +1883,20 @@ void TcpClientForTelegram::vecExchange()
 
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
+//	qDebug() << "Length = " + any.length();
+
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
 		bool ok;
 		bool minus = false;
-		QString temporaryAnswer = any.sliced(36);
+		
+		QString temporaryAnswer;
+
+		if (counterForResend > 3 && (any.length() == 96)) // защита от сдвоенного ответа
+			temporaryAnswer = any.sliced(84);
+		else
+			temporaryAnswer = any.sliced(36);
+
 		temporaryAnswer.chop(6);
 		QString frankenshteinString;
 
@@ -1836,6 +1906,36 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 		{
 			temporaryAnswer = QString("%1")
 				.arg(temporaryAnswer.toULongLong(&ok, 16));
+		}
+
+		if (counterForResend == 4 || counterForResend == 5 || counterForResend == 6)
+		{
+			if (temporaryAnswer.length() == 2)
+			{
+				temporaryAnswer.push_front("0");
+			}
+
+			if (temporaryAnswer.length() == 1)
+			{
+				temporaryAnswer.push_front("0");
+				temporaryAnswer.push_front("0");
+			}
+
+			frankenshteinString = temporaryAnswer.last(3);
+			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
+			temporaryAnswer.chop(3);
+
+			if (temporaryAnswer == "")
+			{
+				frankenshteinString.push_front(",");
+				//	qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
+				frankenshteinString.push_front("0");
+				//qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
+			}
+			else {
+				frankenshteinString.push_front(",");
+				frankenshteinString.push_front(temporaryAnswer);
+			}
 		}
 
 		switch (counterForResend)
@@ -1852,30 +1952,45 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 		}
 		case 4:
 		{
-			answerString += "\nfUab ";
+			answerString += "\nI L1 ";
 			break;
 		}
 		case 5:
 		{
-			answerString += "\nfUac ";
+			answerString += "\nI L2 ";
 			break;
 		}
 		case 6:
 		{
-			answerString += "\nfUbc ";
+			answerString += "\nI L3 ";
 			break;
 		}
 		case 7:
 		{
-			answerString += "\nfUIa ";
+			answerString += "\nfUab ";
 			break;
 		}
 		case 8:
 		{
-			answerString += "\nfUIb ";
+			answerString += "\nfUac ";
 			break;
 		}
 		case 9:
+		{
+			answerString += "\nfUbc ";
+			break;
+		}
+		case 10:
+		{
+			answerString += "\nfUIa ";
+			break;
+		}
+		case 11:
+		{
+			answerString += "\nfUIb ";
+			break;
+		}
+		case 12:
 		{
 			answerString += "\nfUIc ";
 			break;
@@ -1885,7 +2000,10 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 
 		if (counterForResend > 3)
 		{
-			answerString += temporaryAnswer + ' ';
+			if (counterForResend == 4 || counterForResend == 5 || counterForResend == 6)
+				answerString += frankenshteinString + ' ';
+			else
+				answerString += temporaryAnswer + ' ';
 		}
 		else
 		{
@@ -1901,6 +2019,9 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 			}
 		}
 
-		qDebug() << "after convert " + temporaryAnswer << '\n';
+		if (counterForResend == 4 || counterForResend == 5 || counterForResend == 6)
+			qDebug() << "after convert " + frankenshteinString << '\n';
+		else
+			qDebug() << "after convert " + temporaryAnswer << '\n';
 	}
 }

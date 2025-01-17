@@ -17,7 +17,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 5); // если timeout = 3 то пишет мусор в result-ную строку TcpCLient-а. Видимо чего то не успевает.
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 2); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
 
 	myTimer = new QTimer();
 
@@ -158,6 +158,8 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // connect для автовывода сообщения в чат после опроса текущих
+
 
 					messegeInTelegram += '\n';
 					tcpObj->setResultString(messegeInTelegram);
@@ -218,6 +220,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // connect для автовывода сообщения в чат после опроса текущих
 
 					if (relayCounterOn)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
@@ -277,8 +280,27 @@ TelegramJacket::TelegramJacket(QObject* parent)
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	messegeFromTcp = tcpObj->returnResultString();
+
+	//qDebug() << "Length messege = " << messegeFromTcp.length();
+
+	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
+	{
+		delete editImage;
+		editImage = nullptr;
+		editImage = new VectorImage(this);
+		editImage->generalFunc(messegeFromTcp);
+		bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
+	}
+
+	//QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
-	bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
+	stopVector = false;
+}
+
+
+void TelegramJacket::setStopForVector() // автовывод сообщения после получения текущих от счётчика
+{
+	stopVector = true;
 }
 
 /*
@@ -324,7 +346,3 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 
 TelegramJacket::~TelegramJacket()
 {}
-
-
-
-
