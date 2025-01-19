@@ -2,8 +2,8 @@ AscueNV
 
 What can:
 1) Obtain certain values from the database by the serial number of the electricity meter
-2) Take a vector diagram and a number of parameters directly from the counter over the TCP channel
-3) Take the current power parameters and a number of other values ​ ​ directly from the counter via the TCP channel
+2) Take a number of parameters, as well as vector diagram values ​and then draw it directly from the counter over the TCP channel
+3) Take the current power parameters and a number of other values ​directly from the counter via the TCP channel
 4) Control the output relay directly over the TCP channel
 5) Connected data for connection is taken from the database
 
