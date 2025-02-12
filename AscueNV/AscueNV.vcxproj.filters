@@ -43,13 +43,13 @@
     <QtMoc Include="DbTelegramExport.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="TelegramJacket.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="TcpClientForTelegram.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="VectorImage.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TelegramJacket.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

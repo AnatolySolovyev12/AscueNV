@@ -1,18 +1,29 @@
 ﻿#include "TelegramJacket.h"
-#include <qtimer.h>
-#include <qdebug.h>
 
-
-#include <csignal>
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-#include <string>
-
-
-TelegramJacket::TelegramJacket(QObject* parent)
-	: QObject(parent)
+TelegramJacket::TelegramJacket(QWidget* parent)
+	: QMainWindow(parent)
 {
+	trayIcon = new QSystemTrayIcon(this);
+	trayIcon->setIcon(QIcon("icon.png"));
+	
+	QMenu* menu = new QMenu(this);
+	QAction* restoreAction = menu->addAction("CMD open and connect");
+	QAction* restoreActionHide = menu->addAction("CMD disconnect");
+	QAction* quitAction = menu->addAction("Exit");
+
+	connect(restoreAction, &QAction::triggered, this, &TelegramJacket::cmdOpen);
+	connect(restoreActionHide, &QAction::triggered, this, &TelegramJacket::cmdClose);
+	connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
+
+	trayIcon->setContextMenu(menu);
+	trayIcon->setVisible(true);
+
+	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
+	
+	fullTimeWork = QTime::currentTime();
+
+
+
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
 	messageTest = new TgBot::Message::Ptr();
@@ -36,8 +47,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		printf("User wrote %s\n", message->text.c_str());
 
-		//messegeInTelegram = validation(message->text.c_str());
-
 		messegeInTelegram = message->text.c_str();
 
 		if (messegeInTelegram == "/start")
@@ -52,10 +61,9 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				messegeFromTcp = tcpObj->returnResultString();
 			}
 			if (messegeFromTcp == "") messegeFromTcp = "empty";
-			//messegeFromTcp = "empty";
+
 			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
-			//messegeFromTcp = "empty";
-			//tcpObj->resetAnswerString();
+
 			return;
 		}
 
@@ -75,7 +83,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		for (auto& val : messegeInTelegram)
 		{
-			if ((val == '_' || val == '>') && counterForSlesh == 0) /// надо рихтовать с палками
+			if ((val == '_' || val == '>') && counterForSlesh == 0)
 			{
 				if (val == '_')
 					relayCounterOn = true;
@@ -86,7 +94,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 				continue;
 			}
 
-			if ((val == '/' || val == '*')&& counterForSlesh == 0) /// надо рихтовать с палками /////////////////////
+			if ((val == '/' || val == '*')&& counterForSlesh == 0)
 			{
 				if (val == '/')
 					currentNeed = true;
@@ -112,7 +120,6 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		forQuery = new DbTelegramExport();
 
-		//myTimer->setInterval(100000);
 		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
@@ -120,10 +127,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		}
 		else
 		{
-			forQuery->setAny(messegeInTelegram); ////////////вероятно лишняя возня. Стоит оптимизировать
+			forQuery->setAny(messegeInTelegram);
 		}
 
-		forQuery->queryDbResult(forQuery->getAny()); ////////////вероятно лишняя возня. СТоит оптимизировать
+		forQuery->queryDbResult(forQuery->getAny()); 
 
 		if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
 		{
@@ -158,7 +165,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
-					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 
 
 					messegeInTelegram += '\n';
@@ -220,7 +227,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
 					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
-					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 
 					if (relayCounterOn)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
@@ -259,6 +266,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 		if (StringTools::startsWith(message->text, "/start")) {
 			return;
 		}
+
 		});
 
 	try {
@@ -267,7 +275,7 @@ TelegramJacket::TelegramJacket(QObject* parent)
 
 		/*
 		while (true) {
-			//printf("Long poll started\n");
+			printf("Long poll started\n");
 			longPoll.start();
 		}
 		*/
@@ -277,11 +285,10 @@ TelegramJacket::TelegramJacket(QObject* parent)
 	}
 }
 
+
 void TelegramJacket::setIntervalAfterGetString() // автовывод сообщения после получения текущих от счётчика
 {
 	messegeFromTcp = tcpObj->returnResultString();
-
-	//qDebug() << "Length messege = " << messegeFromTcp.length();
 
 	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
 	{
@@ -292,7 +299,6 @@ void TelegramJacket::setIntervalAfterGetString() // автовывод сооб�
 		bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
 	}
 
-	//QObject::connect(editImage, SIGNAL(messageReceived()), this, SLOT(setVectorAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
 	bot->getApi().sendMessage(myChat, messegeFromTcp.toStdString());
 	stopVector = false;
 }
@@ -303,40 +309,11 @@ void TelegramJacket::setStopForVector() // автовывод сообщения
 	stopVector = true;
 }
 
-/*
-QString TelegramJacket::validation(std::string any)   // Пока не требуется //////////////////////////////////////
-{
-	QString messegeString = QString::fromStdString(any);
-
-	messegeString = messegeString.trimmed();
-
-	if (messegeString.length() < 6)
-	{
-		return "Incorrect length. Need more";
-	}
-
-	if (messegeString.length() > 16)
-	{
-		return "Incorrect length. Need less";
-	}
-
-	for (auto& val : messegeString)
-	{
-		if (val.isNumber())
-			continue;
-
-		return "Incorrect symbol in number";
-	}
-
-	return messegeString;
-}
-*/
 
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
 	try {
 
-		//qDebug() << "test longPoll with timer";
 		longPoll->start();
 	}
 	catch (TgBot::TgException& e) {
@@ -344,5 +321,32 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 	}
 }
 
-TelegramJacket::~TelegramJacket()
-{}
+
+void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick)
+	{
+		int test = fullTimeWork.secsTo(QTime::currentTime());
+
+		trayIcon->showMessage("All time from start:", QTime(0, 0, 0).addSecs(test).toString(), QSystemTrayIcon::Information, 5000);
+	}
+}
+
+
+void TelegramJacket::cmdOpen()
+{
+	AllocConsole(); // Создаем консоль
+	FILE* stream;
+	freopen_s(&stream, "CONOUT$", "w", stdout); // Перенаправляем стандартный вывод
+	freopen_s(&stream, "CONOUT$", "w", stderr); // Перенаправляем стандартный вывод ошибок
+
+	printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
+}
+
+
+void TelegramJacket::cmdClose()
+{
+	qDebug() << "\nProgramm disconnect from console.";
+
+	FreeConsole(); // Отделяем процесс от cmd. После cmd закрываем руками.
+}

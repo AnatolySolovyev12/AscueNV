@@ -1,10 +1,7 @@
-
 #include "DbTelegramExport.h"
-
 
 DbTelegramExport::DbTelegramExport(QObject* parent) : QObject(parent)
 {
-	//connectDataBase();
 }
 
 DbTelegramExport::~DbTelegramExport()
@@ -27,7 +24,6 @@ void DbTelegramExport::connectDataBase()
 
 		qDebug() << "Cannot open database: " << mw_db.lastError();
 	}
-
 }
 
 void DbTelegramExport::queryDbResult(QString any)
@@ -100,8 +96,6 @@ void DbTelegramExport::queryDbResult(QString any)
 			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
 		else
 			queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
-		//queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '1'";
-		//qDebug() << queryString;
 
 		query.exec(queryString);
 		query.next();
@@ -112,8 +106,6 @@ void DbTelegramExport::queryDbResult(QString any)
 			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
 		else
 			queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
-		//	queryString = "select Val from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and DT = '" + timeInQuery + " 22:00:00:000' and N_Rate = '2'";
-			//qDebug() << queryString;
 
 		query.exec(queryString);
 		query.next();
@@ -135,7 +127,6 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		mw_db.close();
 	}
-
 	mw_db.removeDatabase(QSqlDatabase::defaultConnection);
 	resultBool = false;
 }
@@ -157,7 +148,6 @@ QString DbTelegramExport::getResult()
 	else
 		return "\n" + dateDay + "\n" + "T1 = " + day + "  " + "T2 = " + night + "   " + "\n\n" + guid + "\n\n" + fullIp;
 }
-
 
 QString DbTelegramExport::getIpForTcp()
 {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QObject>
-
 #include <QImage>
 #include <QPen>
 #include <QBrush>

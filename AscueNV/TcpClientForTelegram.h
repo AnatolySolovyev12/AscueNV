@@ -5,10 +5,13 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QTimer>
+#include <QTextStream>
+#include <windows.h>
 
 class TcpClientForTelegram : public QObject
 {
     Q_OBJECT
+
 public:
     explicit TcpClientForTelegram(QString any, QObject* parent = nullptr);
 

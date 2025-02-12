@@ -1,33 +1,47 @@
 #pragma once
 
-#include <QObject>
 #include <stdio.h>
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
 #include <VectorImage.h>
+#include <qtimer.h>
+#include <qdebug.h>
 
-class TelegramJacket : QObject
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
+#include <exception>
+#include <string>
+
+#include <QApplication>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QAction>
+#include <QMainWindow>
+
+#include <windows.h>
+
+
+class TelegramJacket : public QMainWindow
 {
 	Q_OBJECT
 
 public:
-	TelegramJacket(QObject* parent = nullptr);
-	~TelegramJacket();
-
-	//QString validation(std::string any);
+	TelegramJacket(QWidget* parent = nullptr);
 
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString();
 	void setStopForVector();
-
+	void iconActivated(QSystemTrayIcon::ActivationReason reason);
+	void cmdOpen();
+	void cmdClose();
+	
 private:
 
 	TgBot::Bot* bot;
-
 	TgBot::TgLongPoll* longPoll;
-
 	TgBot::Message::Ptr * messageTest;
 
 	bool currentNeed = false;
@@ -53,9 +67,11 @@ private:
 
 	int64_t myChat = 0;
 
-	//const std::string photoFilePath = "C:/Users/admin/source/repos/AscueNV/AscueNV/x64/Release/vectorP.jpg";
     const std::string photoFilePath = "mod_vectorP.png";
 	const std::string photoMimeType = "image/png";
 
 	VectorImage* editImage = nullptr;
+
+	QSystemTrayIcon* trayIcon = nullptr;
+	QTime fullTimeWork;
 };

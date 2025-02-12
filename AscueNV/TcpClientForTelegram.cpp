@@ -1,10 +1,8 @@
 #include "TcpClientForTelegram.h"
-#include <QTextStream>
 
 TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : serialStringForProtocol(any), QObject(parent), socket(new QTcpSocket(this))
 {
-	//QTextStream in(stdin);
-	//QTextStream out(stdout);
+	AttachConsole(ATTACH_PARENT_PROCESS);
 
 	myTimer = new QTimer();
 	connect(socket, &QTcpSocket::connected, this, &TcpClientForTelegram::onConnected);
@@ -12,9 +10,6 @@ TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : seria
 	connect(socket, &QTcpSocket::readyRead, this, &TcpClientForTelegram::onReadyRead);
 	connect(socket, &QTcpSocket::errorOccurred, this, &TcpClientForTelegram::onErrorOccurred);
 	connect(myTimer, &QTimer::timeout, this, &TcpClientForTelegram::exchangeFromTimer);
-
-	//out << "Enter IP:" << Qt::endl;
-	//in >> ip;
 }
 
 TcpClientForTelegram::~TcpClientForTelegram()
@@ -74,7 +69,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103") && (counterForResend != 16)) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103") && (counterForResend != 16))
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -83,7 +78,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() < 42 && (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && (counterForResend != 30)) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && (counterForResend != 30))
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -92,7 +87,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && counterForResend >= 2) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && counterForResend >= 2)
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -101,7 +96,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106"))
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -209,14 +204,12 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			}
 
 			frankenshteinString = temporaryAnswer.last(6);
-			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(6);
+
 			if (temporaryAnswer == "")
 			{
 				frankenshteinString.push_front(",");
-				//qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
 				frankenshteinString.push_front("0");
-				//	qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
 			}
 			else {
 				frankenshteinString.push_front(",");
@@ -287,7 +280,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			{
 				answerString += temporaryAnswer + ' ';
 			}
-			//answerString += temporaryAnswer + ' ';
+
 			qDebug() << "after convert " + temporaryAnswer << '\n';
 		}
 
@@ -306,15 +299,13 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			}
 
 			frankenshteinString = temporaryAnswer.last(3);
-			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
+
 			temporaryAnswer.chop(3);
 
 			if (temporaryAnswer == "")
 			{
 				frankenshteinString.push_front(",");
-				//	qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
 				frankenshteinString.push_front("0");
-				//qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
 			}
 			else {
 				frankenshteinString.push_front(",");
@@ -411,16 +402,15 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			}
 
 			frankenshteinString = temporaryAnswer.last(7);
-			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(7);
+
 			if (temporaryAnswer == "")
 			{
 				frankenshteinString.push_front(",");
-				//qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
 				frankenshteinString.push_front("0");
-				//	qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
 			}
-			else {
+			else 
+			{
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front(temporaryAnswer);
 			}
@@ -550,7 +540,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			{
 				answerString += temporaryAnswer + ' ';
 			}
-			//answerString += temporaryAnswer + ' ';
+
 			qDebug() << "after convert " + temporaryAnswer << '\n';
 		}
 
@@ -569,17 +559,15 @@ void TcpClientForTelegram::summAnswer(QString& any)
 			}
 
 			frankenshteinString = temporaryAnswer.last(3);
-			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(3);
 
 			if (temporaryAnswer == "")
 			{
 				frankenshteinString.push_front(",");
-				//	qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
 				frankenshteinString.push_front("0");
-				//qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
 			}
-			else {
+			else 
+			{
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front(temporaryAnswer);
 			}
@@ -726,7 +714,6 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					sendMessage(testArray);
-
 				}
 
 				if (counterForResend == 4) // R+ cur
@@ -743,7 +730,6 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					sendMessage(testArray);
-
 				}
 
 				if (counterForResend == 5) // R- cur
@@ -1022,7 +1008,6 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					sendMessage(testArray);
-
 				}
 
 				if (counterForResend == 4) // R+ cur
@@ -1039,7 +1024,6 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					sendMessage(testArray);
-
 				}
 
 				if (counterForResend == 5) // R- cur
@@ -1617,7 +1601,6 @@ void TcpClientForTelegram::startToConnect(QString any)
 }
 
 void TcpClientForTelegram::resetAnswerString()
-
 {
 	answerString = "";
 }
@@ -1665,7 +1648,6 @@ void TcpClientForTelegram::vecExchange()
 					QByteArray hexValue2 = "\x60\x36\xA1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\x8A\x02\x07\x80\x8B\x07\x60\x85\x74\x05\x08\x02\x01\xAC\x0A\x80\x08\x30\x30\x30\x30\x30\x30\x30\x30\xBE\x10\x04\x0E\x01";
 					QByteArray hexValue3 = "\x06\x5F\x1F\x04";
 					QByteArray hexValue4 = "\x20\x1E\x5D\xFF\xFF\xBB\x9B\x7E";
-
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + hexValue4;
 
@@ -1883,8 +1865,6 @@ void TcpClientForTelegram::vecExchange()
 
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
-//	qDebug() << "Length = " + any.length();
-
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
 		bool ok;
@@ -1922,15 +1902,12 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 			}
 
 			frankenshteinString = temporaryAnswer.last(3);
-			//qDebug() << "frankenshteinString after add with last = " + frankenshteinString;
 			temporaryAnswer.chop(3);
 
 			if (temporaryAnswer == "")
 			{
 				frankenshteinString.push_front(",");
-				//	qDebug() << "frankenshteinString after add with push = " + frankenshteinString;
 				frankenshteinString.push_front("0");
-				//qDebug() << "frankenshteinString after add with second push = " + frankenshteinString;
 			}
 			else {
 				frankenshteinString.push_front(",");

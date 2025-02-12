@@ -4,11 +4,11 @@
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
 {
-
 }
 
 VectorImage::~VectorImage()
-{}
+{
+}
 
 void VectorImage::generalFunc(QString any)
 {
@@ -47,15 +47,6 @@ void VectorImage::generalFunc(QString any)
 			continue;
 		}
 	}
-
-	/*
-	for (auto& val : valuesList)
-	{
-		std::cout << val.toStdString() << " ";
-	}
-	*/
-
-	//QImage image("C:/Users/PavlovAA/source/repos/TestProject/TestProject/x64/Release/vectorP.png");
 
 	QImage image("vectorP.png");
 
@@ -176,11 +167,9 @@ void VectorImage::generalFunc(QString any)
 
 	UIlength = 350; 
 
-
 	double radAngleUIc = qDegreesToRadians(valuesList[5].toInt());
 
 	double totalAngleUIc = angleUIc + radAngleUIc;
-
 
 	QPointF UIcLineEndPoint(startPoint.x() + UIlength * cos(totalAngleUIc), startPoint.y() + UIlength * sin(totalAngleUIc));
 
@@ -202,4 +191,3 @@ void VectorImage::generalFunc(QString any)
 
 	return;
 }
-
