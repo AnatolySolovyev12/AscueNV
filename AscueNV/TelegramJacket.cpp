@@ -171,19 +171,23 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(message->chat->id))); // connect для автовывода сообщения в чат после опроса текущих
+						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(resultMassive.find(message->chat->id).value().getKey()))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 
-						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+
 					}
 					else
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(message->chat->id))); // connect для автовывода сообщения в чат после опроса текущих
+						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(resultMassive.find(message->chat->id).value().getKey())));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 						
-						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+						
 					}
 
 					//messegeInTelegram += '\n';
