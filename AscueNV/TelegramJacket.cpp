@@ -23,7 +23,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	fullTimeWork = QTime::currentTime();
 
 
-
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
 	messageTest = new TgBot::Message::Ptr();
@@ -67,21 +66,21 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 			return;
 		}
 
-		if (messegeInTelegram.length() < 6)
+		if (messegeInTelegram.length() < 6) // Validation messege
 		{
 			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length.Need more");
 			return;
 		}
 
-		if (messegeInTelegram.length() > 16)
+		if (messegeInTelegram.length() > 16) // Validation messege
 		{
 			messegeInTelegram = "";
 			bot->getApi().sendMessage(message->chat->id, "Incorrect length. Need less");
 			return;
 		}
 
-		for (auto& val : messegeInTelegram)
+		for (auto& val : messegeInTelegram) // Validation messege
 		{
 			if ((val == '_' || val == '>') && counterForSlesh == 0)
 			{
@@ -157,26 +156,45 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
-					myChat = message->chat->id; // фиксируем id чата для автовывода сообщения после опроса текущих
+					//myChat = message->chat->id; // фиксируем id чата для автовывода сообщения после опроса текущих   //////////////////////////////
 
-					delete tcpObj;
-					tcpObj = nullptr;
+					
+					//delete tcpObj;
+					//tcpObj = nullptr;
 
-					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+					//tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+					//QHashIterator <int64_t, QPair<TcpClientForTelegram*, QString>> it (resultMassive);
 
-					QObject::connect(tcpObj, SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
-					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+					if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
+					{
+						delete resultMassive.find(message->chat->id).value();
+						resultMassive.find(message->chat->id).value() = nullptr;
+						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+					}
+					else
+					{
+						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived()), this, SLOT(setIntervalAfterGetString())); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+					}
+
+				
 
 
-					messegeInTelegram += '\n';
-					tcpObj->setResultString(messegeInTelegram);
+					//messegeInTelegram += '\n';
+					//tcpObj->setResultString(messegeInTelegram);
+
+					resultMassive.find(message->chat->id).value()->setResultString("\n");
 
 					if(currentNeed)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 					else
 						bot->getApi().sendMessage(message->chat->id, "We started trying to get vector and identification parameters ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and you get a messege. Also you can get these if you send: /result. Repeat if it needed.");
 
-					tcpObj->startToConnect(ipFromDbTelegram);
+					resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 					ipFromDbTelegram = "";
 				}
 				else

@@ -22,6 +22,9 @@
 
 #include <windows.h>
 
+#include <qhash.h>
+#include <qpair.h>
+
 
 class TelegramJacket : public QMainWindow
 {
@@ -74,4 +77,7 @@ private:
 
 	QSystemTrayIcon* trayIcon = nullptr;
 	QTime fullTimeWork;
+
+	QHash<int64_t, TcpClientForTelegram *>resultMassive;
+	//QHashIterator < int64_t, QPair<TcpClientForTelegram*, QString>> it;
 };
