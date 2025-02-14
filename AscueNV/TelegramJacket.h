@@ -35,7 +35,7 @@ public:
 
 private slots:
 	void updateLongPoll();
-	void setIntervalAfterGetString();
+	void setIntervalAfterGetString(int64_t any);
 	void setStopForVector();
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
 	void cmdOpen();

@@ -26,8 +26,9 @@ public:
     void setResultString(QString any);
     void startToConnect(QString any);
     void resetAnswerString();
-
     void vecExchange();
+    void setKey(int64_t any);
+    int64_t getKey();
 
 signals:
     void messageReceived();
@@ -51,6 +52,7 @@ private:
     int port = 8888;
     int reTransmitQuery = 0;
     QString serialStringForProtocol;
+    int64_t key;
 };
 
 #endif // TCPCLIENT_H

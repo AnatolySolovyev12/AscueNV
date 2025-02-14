@@ -2002,3 +2002,13 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 			qDebug() << "after convert " + temporaryAnswer << '\n';
 	}
 }
+
+void TcpClientForTelegram::setKey(int64_t any)
+{
+	key = any;
+}
+
+int64_t TcpClientForTelegram::getKey()
+{
+	return key;
+}
