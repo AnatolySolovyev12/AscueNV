@@ -2008,7 +2008,7 @@ void TcpClientForTelegram::setKey(int64_t any)
 	key = any;
 }
 
-int64_t TcpClientForTelegram::getKey()
+const int64_t TcpClientForTelegram::getKey()
 {
 	return key;
 }

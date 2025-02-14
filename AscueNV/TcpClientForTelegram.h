@@ -28,7 +28,7 @@ public:
     void resetAnswerString();
     void vecExchange();
     void setKey(int64_t any);
-    int64_t getKey();
+    const int64_t getKey();
 
 signals:
     void messageReceived(const int64_t&);
