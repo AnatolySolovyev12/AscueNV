@@ -173,7 +173,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(resultMassive.find(message->chat->id).value()->getKey()))); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 
 
@@ -184,7 +184,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(resultMassive.find(message->chat->id).value()->getKey())));  // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 						
 						
@@ -310,7 +310,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 }
 
 
-void TelegramJacket::setIntervalAfterGetString(int64_t any) // автовывод сообщения после получения текущих от счётчика
+void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автовывод сообщения после получения текущих от счётчика
 {
 	qDebug() << "IN THE FUNC!";
 
