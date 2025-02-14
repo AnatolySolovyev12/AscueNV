@@ -31,9 +31,9 @@ public:
     int64_t getKey();
 
 signals:
-    void messageReceived();
+    void messageReceived(const int64_t&);
     void messageError();
-
+  
 private slots:
     void onConnected();
     void onDisconnected();

@@ -156,7 +156,7 @@ void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketEr
 	qDebug() << "\nSocket error:" << socketError << socket->errorString();
 	answerString += socket->errorString() + '.' + " No connection or bad signal";
 	emit messageError();
-	emit messageReceived();
+	emit messageReceived(getKey());
 }
 
 void TcpClientForTelegram::summAnswer(QString& any)
@@ -933,7 +933,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			emit messageReceived();
+			emit messageReceived(getKey());
 		}
 	}
 
@@ -1454,7 +1454,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			emit messageReceived();
+			emit messageReceived(getKey());
 		}
 	}
 
@@ -1589,7 +1589,7 @@ void TcpClientForTelegram::exchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			emit messageReceived();
+			emit messageReceived(getKey());
 		}
 	}
 }
@@ -1858,7 +1858,7 @@ void TcpClientForTelegram::vecExchange()
 			ip = "";
 			reTransmitQuery = 0;
 
-			emit messageReceived();
+			emit messageReceived(getKey());
 		}
 	}
 }
