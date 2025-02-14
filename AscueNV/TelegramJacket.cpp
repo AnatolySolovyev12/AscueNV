@@ -171,7 +171,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(message->chat->id))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
@@ -180,7 +180,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
 
-						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(message->chat->id))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 						
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
@@ -308,7 +308,9 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 void TelegramJacket::setIntervalAfterGetString(int64_t any) // автовывод сообщения после получения текущих от счётчика
 {
-	messegeFromTcp = tcpObj->returnResultString();
+	qDebug() << "IN THE FUNC!";
+
+	//messegeFromTcp = tcpObj->returnResultString();
 
 	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
 	{
