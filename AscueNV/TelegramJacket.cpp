@@ -71,6 +71,8 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 			{
 				bot->getApi().sendMessage(message->chat->id, "empty");
 			}
+
+			return;
 		}
 
 		if (messegeInTelegram.length() < 6) // Validation messege
