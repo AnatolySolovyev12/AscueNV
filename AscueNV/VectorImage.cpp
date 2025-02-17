@@ -14,12 +14,10 @@ VectorImage::~VectorImage()
 void VectorImage::generalFunc(QString any)
 {
 	QString general = any;
-	QString temporary = general.sliced(88);
+	std::cout << general.toStdString() << std::endl;
+	QString temporary = general.sliced(76);
 
 	std::cout << temporary.toStdString() << std::endl;
-
-	printf("TEST VECTOR");
-
 
 	QList <QString> valuesList;
 
@@ -54,13 +52,13 @@ void VectorImage::generalFunc(QString any)
 			continue;
 		}
 	}
-
+	/*
 	if (valuesList.length() < 5)
 	{
 		printf("valueList length < 5");
 		return;
 	}
-
+	*/
 	QImage image("vectorP.png");
 
 	QPainter painter(&image); // класс общей рисовальни для создания графических объектов
