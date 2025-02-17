@@ -16,7 +16,6 @@ public:
 	VectorImage(QObject* parent);
 	~VectorImage();
 
-
 	void generalFunc(QString any);
 	void setKey(int64_t);
 

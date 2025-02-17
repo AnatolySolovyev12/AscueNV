@@ -1,18 +1,15 @@
 #pragma once
 
-#include <stdio.h>
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
 #include <VectorImage.h>
-#include <qtimer.h>
-#include <qdebug.h>
 
+#include <stdio.h>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
-#include <string>
 
 #include <QApplication>
 #include <QSystemTrayIcon>
@@ -24,7 +21,6 @@
 
 #include <qhash.h>
 #include <qpair.h>
-
 
 class TelegramJacket : public QMainWindow
 {
@@ -80,5 +76,4 @@ private:
 
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
 	QHash<int64_t, VectorImage*>resultMassiveVector;
-	//QHashIterator < int64_t, QPair<TcpClientForTelegram*, QString>> it;
 };

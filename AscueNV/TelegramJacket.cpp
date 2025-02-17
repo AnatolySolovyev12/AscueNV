@@ -22,7 +22,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	
 	fullTimeWork = QTime::currentTime();
 
-
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
 	messageTest = new TgBot::Message::Ptr();
@@ -68,7 +67,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					bot->getApi().sendMessage(message->chat->id, resultMassive.find(message->chat->id).value()->returnResultString().toStdString());
 				}
 			}
-		
 			return;
 		}
 
@@ -162,42 +160,24 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
-					//myChat = message->chat->id; // фиксируем id чата для автовывода сообщения после опроса текущих   //////////////////////////////
-
-					
-					//delete tcpObj;
-					//tcpObj = nullptr;
-
-					//tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
-					//QHashIterator <int64_t, QPair<TcpClientForTelegram*, QString>> it (resultMassive);
-
 					if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
 					{
 						delete resultMassive.find(message->chat->id).value();
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
-
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
-
-
 					}
 					else
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
-
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
-						
-						
 					}
-
-					//messegeInTelegram += '\n';
-					//tcpObj->setResultString(messegeInTelegram);
 
 					resultMassive.find(message->chat->id).value()->setResultString("\n");
 
@@ -254,7 +234,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						delete resultMassive.find(message->chat->id).value();
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
-
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
@@ -263,13 +242,10 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					else
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
-
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
-
-
 					}
 
 					if (relayCounterOn)
@@ -300,9 +276,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 		relayCounterOff = false;
 		vecNeed = false;
 		messegeInTelegram = "";
-
-		//bot->getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
-
 		delete forQuery;
 		forQuery = nullptr;
 
@@ -333,52 +306,26 @@ void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автов�
 {
 	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
 	{
-		/*
-		delete editImage;
-		editImage = nullptr;
-		editImage = new VectorImage(this);
-		editImage->generalFunc(messegeFromTcp);
-		bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
-		*/
-
-		qDebug() << "FIRST";
-		
 		if (resultMassiveVector.find(any) != resultMassiveVector.constEnd())
 		{
-			qDebug() << "SECOND";
 			delete resultMassiveVector.find(any).value();
-			qDebug() << "THIRD";
 			resultMassiveVector.find(any).value() = nullptr;
-			qDebug() << "FOUR";
 			resultMassiveVector.find(any).value() = new VectorImage(this);
-			qDebug() << "FIVE";
 			resultMassiveVector.find(any).value()->setKey(any);
-			qDebug() << "SIX";
 			resultMassiveVector.find(any).value()->generalFunc(resultMassive.find(any).value()->returnResultString());
-			qDebug() << "SEVEN";
 			bot->getApi().sendPhoto(any, TgBot::InputFile::fromFile((QString::number(any).toStdString() + photoFilePath), photoMimeType));
-			qDebug() << "EIGHT";
 		}
 		else
 		{
-			qDebug() << "SECOND";
 			resultMassiveVector.insert(any, new VectorImage(this));
-			qDebug() << "THIRD";
 			resultMassiveVector.find(any).value()->setKey(any);
-			qDebug() << "FOUR";
 			resultMassiveVector.find(any).value()->generalFunc(resultMassive.find(any).value()->returnResultString());
-			qDebug() << "FIVE";
 			bot->getApi().sendPhoto(any, TgBot::InputFile::fromFile((QString::number(any).toStdString() + photoFilePath), photoMimeType));
-			qDebug() << "SIX";
 		}
-
-		
-
 	}
-	qDebug() << "NINE";
+
 	bot->getApi().sendMessage(any, resultMassive.find(any).value()->returnResultString().toStdString());
 	stopVector = false;
-	qDebug() << "TEN";
 }
 
 
@@ -391,7 +338,6 @@ void TelegramJacket::setStopForVector() // автовывод сообщения
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
 	try {
-
 		longPoll->start();
 	}
 	catch (TgBot::TgException& e) {
@@ -402,10 +348,9 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 
 void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
-	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick)
+	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick) // требуется корректировка вывода часов переведённых в сутки или в часах свыше 24
 	{
 		int test = fullTimeWork.secsTo(QTime::currentTime());
-
 		trayIcon->showMessage("All time from start:", QTime(0, 0, 0).addSecs(test).toString(), QSystemTrayIcon::Information, 5000);
 	}
 }
@@ -413,7 +358,7 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void TelegramJacket::cmdOpen()
 {
-	AllocConsole(); // Создаем консоль
+	AllocConsole(); // Создаем консоль и присоединяем к ней текущий процесс
 	FILE* stream;
 	freopen_s(&stream, "CONOUT$", "w", stdout); // Перенаправляем стандартный вывод
 	freopen_s(&stream, "CONOUT$", "w", stderr); // Перенаправляем стандартный вывод ошибок
