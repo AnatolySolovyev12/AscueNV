@@ -55,14 +55,20 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 		if (messegeInTelegram == "/result")
 		{
-			if (tcpObj != nullptr)
+			if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
 			{
-				messegeFromTcp = tcpObj->returnResultString();
+				//messegeFromTcp = tcpObj->returnResultString();
+
+				if (resultMassive.find(message->chat->id).value()->returnResultString().toStdString() == "")
+				{
+					bot->getApi().sendMessage(message->chat->id, "empty");
+				}
+				else
+				{
+					bot->getApi().sendMessage(message->chat->id, resultMassive.find(message->chat->id).value()->returnResultString().toStdString());
+				}
 			}
-			if (messegeFromTcp == "") messegeFromTcp = "empty";
-
-			bot->getApi().sendMessage(message->chat->id, messegeFromTcp.toStdString());
-
+		
 			return;
 		}
 
@@ -243,22 +249,35 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 				if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
 				{
-					myChat = message->chat->id;
+					if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
+					{
+						delete resultMassive.find(message->chat->id).value();
+						resultMassive.find(message->chat->id).value() = nullptr;
+						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 
-					delete tcpObj;
-					tcpObj = nullptr;
+						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
 
-					tcpObj = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+					}
+					else
+					{
+						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
 
-					QObject::connect(tcpObj, SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
-					QObject::connect(tcpObj, SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
+						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+
+
+					}
 
 					if (relayCounterOn)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 					else
 						bot->getApi().sendMessage(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
-					tcpObj->startToConnect(ipFromDbTelegram);
+					resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 					ipFromDbTelegram = "";
 				}
 				else
@@ -312,21 +331,54 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автовывод сообщения после получения текущих от счётчика
 {
-	qDebug() << "IN THE FUNC!";
-
-	//messegeFromTcp = tcpObj->returnResultString();
-
 	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
 	{
+		/*
 		delete editImage;
 		editImage = nullptr;
 		editImage = new VectorImage(this);
 		editImage->generalFunc(messegeFromTcp);
 		bot->getApi().sendPhoto(myChat, TgBot::InputFile::fromFile(photoFilePath, photoMimeType));
-	}
+		*/
 
+		qDebug() << "FIRST";
+		
+		if (resultMassiveVector.find(any) != resultMassiveVector.constEnd())
+		{
+			qDebug() << "SECOND";
+			delete resultMassiveVector.find(any).value();
+			qDebug() << "THIRD";
+			resultMassiveVector.find(any).value() = nullptr;
+			qDebug() << "FOUR";
+			resultMassiveVector.find(any).value() = new VectorImage(this);
+			qDebug() << "FIVE";
+			resultMassiveVector.find(any).value()->setKey(any);
+			qDebug() << "SIX";
+			resultMassiveVector.find(any).value()->generalFunc(resultMassive.find(any).value()->returnResultString());
+			qDebug() << "SEVEN";
+			bot->getApi().sendPhoto(any, TgBot::InputFile::fromFile((QString::number(any).toStdString() + photoFilePath), photoMimeType));
+			qDebug() << "EIGHT";
+		}
+		else
+		{
+			qDebug() << "SECOND";
+			resultMassiveVector.insert(any, new VectorImage(this));
+			qDebug() << "THIRD";
+			resultMassiveVector.find(any).value()->setKey(any);
+			qDebug() << "FOUR";
+			resultMassiveVector.find(any).value()->generalFunc(resultMassive.find(any).value()->returnResultString());
+			qDebug() << "FIVE";
+			bot->getApi().sendPhoto(any, TgBot::InputFile::fromFile((QString::number(any).toStdString() + photoFilePath), photoMimeType));
+			qDebug() << "SIX";
+		}
+
+		
+
+	}
+	qDebug() << "NINE";
 	bot->getApi().sendMessage(any, resultMassive.find(any).value()->returnResultString().toStdString());
 	stopVector = false;
+	qDebug() << "TEN";
 }
 
 

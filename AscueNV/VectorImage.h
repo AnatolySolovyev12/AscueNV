@@ -18,8 +18,12 @@ public:
 
 
 	void generalFunc(QString any);
+	void setKey(int64_t);
 
 signals:
 	void messageReceived();
 
+private:
+
+	int64_t key;
 };

@@ -1,6 +1,7 @@
 #include "VectorImage.h"
 #include <iostream>
 
+
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
 {
@@ -14,6 +15,12 @@ void VectorImage::generalFunc(QString any)
 {
 	QString general = any;
 	QString temporary = general.sliced(88);
+
+	std::cout << temporary.toStdString() << std::endl;
+
+	printf("TEST VECTOR");
+
+
 	QList <QString> valuesList;
 
 	QString test;
@@ -46,6 +53,12 @@ void VectorImage::generalFunc(QString any)
 			test += val;
 			continue;
 		}
+	}
+
+	if (valuesList.length() < 5)
+	{
+		printf("valueList length < 5");
+		return;
 	}
 
 	QImage image("vectorP.png");
@@ -185,9 +198,15 @@ void VectorImage::generalFunc(QString any)
 	painter.end();
 
 	// Сохраняем изменённое изображение в файл
-	image.save("mod_vectorP.png");
+	image.save(QString::number(key) + "_vectorP.png");
 
 	emit messageReceived();
 
 	return;
+}
+
+
+void VectorImage::setKey(int64_t any)
+{
+	key = any;
 }

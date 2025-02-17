@@ -70,7 +70,7 @@ private:
 
 	int64_t myChat = 0;
 
-    const std::string photoFilePath = "mod_vectorP.png";
+    const std::string photoFilePath = "_vectorP.png";
 	const std::string photoMimeType = "image/png";
 
 	VectorImage* editImage = nullptr;
@@ -79,5 +79,6 @@ private:
 	QTime fullTimeWork;
 
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
+	QHash<int64_t, VectorImage*>resultMassiveVector;
 	//QHashIterator < int64_t, QPair<TcpClientForTelegram*, QString>> it;
 };

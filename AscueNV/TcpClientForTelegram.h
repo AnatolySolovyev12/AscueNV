@@ -52,7 +52,7 @@ private:
     int port = 8888;
     int reTransmitQuery = 0;
     QString serialStringForProtocol;
-    int64_t key;
+    int64_t key = 0;
 };
 
 #endif // TCPCLIENT_H
