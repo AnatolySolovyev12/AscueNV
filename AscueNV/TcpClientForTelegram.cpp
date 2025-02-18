@@ -124,11 +124,11 @@ void TcpClientForTelegram::onReadyRead()
 	}
 	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104") && counterForResend == 4)
 	{
-		answerString += "\nRelay was connect";
+		answerString += "Relay was connect";
 	}
 	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") && counterForResend == 4)
 	{
-		answerString += "\nRelay was disconnect";
+		answerString += "Relay was disconnect";
 	}
 
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
