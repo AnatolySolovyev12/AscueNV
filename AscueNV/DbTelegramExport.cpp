@@ -44,10 +44,21 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-		//qDebug() << queryString;
-		query.exec(queryString);
-		query.next();
+		//queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+
+		query.prepare("select ID_MeterInfo from MeterInfo where SN = ?MeterInfoPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций
+		query.bindValue("?MeterInfoPrep", any);
+
+		//query.exec();
+		//query.exec(queryString);
+		//query.next();
+
+		if (!query.exec() || !query.next())
+		{
+			qDebug() << "Query failed or no results: " << query.lastError();
+			return;
+		}
+
 		iD = query.value(0).toInt();
 
 		idFromDB = iD; // проверка на возврат пустого iD
@@ -67,7 +78,8 @@ void DbTelegramExport::queryDbResult(QString any)
 			continue;
 		}
 
-		queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
+		//queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
+		queryString = QString("select TOP 1 ID_USPD from AutoInfo where info like '%%1%'").arg(any); // alternative
 		query.exec(queryString);
 		query.next();
 		IdUSPD = query.value(0).toString();
