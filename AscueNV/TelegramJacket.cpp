@@ -125,7 +125,9 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 		counterForSlesh = 0;
 
-		forQuery = new DbTelegramExport();
+		QScopedPointer<DbTelegramExport>forQuery(new DbTelegramExport);
+
+		//forQuery = new DbTelegramExport();
 
 		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff)
 		{
@@ -282,8 +284,8 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 		relayCounterOff = false;
 		vecNeed = false;
 		messegeInTelegram = "";
-		delete forQuery;
-		forQuery = nullptr;
+		//delete forQuery;
+		//forQuery = nullptr;
 
 		if (StringTools::startsWith(message->text, "/start")) {
 			return;

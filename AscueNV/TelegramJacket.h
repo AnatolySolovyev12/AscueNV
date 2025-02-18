@@ -22,6 +22,8 @@
 #include <qhash.h>
 #include <qpair.h>
 
+#include <QScopedPointer>
+
 class TelegramJacket : public QMainWindow
 {
 	Q_OBJECT
@@ -56,7 +58,7 @@ private:
 	QString ipFromDbTelegram;
 	QString serialStringForProtocolinTelegram;
 
-	DbTelegramExport* forQuery = nullptr;
+	//DbTelegramExport* forQuery = nullptr;
 
 	TcpClientForTelegram* tcpObj = nullptr;
 
