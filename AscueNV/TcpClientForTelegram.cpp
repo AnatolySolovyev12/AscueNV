@@ -637,7 +637,7 @@ QString TcpClientForTelegram::returnResultString()
 
 void TcpClientForTelegram::setResultString(QString any)
 {
-	answerString += any + '\n';
+	answerString += any + "\n\n";
 }
 
 void TcpClientForTelegram::exchange()

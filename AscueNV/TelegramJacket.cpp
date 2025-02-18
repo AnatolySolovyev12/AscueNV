@@ -71,6 +71,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 			{
 				bot->getApi().sendMessage(message->chat->id, "empty");
 			}
+			return;
 		}
 
 		if (messegeInTelegram.length() < 6) // Validation messege
@@ -169,6 +170,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+						resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
@@ -177,12 +179,11 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+						resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 					}
-
-					resultMassive.find(message->chat->id).value()->setResultString("\n");
 
 					if(currentNeed)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
@@ -238,6 +239,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						resultMassive.find(message->chat->id).value() = nullptr;
 						resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+						resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
@@ -246,6 +248,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					{
 						resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
 						resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+						resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
 
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму

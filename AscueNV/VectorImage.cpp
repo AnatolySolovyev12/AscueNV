@@ -1,5 +1,5 @@
 #include "VectorImage.h"
-//#include <iostream>
+#include <iostream>
 
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
@@ -13,7 +13,8 @@ VectorImage::~VectorImage()
 void VectorImage::generalFunc(QString any)
 {
 	QString general = any;
-	QString temporary = general.sliced(76);
+	QString temporary = general.sliced(88);
+
 	QList <QString> valuesList;
 
 	QString test;
