@@ -29,6 +29,7 @@ public:
     void vecExchange();
     void setKey(int64_t any);
     const int64_t getKey();
+    QString getSerialStringForProtocol();
 
 signals:
     void messageReceived(const int64_t&);

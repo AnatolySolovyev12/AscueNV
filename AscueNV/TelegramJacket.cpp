@@ -310,6 +310,8 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автовывод сообщения после получения текущих от счётчика
 {
+	serialStringForProtocolinTelegram = resultMassive.find(any).value()->getSerialStringForProtocol();
+
 	if ((serialStringForProtocolinTelegram == "*102" || serialStringForProtocolinTelegram == "*104" || serialStringForProtocolinTelegram == "*106") && !stopVector)
 	{
 		if (resultMassiveVector.find(any) != resultMassiveVector.constEnd())

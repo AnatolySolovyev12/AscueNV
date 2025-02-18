@@ -2012,3 +2012,8 @@ const int64_t TcpClientForTelegram::getKey()
 {
 	return key;
 }
+
+QString TcpClientForTelegram::getSerialStringForProtocol()
+{
+	return serialStringForProtocol;
+}
