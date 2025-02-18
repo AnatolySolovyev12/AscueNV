@@ -46,8 +46,8 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		//queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 
-		query.prepare("select ID_MeterInfo from MeterInfo where SN = ?MeterInfoPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций
-		query.bindValue("?MeterInfoPrep", any);
+		query.prepare("select ID_MeterInfo from MeterInfo where SN = :MeterInfoPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций
+		query.bindValue(":MeterInfoPrep", any);
 
 		//query.exec();
 		//query.exec(queryString);
