@@ -1,5 +1,5 @@
 #include "VectorImage.h"
-#include <iostream>
+#include <QTextStream.h>
 
 VectorImage::VectorImage(QObject* parent)
 	: QObject(parent)
@@ -12,12 +12,14 @@ VectorImage::~VectorImage()
 
 void VectorImage::generalFunc(QString any)
 {
+	QTextStream outerr(stderr);
+
 	QString general = any;
 	QString temporary = general.sliced(88);
 
 	QList <QString> valuesList;
 
-	QString test;
+	QString bufferSign;
 	general = "";
 
 	bool space = false;
@@ -37,19 +39,32 @@ void VectorImage::generalFunc(QString any)
 			if (space)
 			{
 				space = false;
-				valuesList.push_back(test);
-				test = "";
+				valuesList.push_back(bufferSign);
+				bufferSign = "";
 				continue;
 			}
 		}
 		if (space)
 		{
-			test += val;
+			bufferSign += val;
 			continue;
 		}
 	}
 
-	QImage image("vectorP.png");
+	if(valuesList.length() < 6)
+	{
+		outerr << "Error. Length of valueList is less then need" << Qt::endl;
+		return;
+	}
+
+
+	QImage image;
+
+	if (!image.load("vectorP.png"))
+	{
+		outerr << "Error. Can't load vectorP.png" << Qt::endl;
+		return;
+	}
 
 	QPainter painter(&image); // класс общей рисовальни для создания графических объектов
 
@@ -186,7 +201,11 @@ void VectorImage::generalFunc(QString any)
 	painter.end();
 
 	// Сохраняем изменённое изображение в файл
-	image.save(QString::number(key) + "_vectorP.png");
+	if (!image.save(QString::number(key) + "_vectorP.png"))
+	{
+		outerr << "Error. Can't save " << QString::number(key) + "_vectorP.png" << Qt::endl;
+		return;
+	}
 
 	emit messageReceived();
 
