@@ -357,7 +357,9 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick) // требуется корректировка вывода часов переведённых в сутки или в часах свыше 24
 	{
 		int test = fullTimeWork.secsTo(QTime::currentTime());
-		trayIcon->showMessage("All time from start:", QTime(0, 0, 0).addSecs(test).toString(), QSystemTrayIcon::Information, 5000);
+		QString days = QString::number(test / 86400);
+
+		trayIcon->showMessage("All time from start:", "Days " + days + " Time " + QTime(0, 0, 0).addSecs(test%86400).toString() + " rm " + QString::number(resultMassive.size()), QSystemTrayIcon::Information, 5000);
 	}
 }
 
