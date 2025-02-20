@@ -55,8 +55,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		if (!query.exec() || !query.next())
 		{
-			//qDebug() << "Query failed or no results: " << query.lastError();
-			//return;
+			qDebug() << "Query failed or no results: " << query.lastError();
 		}
 
 		iD = query.value(0).toInt();
