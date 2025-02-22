@@ -3,6 +3,8 @@
 TelegramJacket::TelegramJacket(QWidget* parent)
 	: QMainWindow(parent)
 {
+	fullTimeWork = QDateTime::currentDateTime();
+
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon("icon.png"));
 	
@@ -19,8 +21,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	trayIcon->setVisible(true);
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
-	
-	fullTimeWork = QTime::currentTime();
 
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
@@ -360,9 +360,8 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 {
 	if (reason == QSystemTrayIcon::ActivationReason::DoubleClick) // требуется корректировка вывода часов переведённых в сутки или в часах свыше 24
 	{
-		int test = fullTimeWork.secsTo(QTime::currentTime());
+		qint64 test = fullTimeWork.secsTo(QDateTime::currentDateTime());
 		QString days = QString::number(test / 86400);
-
 		trayIcon->showMessage("All time from start:", "Days " + days + " Time " + QTime(0, 0, 0).addSecs(test%86400).toString() + " rm " + QString::number(resultMassive.size()), QSystemTrayIcon::Information, 5000);
 	}
 }

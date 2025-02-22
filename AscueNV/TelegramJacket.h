@@ -74,7 +74,7 @@ private:
 	VectorImage* editImage = nullptr;
 
 	QSystemTrayIcon* trayIcon = nullptr;
-	QTime fullTimeWork;
+	QDateTime fullTimeWork;
 
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
 	QHash<int64_t, VectorImage*>resultMassiveVector;
