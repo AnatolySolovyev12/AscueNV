@@ -44,7 +44,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-		//queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
+		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
 
 		query.prepare("select ID_MeterInfo from MeterInfo where SN = :MeterInfoPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций
 		query.bindValue(":MeterInfoPrep", any);
@@ -55,8 +55,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		if (!query.exec() || !query.next())
 		{
-			qDebug() << "Query failed or no results: " << query.lastError();
-			return;
+			qDebug() << "Query failed or no results in current DB: " << query.lastError();
 		}
 
 		iD = query.value(0).toInt();
