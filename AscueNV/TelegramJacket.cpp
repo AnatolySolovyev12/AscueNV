@@ -36,7 +36,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
-		bot->getApi().sendMessage(message->chat->id, "<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
+		bot->getApi().sendMessage(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + "\n<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
 		myChat = message->chat->id;
 
 		});
