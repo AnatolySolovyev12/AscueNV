@@ -24,12 +24,16 @@
 
 #include <QScopedPointer>
 
+#include <qfile.h>
+
 class TelegramJacket : public QMainWindow
 {
 	Q_OBJECT
 
 public:
 	TelegramJacket(QWidget* parent = nullptr);
+
+	void validChatIdInMassive();
 
 private slots:
 	void updateLongPoll();
@@ -78,4 +82,6 @@ private:
 
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
 	QHash<int64_t, VectorImage*>resultMassiveVector;
+
+	QList<QString>chatIdMassive;
 };

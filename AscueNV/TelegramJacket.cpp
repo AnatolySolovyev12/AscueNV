@@ -7,6 +7,8 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	trayIcon = new QSystemTrayIcon(this);
 	trayIcon->setIcon(QIcon("icon.png"));
+
+	validChatIdInMassive();
 	
 	QMenu* menu = new QMenu(this);
 	QAction* restoreAction = menu->addAction("CMD open and connect");
@@ -92,6 +94,12 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 		{
 			if ((val == '_' || val == '>') && counterForSlesh == 0)
 			{
+				if (chatIdMassive.indexOf(QString::number(message->chat->id)) == -1)
+				{
+					bot->getApi().sendMessage(message->chat->id, "Access for this command is not for you (_,_)");
+					return;
+				}
+
 				if (val == '_')
 					relayCounterOn = true;
 				else
@@ -383,4 +391,33 @@ void TelegramJacket::cmdClose()
 	qDebug() << "\nProgramm disconnect from console.";
 
 	FreeConsole(); // Отделяем процесс от cmd. После cmd закрываем руками.
+}
+
+void TelegramJacket::validChatIdInMassive()
+{
+	QFile file("chatIdMassive.txt");
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qDebug() << "Error in TelegramJacket::validChatIdInMassive(not find file or other):" << file.error();
+	}
+
+	QString line;
+
+	QTextStream in(&file);
+
+	while (!in.atEnd())
+	{
+		line = in.readLine(12);
+
+		if (chatIdMassive.length() > 20)
+		{
+			qDebug() << "Error: Max length for chatIdMassive is 20";
+			break;
+		}
+
+		chatIdMassive.push_back(line);
+	}
+
+	file.close();
 }
