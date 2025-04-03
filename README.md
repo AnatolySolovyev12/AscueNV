@@ -6,7 +6,7 @@ What can:
 3) Take the current power parameters and a number of other values ​directly from the counter via the TCP channel
 4) Control the output relay directly over the TCP channel
 5) Connected data for connection is taken from the database
-6) ChatUD control for relay command
+6) ChatID control for relay command
 
 ![1](https://github.com/user-attachments/assets/148524c1-8ad4-4e2f-8211-1b477b07598c)
 ![2](https://github.com/user-attachments/assets/c1d13b9f-6985-4748-a3d4-3928587e8204)
