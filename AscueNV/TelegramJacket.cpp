@@ -24,10 +24,12 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
+	//bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
+
 	messageTest = new TgBot::Message::Ptr();
-
+	
 	longPoll = new TgBot::TgLongPoll(*bot, 100, 2); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
-
+	
 	myTimer = new QTimer();
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
