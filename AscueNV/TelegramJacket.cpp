@@ -26,7 +26,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	bot = new TgBot::Bot("7880555988:AAHhHkQUARdmJXUT8RB7mrXIgVTQIAkN3RM");
 
-	//bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
+	bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
 
 	messageTest = new TgBot::Message::Ptr();
 
