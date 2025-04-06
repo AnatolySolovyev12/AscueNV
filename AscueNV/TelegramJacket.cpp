@@ -356,7 +356,7 @@ void TelegramJacket::setStopForVector() // автовывод сообщения
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
 	try {
-		bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
+		//bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
 		longPoll->start();
 	}
 	catch (TgBot::TgException& e) {
