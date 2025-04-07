@@ -33,8 +33,6 @@ class TelegramJacket : public QMainWindow
 public:
 	TelegramJacket(QWidget* parent = nullptr);
 
-	void validChatIdInMassive();
-
 private slots:
 	void updateLongPoll();
 	void setIntervalAfterGetString(const int64_t any);
@@ -42,6 +40,7 @@ private slots:
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
 	void cmdOpen();
 	void cmdClose();
+	void validChatIdInMassive();
 	
 private:
 
@@ -82,6 +81,5 @@ private:
 
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
 	QHash<int64_t, VectorImage*>resultMassiveVector;
-
 	QList<QString>chatIdMassive;
 };
