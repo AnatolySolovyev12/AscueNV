@@ -24,7 +24,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	bot = new TgBot::Bot("");
+	bot = new TgBot::Bot(""); // токен бота вписать
 
 	messageTest = new TgBot::Message::Ptr();
 
