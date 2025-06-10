@@ -24,7 +24,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	bot = new TgBot::Bot(""); // токен бота вписать
+	bot = new TgBot::Bot(getTokenFromFile().toStdString());
 
 	messageTest = new TgBot::Message::Ptr();
 
@@ -395,6 +395,7 @@ void TelegramJacket::cmdClose()
 	FreeConsole(); // Отделяем процесс от cmd. После cmd закрываем руками.
 }
 
+
 void TelegramJacket::validChatIdInMassive()
 {
 	QFile file("chatIdMassive.txt");
@@ -422,4 +423,31 @@ void TelegramJacket::validChatIdInMassive()
 	}
 
 	file.close();
+}
+
+
+QString TelegramJacket::getTokenFromFile()
+{
+	QFile file("token.txt");
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qDebug() << "Don't find browse file. Add a directory with a token (token.txt).";
+		return 0;
+	}
+
+	QTextStream out(&file);
+
+	QString myLine = out.readLine(); // метод readLine() считывает одну строку из потока
+
+	if (myLine == "")
+	{
+		qDebug() << "Don't find browse file. Add a directory with a token (token.txt).";
+		file.close();
+		return 0;
+	}
+
+	file.close();
+
+	return myLine;
 }

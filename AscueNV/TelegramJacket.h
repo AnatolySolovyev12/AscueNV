@@ -41,6 +41,7 @@ private slots:
 	void cmdOpen();
 	void cmdClose();
 	void validChatIdInMassive();
+	QString getTokenFromFile();
 	
 private:
 
