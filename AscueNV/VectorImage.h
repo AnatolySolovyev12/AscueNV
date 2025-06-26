@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QPointF>
 #include <cmath>
+#include <QApplication>
 
 class VectorImage : public QObject
 {

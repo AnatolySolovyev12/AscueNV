@@ -60,7 +60,7 @@ void VectorImage::generalFunc(QString any)
 
 	QImage image;
 
-	if (!image.load("vectorP.png"))
+	if (!image.load(QCoreApplication::applicationDirPath() + "\\vectorP.png"))
 	{
 		outerr << "Error. Can't load vectorP.png" << Qt::endl;
 		return;

@@ -6,7 +6,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	fullTimeWork = QDateTime::currentDateTime();
 
 	trayIcon = new QSystemTrayIcon(this);
-	trayIcon->setIcon(QIcon("icon.png"));
+	trayIcon->setIcon(QIcon(QCoreApplication::applicationDirPath() + "\\icon.png"));
 
 	validChatIdInMassive();
 	
@@ -398,7 +398,7 @@ void TelegramJacket::cmdClose()
 
 void TelegramJacket::validChatIdInMassive()
 {
-	QFile file("chatIdMassive.txt");
+	QFile file(QCoreApplication::applicationDirPath() + "\\chatIdMassive.txt");
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
@@ -428,7 +428,7 @@ void TelegramJacket::validChatIdInMassive()
 
 QString TelegramJacket::getTokenFromFile()
 {
-	QFile file("token.txt");
+	QFile file(QCoreApplication::applicationDirPath() + "\\token.txt");
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
