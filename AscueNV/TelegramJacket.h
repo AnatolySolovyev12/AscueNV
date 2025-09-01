@@ -42,6 +42,9 @@ private slots:
 	void cmdClose();
 	void validChatIdInMassive();
 	QString getTokenFromFile();
+
+ signals:
+	void signalForBreakResurrection(); // restart watchdogs timer
 	
 private:
 
@@ -83,4 +86,6 @@ private:
 	QHash<int64_t, TcpClientForTelegram *>resultMassive;
 	QHash<int64_t, VectorImage*>resultMassiveVector;
 	QList<QString>chatIdMassive;
+
+	int testCOunter = 0;
 };

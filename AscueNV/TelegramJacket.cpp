@@ -9,7 +9,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	trayIcon->setIcon(QIcon(QCoreApplication::applicationDirPath() + "\\icon.png"));
 
 	validChatIdInMassive();
-	
+
 	QMenu* menu = new QMenu(this);
 	QAction* restoreAction = menu->addAction("CMD open and connect");
 	QAction* restoreActionHide = menu->addAction("CMD disconnect");
@@ -33,7 +33,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	myTimer = new QTimer();
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	myTimer->setInterval(10000);
+	myTimer->setInterval(20000);
 	myTimer->start();
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
@@ -109,7 +109,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 				continue;
 			}
 
-			if ((val == '/' || val == '*')&& counterForSlesh == 0)
+			if ((val == '/' || val == '*') && counterForSlesh == 0)
 			{
 				if (val == '/')
 					currentNeed = true;
@@ -147,7 +147,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 			forQuery->setAny(messegeInTelegram);
 		}
 
-		forQuery->queryDbResult(forQuery->getAny()); 
+		forQuery->queryDbResult(forQuery->getAny());
 
 		if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
 		{
@@ -168,7 +168,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 					serialStringForProtocolinTelegram += val;
 					++count;
 				}
-				
+
 				if (vecNeed)
 					serialStringForProtocolinTelegram.push_front('*');
 
@@ -195,7 +195,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 						QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 					}
 
-					if(currentNeed)
+					if (currentNeed)
 						bot->getApi().sendMessage(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 					else
 						bot->getApi().sendMessage(message->chat->id, "We started trying to get vector and identification parameters ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and you get a messege. Also you can get these if you send: /result. Repeat if it needed.");
@@ -355,7 +355,9 @@ void TelegramJacket::setStopForVector() // автовывод сообщения
 
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
-	try 
+	emit signalForBreakResurrection();
+
+	try
 	{
 		//bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
 		longPoll->start();
@@ -372,7 +374,7 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 	{
 		qint64 test = fullTimeWork.secsTo(QDateTime::currentDateTime());
 		QString days = QString::number(test / 86400);
-		trayIcon->showMessage("All time from start:", "Days " + days + " Time " + QTime(0, 0, 0).addSecs(test%86400).toString() + " rm " + QString::number(resultMassive.size()), QSystemTrayIcon::Information, 5000);
+		trayIcon->showMessage("All time from start:", "Days " + days + " Time " + QTime(0, 0, 0).addSecs(test % 86400).toString() + " rm " + QString::number(resultMassive.size()), QSystemTrayIcon::Information, 5000);
 	}
 }
 
