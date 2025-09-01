@@ -28,12 +28,12 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 2); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
+	longPoll = new TgBot::TgLongPoll(*bot, 100, 10); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
 
 	myTimer = new QTimer();
 
 	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	myTimer->setInterval(1000);
+	myTimer->setInterval(10000);
 	myTimer->start();
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
