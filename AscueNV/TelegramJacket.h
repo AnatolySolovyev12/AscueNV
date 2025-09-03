@@ -42,6 +42,7 @@ private slots:
 	void cmdClose();
 	void validChatIdInMassive();
 	QString getTokenFromFile();
+	void writeMessegeHistory(QString any);
 
  signals:
 	void signalForBreakResurrection(); // restart watchdogs timer

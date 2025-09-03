@@ -49,6 +49,8 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 		messegeInTelegram = message->text.c_str();
 
+		writeMessegeHistory(QString::number(message->chat->id) + " - " + messegeInTelegram);
+
 		if (messegeInTelegram == "/start")
 		{
 			return;
@@ -452,4 +454,24 @@ QString TelegramJacket::getTokenFromFile()
 	file.close();
 
 	return myLine;
+}
+
+
+void TelegramJacket::writeMessegeHistory(QString any)
+{
+	QString filename = QCoreApplication::applicationDirPath() + "\\history.txt";
+	QFile file(filename);
+
+	// Открываем файл в режиме "Только для записи и дополнения без перезаписи"
+	if (file.open(QIODevice::WriteOnly | QIODevice::Append))
+	{
+		QTextStream out(&file); // поток записываемых данных направляем в файл
+		out << QDate::currentDate().toString() + " - " + QTime::currentTime().toString() + " - " + any << Qt::endl;
+	}
+	else
+	{
+		qWarning("Could not open file");
+	}
+
+	file.close();
 }
