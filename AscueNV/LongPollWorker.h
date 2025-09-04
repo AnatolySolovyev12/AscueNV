@@ -4,6 +4,7 @@
 #include <QString>
 #include <tgbot/tgbot.h>
 #include <QTimer.h>
+#include <QThread>
 
 class LongPollWorker : public QObject
 {

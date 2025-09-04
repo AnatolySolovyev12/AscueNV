@@ -53,17 +53,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-
-
-
-	//longPoll = new TgBot::TgLongPoll(*bot, 100, 10); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
-
-	//myTimer = new QTimer();
-
-	//connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	//myTimer->setInterval(20000);
-	//myTimer->start();
-
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
 		bot->getApi().sendMessage(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + "\n<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
