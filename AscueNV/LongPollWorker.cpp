@@ -4,15 +4,16 @@ LongPollWorker::LongPollWorker(TgBot::Bot* bot, QObject* parent)
 	: QObject(parent)
 	, bot_(bot), myTimer(new QTimer)
 {
-	longPoll_ = new TgBot::TgLongPoll(*bot_, 100, 5);
+	longPoll_ = new TgBot::TgLongPoll(*bot_, 100, 10);
 
 	bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 		//  emit messageReceived(message);
 		});
 
-	connect(myTimer, SIGNAL(timeout()), this, SLOT(doLongPoll()));
-	myTimer->setInterval(18000);
-	myTimer->start();
+	doLongPoll();
+	//connect(myTimer, SIGNAL(timeout()), this, SLOT(doLongPoll()));
+	//myTimer->setInterval(18000);
+	//myTimer->start();
 }
 
 LongPollWorker::~LongPollWorker()
