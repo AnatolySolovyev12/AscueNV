@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QString>
 #include <tgbot/tgbot.h>
+#include <QTimer.h>
 
 class LongPollWorker : public QObject
 {
@@ -24,4 +25,5 @@ signals:
 private:
     TgBot::Bot* bot_;
     TgBot::TgLongPoll* longPoll_;
+    QTimer* myTimer;
 };
