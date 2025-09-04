@@ -3,6 +3,35 @@
 TelegramJacket::TelegramJacket(QWidget* parent)
 	: QMainWindow(parent)
 {
+
+	// 1. Создаем бота
+	bot = new TgBot::Bot(getTokenFromFile().toStdString());
+
+	// 2. Создаем и запускаем LongPollWorker в отдельном потоке
+	longPollWorker = new LongPollWorker(bot);
+	longPollThread = new QThread(this);
+	longPollWorker->moveToThread(longPollThread);
+	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll);
+//	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
+	//	qWarning() << "LongPoll error:" << err;
+	//	});
+	connect(this, &QObject::destroyed, this, [this]() {
+		longPollThread->quit();
+		longPollThread->wait();
+		longPollWorker->deleteLater();
+		longPollThread->deleteLater();
+		});
+	longPollThread->start();
+
+
+	connect(longPollWorker, &LongPollWorker::messageReceived,
+		this, &TelegramJacket::onMessageReceived);
+
+
+
+	printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
+
+
 	fullTimeWork = QDateTime::currentDateTime();
 
 	trayIcon = new QSystemTrayIcon(this);
@@ -24,17 +53,16 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	bot = new TgBot::Bot(getTokenFromFile().toStdString());
 
-	messageTest = new TgBot::Message::Ptr();
 
-	longPoll = new TgBot::TgLongPoll(*bot, 100, 10); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
 
-	myTimer = new QTimer();
+	//longPoll = new TgBot::TgLongPoll(*bot, 100, 10); // при маленьких значениях таймаута был замечен мусор в наполяемых строках (надо тестировать)
 
-	connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
-	myTimer->setInterval(20000);
-	myTimer->start();
+	//myTimer = new QTimer();
+
+	//connect(myTimer, SIGNAL(timeout()), this, SLOT(updateLongPoll()));
+	//myTimer->setInterval(20000);
+	//myTimer->start();
 
 	bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
 
@@ -302,7 +330,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 		}
 
 		});
-
+/*
 	try {
 		printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
 		TgBot::TgLongPoll longPoll(*bot);
@@ -312,11 +340,13 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 			printf("Long poll started\n");
 			longPoll.start();
 		}
-		*/
+		
 	}
 	catch (TgBot::TgException& e) {
 		printf("error: %s\n", e.what());
 	}
+*/
+
 }
 
 
@@ -358,7 +388,7 @@ void TelegramJacket::setStopForVector() // автовывод сообщения
 void TelegramJacket::updateLongPoll() // обновляем longPoll за счёт периодического таймера
 {
 	emit signalForBreakResurrection();
-
+	/*
 	try
 	{
 		//bot->getApi().deleteWebhook(); // если будут через Webhook перехватывать сообщения бота то раскоменитить
@@ -367,6 +397,7 @@ void TelegramJacket::updateLongPoll() // обновляем longPoll за счё
 	catch (TgBot::TgException& e) {
 		printf("error: %s\n", e.what());
 	}
+	*/
 }
 
 
@@ -474,4 +505,11 @@ void TelegramJacket::writeMessegeHistory(QString any)
 	}
 
 	file.close();
+}
+
+
+void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
+{
+	qDebug() << "User wrote:" << QString::fromStdString(message->text);
+	// Ваша логика обработки сообщений здесь
 }

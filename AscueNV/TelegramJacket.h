@@ -26,6 +26,10 @@
 
 #include <qfile.h>
 
+
+#include <LongPollWorker.h>
+#include <QThread.h>
+
 class TelegramJacket : public QMainWindow
 {
 	Q_OBJECT
@@ -43,6 +47,7 @@ private slots:
 	void validChatIdInMassive();
 	QString getTokenFromFile();
 	void writeMessegeHistory(QString any);
+	void onMessageReceived(TgBot::Message::Ptr message);
 
  signals:
 	void signalForBreakResurrection(); // restart watchdogs timer
@@ -51,7 +56,6 @@ private:
 
 	TgBot::Bot* bot;
 	TgBot::TgLongPoll* longPoll;
-	TgBot::Message::Ptr * messageTest;
 
 	bool currentNeed = false;
 	bool vecNeed = false;
@@ -89,4 +93,9 @@ private:
 	QList<QString>chatIdMassive;
 
 	int testCOunter = 0;
+
+
+
+	QThread* longPollThread;
+	LongPollWorker* longPollWorker;
 };
