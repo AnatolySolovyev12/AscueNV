@@ -4,29 +4,21 @@
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
 #include <VectorImage.h>
-
 #include <stdio.h>
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
-
 #include <QApplication>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QAction>
 #include <QMainWindow>
-
 #include <windows.h>
-
 #include <qhash.h>
 #include <qpair.h>
-
 #include <QScopedPointer>
-
 #include <qfile.h>
-
-
 #include <LongPollWorker.h>
 #include <QThread.h>
 

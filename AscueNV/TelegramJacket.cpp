@@ -3,11 +3,9 @@
 TelegramJacket::TelegramJacket(QWidget* parent)
 	: QMainWindow(parent)
 {
-	// 1. Создаем бота
 	bot = new TgBot::Bot(getTokenFromFile().toStdString());
 
-	// 2. Создаем и запускаем LongPollWorker в отдельном потоке
-	longPollWorker = new LongPollWorker(bot);
+	longPollWorker = new LongPollWorker(bot); // заряжаем бота в поток отдельный
 	longPollThread = new QThread(this);
 	longPollWorker->moveToThread(longPollThread);
 
@@ -16,7 +14,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
 		qWarning() << "LongPoll error:" << err;
 		});
-
 
 	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll);
 	connect(longPollWorker, &LongPollWorker::finished, longPollThread, &QThread::quit);
@@ -28,7 +25,6 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 		});
 
 	longPollThread->start();
-
 
 	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
 
