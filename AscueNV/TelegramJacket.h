@@ -38,7 +38,6 @@ public:
 	TelegramJacket(QWidget* parent = nullptr);
 
 private slots:
-	void updateLongPoll();
 	void setIntervalAfterGetString(const int64_t any);
 	void setStopForVector();
 	void iconActivated(QSystemTrayIcon::ActivationReason reason);
@@ -49,8 +48,10 @@ private slots:
 	void writeMessegeHistory(QString any);
 	void onMessageReceived(TgBot::Message::Ptr message);
 
- signals:
-	void signalForBreakResurrection(); // restart watchdogs timer
+signals:
+	void sendMessageRequested(int64_t chatId, const std::string& message);
+signals:
+	void sendVectorPhoto(int64_t chatId, const std::string& message, const std::string& mime);
 	
 private:
 
@@ -69,8 +70,6 @@ private:
 	QString messegeFromTcp = "empty";
 	QString ipFromDbTelegram;
 	QString serialStringForProtocolinTelegram;
-
-	//DbTelegramExport* forQuery = nullptr;
 
 	TcpClientForTelegram* tcpObj = nullptr;
 
@@ -93,8 +92,6 @@ private:
 	QList<QString>chatIdMassive;
 
 	int testCOunter = 0;
-
-
 
 	QThread* longPollThread;
 	LongPollWorker* longPollWorker;
