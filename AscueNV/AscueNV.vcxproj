@@ -114,17 +114,15 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TcpClientForTelegram.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
     <QtMoc Include="VectorImage.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
     <QtMoc Include="LongPollWorker.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
     <ResourceCompile Include="AscueNV.rc" />
   </ItemGroup>
   <ItemGroup>
