@@ -95,6 +95,7 @@
     <ClCompile Include="DbTelegramExport.cpp">
       <DeploymentContent>false</DeploymentContent>
     </ClCompile>
+    <ClCompile Include="LongPollWorker.cpp" />
     <ClCompile Include="main.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -113,14 +114,15 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TcpClientForTelegram.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
     <QtMoc Include="VectorImage.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
+    <QtMoc Include="LongPollWorker.h" />
     <ClInclude Include="resource.h" />
-  </ItemGroup>
-  <ItemGroup>
+</ItemGroup>
+<ItemGroup>
     <ResourceCompile Include="AscueNV.rc" />
   </ItemGroup>
   <ItemGroup>
