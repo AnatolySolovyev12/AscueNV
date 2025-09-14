@@ -27,7 +27,7 @@ void LongPollWorker::doLongPoll()
 {
     try
     {
-        TgBot::TgLongPoll longPoll(*bot_, 40, 6);
+        TgBot::TgLongPoll longPoll(*bot_, 90, 6);
         bool inProcessEvents = false; 
 
         while (!QThread::currentThread()->isInterruptionRequested())
