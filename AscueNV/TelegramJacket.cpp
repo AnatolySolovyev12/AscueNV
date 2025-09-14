@@ -28,8 +28,10 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
 
-	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg, Qt::DirectConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
-	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg, Qt::DirectConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
+	//connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg, Qt::DirectConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
+	//connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg, Qt::DirectConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
+	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
+	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
 
 	fullTimeWork = QDateTime::currentDateTime();
 
