@@ -25,5 +25,4 @@ signals:
 
 private:
     TgBot::Bot* bot_;
-    TgBot::TgLongPoll* longPoll_;
 };
