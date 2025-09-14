@@ -37,7 +37,7 @@ void LongPollWorker::doLongPoll()
 
             if (!inProcessEvents) {
                 inProcessEvents = true;
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 80);
                 inProcessEvents = false;
             }
         }
