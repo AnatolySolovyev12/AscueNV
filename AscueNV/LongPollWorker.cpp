@@ -3,8 +3,8 @@
 #include <qdebug.h>
 #include <QCoreApplication.h>
 
-LongPollWorker::LongPollWorker(TgBot::Bot* bot, QObject* parent)
-    : QObject(parent), bot_(bot)
+LongPollWorker::LongPollWorker(QString any, QObject* parent)
+    : QObject(parent), bot_(new TgBot::Bot(any.toStdString()))
 {
     bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         try {

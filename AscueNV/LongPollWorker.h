@@ -9,7 +9,7 @@ class LongPollWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit LongPollWorker(TgBot::Bot* bot, QObject* parent = nullptr);
+    explicit LongPollWorker(QString any, QObject* parent = nullptr);
     ~LongPollWorker();
 
 public slots:

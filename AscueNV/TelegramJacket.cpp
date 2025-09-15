@@ -3,9 +3,7 @@
 TelegramJacket::TelegramJacket(QWidget* parent)
 	: QMainWindow(parent)
 {
-	bot = new TgBot::Bot(getTokenFromFile().toStdString());
-
-	longPollWorker = new LongPollWorker(bot); // заряжаем бота в поток отдельный
+	longPollWorker = new LongPollWorker(getTokenFromFile()); // заряжаем бота в поток отдельный
 	longPollThread = new QThread(this);
 	longPollWorker->moveToThread(longPollThread);
 
