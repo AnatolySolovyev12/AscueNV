@@ -36,6 +36,7 @@ void LongPollWorker::doLongPoll()
 
             // Выполняем long poll с таймаутом
             longPoll.start();
+            emit resetWatchDogs();
         }
     }
     catch (const std::exception& e)

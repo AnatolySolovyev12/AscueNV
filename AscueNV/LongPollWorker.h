@@ -22,6 +22,8 @@ signals:
     void errorOccurred(const QString& error);
 signals:
     void finished();
+signals:
+    void resetWatchDogs();
 
 private:
     TgBot::Bot* bot_;

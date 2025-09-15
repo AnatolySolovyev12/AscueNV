@@ -39,6 +39,8 @@ private slots:
 	QString getTokenFromFile();
 	void writeMessegeHistory(QString any);
 	void onMessageReceived(TgBot::Message::Ptr message);
+	void watchDogsForLongPoll();
+	void restrtWatchDogs();
 
 signals:
 	void sendMessageRequested(int64_t chatId, const std::string& message);
@@ -87,4 +89,6 @@ private:
 
 	QThread* longPollThread;
 	LongPollWorker* longPollWorker;
+
+	QTimer* destructionAndResurecctionTimer = nullptr;
 };
