@@ -3,28 +3,7 @@
 TelegramJacket::TelegramJacket(QWidget* parent)
 	: QMainWindow(parent), destructionAndResurecctionTimer(new QTimer)
 {
-	longPollWorker = new LongPollWorker(getTokenFromFile()); // заряжаем бота в поток отдельный
-	longPollThread = new QThread(this);
-	longPollWorker->moveToThread(longPollThread);
-
-	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
-		qWarning() << "LongPoll error:" << err;
-		});
-
-	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll);
-	connect(longPollWorker, &LongPollWorker::finished, longPollThread, &QThread::quit);
-	connect(longPollWorker, &LongPollWorker::finished, longPollWorker, &QObject::deleteLater);
-	connect(longPollThread, &QThread::finished, longPollThread, &QObject::deleteLater);
-
-	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
-		qWarning() << "LongPoll error:" << err;
-		});
-
-	longPollThread->start();
-
-	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
-	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
-	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
+	setupLongPoll();
 
 	fullTimeWork = QDateTime::currentDateTime();
 
@@ -47,9 +26,63 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	destructionAndResurecctionTimer->start(60000);
-	connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::watchDogsForLongPoll);
-	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restrtWatchDogs);
+	restartWatchDogs();
+	
+	connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
+}
+
+void TelegramJacket::restartLongPoll()
+{
+	destructionAndResurecctionTimer->stop();
+
+	if (longPollThread && longPollThread->isRunning()) {
+		emit stopNetworkConnectionSignal();
+
+		connect(longPollThread, &QThread::finished, this, [this]() { // по сигналу об остановке потока удаляем его и вложенный объект телеги
+			longPollWorker->deleteLater();
+			longPollThread->deleteLater();
+			longPollWorker = nullptr;
+			longPollThread = nullptr;
+
+			setupLongPoll(); // пересоздаём все эти объекты
+			restartWatchDogs(); //делаем ребут
+			});
+
+		longPollThread->quit();
+		longPollThread->wait(); // дождаться завершения
+	}
+	else {
+		// Если поток не запущен, просто пересоздаем
+		setupLongPoll();
+		restartWatchDogs();
+	}
+
+	qDebug() << "\n" << QDate::currentDate().toString("dd.MM.yyyy") + " - " + QTime::currentTime().toString() + " was ressurection" << "\n";
+	writeMessegeHistory(" was ressurection");
+}
+
+
+void TelegramJacket::setupLongPoll()
+{
+	longPollWorker = new LongPollWorker(getTokenFromFile());
+	longPollThread = new QThread(this);
+	longPollWorker->moveToThread(longPollThread);
+
+	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll); // после старта потока сигналим на запуск LongPoll
+
+	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
+	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
+	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
+	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restartWatchDogs);
+	connect(this, &TelegramJacket::stopNetworkConnectionSignal, longPollWorker, &LongPollWorker::stopLongPoll);
+
+	longPollThread->start();
+}
+
+
+void TelegramJacket::restartWatchDogs()
+{
+	destructionAndResurecctionTimer->start(300000);
 }
 
 
@@ -77,7 +110,6 @@ void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автов�
 		}
 	}
 
-	//emit sendMessageRequested(any, resultMassive.find(any).value()->returnResultString().toStdString());
 	emit sendMessageRequested(any, resultMassive.find(any).value()->returnResultString().toStdString());
 
 	stopVector = false;
@@ -186,7 +218,7 @@ void TelegramJacket::writeMessegeHistory(QString any)
 	if (file.open(QIODevice::WriteOnly | QIODevice::Append))
 	{
 		QTextStream out(&file); // поток записываемых данных направляем в файл
-		out << QDate::currentDate().toString() + " - " + QTime::currentTime().toString() + " - " + any << Qt::endl;
+		out << QDate::currentDate().toString("dd.MM.yyyy") + " - " + QTime::currentTime().toString() + " - " + any << Qt::endl;
 	}
 	else
 	{
@@ -453,43 +485,4 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 	if (StringTools::startsWith(message->text, "/start")) {
 		return;
 	}
-}
-
-void TelegramJacket::watchDogsForLongPoll()
-{
-	delete longPollWorker;
-	longPollWorker = nullptr;
-	longPollThread->quit();
-	delete longPollThread;
-	longPollThread = nullptr;
-
-	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll);
-	connect(longPollWorker, &LongPollWorker::finished, longPollThread, &QThread::quit);
-	connect(longPollWorker, &LongPollWorker::finished, longPollWorker, &QObject::deleteLater);
-	connect(longPollThread, &QThread::finished, longPollThread, &QObject::deleteLater);
-
-	longPollWorker = new LongPollWorker(getTokenFromFile()); // заряжаем бота в поток отдельный
-	longPollThread = new QThread(this);
-	longPollWorker->moveToThread(longPollThread);
-
-	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll);
-
-	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
-		qWarning() << "LongPoll error:" << err;
-		});
-
-	connect(longPollWorker, &LongPollWorker::errorOccurred, this, [](const QString& err) {
-		qWarning() << "LongPoll error:" << err;
-		});
-
-	longPollThread->start();
-
-	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
-	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
-	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
-}
-
-void TelegramJacket::restrtWatchDogs()
-{
-	destructionAndResurecctionTimer->start(60000);
 }

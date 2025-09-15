@@ -39,16 +39,19 @@ private slots:
 	QString getTokenFromFile();
 	void writeMessegeHistory(QString any);
 	void onMessageReceived(TgBot::Message::Ptr message);
-	void watchDogsForLongPoll();
-	void restrtWatchDogs();
+
+	void restartWatchDogs();
+	void restartLongPoll();
+	void setupLongPoll();
 
 signals:
 	void sendMessageRequested(int64_t chatId, const std::string& message);
 signals:
 	void sendVectorPhoto(int64_t chatId, const std::string& message, const std::string& mime);
+signals:
+	void stopNetworkConnectionSignal();
 	
 private:
-
 	TgBot::Bot* bot;
 	TgBot::TgLongPoll* longPoll;
 

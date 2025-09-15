@@ -16,6 +16,7 @@ public slots:
     void doLongPoll();  // Запуск лонгпола, слот для потока
     void sendMessegeInTg(int64_t chatId, const std::string& message);
     void sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime);
+    void stopLongPoll();
 
 signals:
     void messageReceived(const TgBot::Message::Ptr& message);
@@ -27,4 +28,5 @@ signals:
 
 private:
     TgBot::Bot* bot_;
+    bool m_stopRequested = false;
 };

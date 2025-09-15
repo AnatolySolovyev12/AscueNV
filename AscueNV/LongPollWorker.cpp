@@ -20,7 +20,6 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 
 LongPollWorker::~LongPollWorker()
 {
-    // Ничего не удаляем - используем автоматический объект
 }
 
 void LongPollWorker::doLongPoll()
@@ -29,21 +28,20 @@ void LongPollWorker::doLongPoll()
     {
         TgBot::TgLongPoll longPoll(*bot_, 90, 6);
 
-        while (!QThread::currentThread()->isInterruptionRequested())
+        while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
         {
-            // Обрабатываем события Qt перед вызовом long poll
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 50); // Обрабатываем события. Без этого не запустится опроса приборов
 
-            // Выполняем long poll с таймаутом
             longPoll.start();
-          //  emit resetWatchDogs();
+            emit resetWatchDogs();
         }
-    }
+    } 
     catch (const std::exception& e)
     {
         emit errorOccurred(QString::fromStdString(e.what()));
     }
-    emit finished();
+
+   // emit finished();
 }
 
 
@@ -69,4 +67,9 @@ void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, c
     {
         emit errorOccurred(QString::fromStdString(e.what()));
     }
+}
+
+void LongPollWorker::stopLongPoll()
+{
+    m_stopRequested = true;
 }
