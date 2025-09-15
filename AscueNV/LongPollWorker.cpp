@@ -27,19 +27,15 @@ void LongPollWorker::doLongPoll()
 {
     try
     {
+        TgBot::TgLongPoll longPoll(*bot_, 90, 6);
+
         while (!QThread::currentThread()->isInterruptionRequested())
         {
-            {
-                TgBot::TgLongPoll longPoll(*bot_, 30, 4);
-                longPoll.start();
-            }
+            // Обрабатываем события Qt перед вызовом long poll
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 
-            // Даем возможность прервать выполнение
-            if (QThread::currentThread()->isInterruptionRequested())
-                break;
-
-            // Короткая пауза перед следующим циклом
-            QThread::msleep(100);
+            // Выполняем long poll с таймаутом
+            longPoll.start();
         }
     }
     catch (const std::exception& e)
