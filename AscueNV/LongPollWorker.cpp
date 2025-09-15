@@ -32,7 +32,7 @@ void LongPollWorker::doLongPoll()
         while (!QThread::currentThread()->isInterruptionRequested())
         {
             // Обрабатываем события Qt перед вызовом long poll
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 50);
 
             // Выполняем long poll с таймаутом
             longPoll.start();
