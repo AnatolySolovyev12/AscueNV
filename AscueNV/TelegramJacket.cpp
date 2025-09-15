@@ -47,7 +47,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	destructionAndResurecctionTimer->start(600000);
+	destructionAndResurecctionTimer->start(60000);
 	connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::watchDogsForLongPoll);
 	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restrtWatchDogs);
 }
@@ -483,9 +483,13 @@ void TelegramJacket::watchDogsForLongPoll()
 		});
 
 	longPollThread->start();
+
+	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived); // приём сообщений из бота
+	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
+	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
 }
 
 void TelegramJacket::restrtWatchDogs()
 {
-	destructionAndResurecctionTimer->start(600000);
+	destructionAndResurecctionTimer->start(60000);
 }
