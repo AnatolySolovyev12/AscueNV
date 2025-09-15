@@ -27,24 +27,20 @@ void LongPollWorker::doLongPoll()
 {
     try
     {
-        TgBot::TgLongPoll longPoll(*bot_, 90, 6);
-        bool inProcessEvents = false; 
-
         while (!QThread::currentThread()->isInterruptionRequested())
         {
-            longPoll.start();
-
-
-            if (!inProcessEvents) {
-                inProcessEvents = true;
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 80);
-                inProcessEvents = false;
+            {
+                TgBot::TgLongPoll longPoll(*bot_, 30, 4);
+                longPoll.start();
             }
+
+            // ƒаем возможность прервать выполнение
+            if (QThread::currentThread()->isInterruptionRequested())
+                break;
+
+            //  оротка€ пауза перед следующим циклом
+            QThread::msleep(100);
         }
-    }
-    catch (const TgBot::TgException& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
     }
     catch (const std::exception& e)
     {
