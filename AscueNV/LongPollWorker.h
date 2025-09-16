@@ -28,5 +28,6 @@ signals:
 
 private:
     TgBot::Bot* bot_;
+    TgBot::TgLongPoll* longPoll;
     bool m_stopRequested = false;
 };

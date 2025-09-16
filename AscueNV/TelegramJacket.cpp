@@ -99,7 +99,7 @@ void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автов�
 			resultMassiveVector.find(any).value() = new VectorImage(this);
 			resultMassiveVector.find(any).value()->setKey(any);
 			resultMassiveVector.find(any).value()->generalFunc(resultMassive.find(any).value()->returnResultString());
-			bot->getApi().sendPhoto(any, TgBot::InputFile::fromFile((QString::number(any).toStdString() + photoFilePath), photoMimeType));
+			emit sendVectorPhoto(any, (QString::number(any).toStdString() + photoFilePath), photoMimeType);
 		}
 		else
 		{

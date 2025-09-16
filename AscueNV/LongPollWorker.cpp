@@ -4,7 +4,16 @@
 #include <QCoreApplication.h>
 
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
-    : QObject(parent), bot_(new TgBot::Bot(any.toStdString()))
+    : QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
+{   
+    printf("Bot username: %s\n\n", bot_->getApi().getMe()->username.c_str());
+}
+
+LongPollWorker::~LongPollWorker()
+{
+}
+
+void LongPollWorker::doLongPoll()
 {
     bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         try {
@@ -15,24 +24,13 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
         }
         });
 
-    printf("Bot username: %s\n\n", bot_->getApi().getMe()->username.c_str());
-}
-
-LongPollWorker::~LongPollWorker()
-{
-}
-
-void LongPollWorker::doLongPoll()
-{
     try
     {
-        TgBot::TgLongPoll longPoll(*bot_, 90, 6);
-
         while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
         {
             QCoreApplication::processEvents(QEventLoop::AllEvents, 50); // Обрабатываем события. Без этого не запустится опроса приборов
 
-            longPoll.start();
+            longPoll->start();
             emit resetWatchDogs();
         }
     } 
