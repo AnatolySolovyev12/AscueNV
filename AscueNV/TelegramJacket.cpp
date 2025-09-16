@@ -43,6 +43,8 @@ void TelegramJacket::restartLongPoll()
 			longPollThread->deleteLater();
 			longPollWorker = nullptr;
 			longPollThread = nullptr;
+			disconnect(longPollThread, nullptr, nullptr, nullptr);
+			disconnect(longPollWorker, nullptr, nullptr, nullptr);
 
 			setupLongPoll(); // пересоздаём все эти объекты
 			restartWatchDogs(); //делаем ребут
@@ -75,6 +77,8 @@ void TelegramJacket::setupLongPoll()
 	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg); // отправка сигнала с сообщением в бота который в отбельном потоке
 	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restartWatchDogs);
 	connect(this, &TelegramJacket::stopNetworkConnectionSignal, longPollWorker, &LongPollWorker::stopLongPoll);
+	connect(longPollWorker, &LongPollWorker::errorOccurred, this, &TelegramJacket::writeMessegeHistory);
+
 
 	longPollThread->start();
 }

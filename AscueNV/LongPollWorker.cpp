@@ -32,6 +32,9 @@ void LongPollWorker::doLongPoll()
 
             longPoll->start();
             emit resetWatchDogs();
+
+            if (m_stopRequested)
+                break;
         }
     } 
     catch (const std::exception& e)
@@ -39,7 +42,7 @@ void LongPollWorker::doLongPoll()
         emit errorOccurred(QString::fromStdString(e.what()));
     }
 
-   // emit finished();
+    emit finished();
 }
 
 
