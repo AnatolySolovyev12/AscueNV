@@ -27,33 +27,28 @@ LongPollWorker::~LongPollWorker()
 void LongPollWorker::doLongPoll()
 {
 	connect(pollTImer, &QTimer::timeout, this, &LongPollWorker::timerPoll);
+	pollTImer->setSingleShot(false); // Убедитесь, что таймер периодический
 }
 
 
 void LongPollWorker::timerPoll()
 {
-	qDebug() << "TEST";
-	try
-	{
-		if (!QThread::currentThread()->isInterruptionRequested())
-		{
-			longPoll->start();
-
-			// QCoreApplication::processEvents();
-
-			emit resetWatchDogs();
-
-			//if (m_stopRequested)
-			//    break;
-
-		}
+	if (QThread::currentThread()->isInterruptionRequested()) {
+		return;
 	}
-	catch (const std::exception& e)
-	{
+
+	try {
+		// Используйте неблокирующие вызовы или ограничьте время выполнения
+		longPoll->start();
+
+		// Обработайте события после каждого цикла
+		QCoreApplication::processEvents();
+
+		emit resetWatchDogs();
+	}
+	catch (const std::exception& e) {
 		emit errorOccurred(QString::fromStdString(e.what()));
 	}
-
-	emit finished();
 }
 
 
