@@ -30,9 +30,7 @@ void LongPollWorker::doLongPoll()
         {
             longPoll->start();
 
-            QCoreApplication::processEvents();
-
-            QThread::sleep(100);
+           // QCoreApplication::processEvents();
 
             emit resetWatchDogs();
 
