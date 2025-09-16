@@ -4,7 +4,6 @@
 #include <QString>
 #include <tgbot/tgbot.h>
 #include <QThread>
-#include <QTimer>
 
 class LongPollWorker : public QObject
 {
@@ -18,7 +17,6 @@ public slots:
     void sendMessegeInTg(int64_t chatId, const std::string& message);
     void sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime);
     void stopLongPoll();
-    void timerPoll();
 
 signals:
     void messageReceived(const TgBot::Message::Ptr& message);
@@ -29,8 +27,7 @@ signals:
     void resetWatchDogs();
 
 private:
-    TgBot::Bot* bot_;
-    TgBot::TgLongPoll* longPoll;
+    TgBot::Bot* bot_ = nullptr;
+    TgBot::TgLongPoll* longPoll = nullptr;
     bool m_stopRequested = false;
-    QTimer* pollTImer = nullptr;
 };

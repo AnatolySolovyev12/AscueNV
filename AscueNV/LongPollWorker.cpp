@@ -4,20 +4,18 @@
 #include <QCoreApplication.h>
 
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
-	: QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6)), pollTImer(new QTimer)
+    : QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
 {
-	qDebug() << bot_->getApi().getMe()->username.c_str();
+    bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
+        try {
+            emit messageReceived(message);
+        }
+        catch (const std::exception& e) {
+            qWarning() << "Error in message handler:" << e.what();
+        }
+        });
 
-	pollTImer->start(100);
-
-	bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
-		try {
-			emit messageReceived(message);
-		}
-		catch (const std::exception& e) {
-			qWarning() << "Error in message handler:" << e.what();
-		}
-		});
+    qDebug() <<  bot_->getApi().getMe()->username.c_str();
 }
 
 LongPollWorker::~LongPollWorker()
@@ -26,55 +24,50 @@ LongPollWorker::~LongPollWorker()
 
 void LongPollWorker::doLongPoll()
 {
-	connect(pollTImer, &QTimer::timeout, this, &LongPollWorker::timerPoll);
-	pollTImer->setSingleShot(false); // Убедитесь, что таймер периодический
-}
+    try
+    {
+        while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
+        {
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 200); // Обрабатываем события. Без этого не запустится опроса приборов
 
+            longPoll->start();
+            emit resetWatchDogs();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
 
-void LongPollWorker::timerPoll()
-{
-	if (QThread::currentThread()->isInterruptionRequested()) {
-		return;
-	}
-
-	try {
-		longPoll->start();
-
-		QCoreApplication::processEvents();
-
-		emit resetWatchDogs();
-	}
-	catch (const std::exception& e) {
-		emit errorOccurred(QString::fromStdString(e.what()));
-	}
+     emit finished();
 }
 
 
 void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 {
-	try
-	{
-		bot_->getApi().sendMessage(chatId, message);
-	}
-	catch (const TgBot::TgException& e)
-	{
-		emit errorOccurred(QString::fromStdString(e.what()));
-	}
+    try
+    {
+        bot_->getApi().sendMessage(chatId, message);
+    }
+    catch (const TgBot::TgException& e)
+    {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
 }
 
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
-	try
-	{
-		bot_->getApi().sendPhoto(chatId, TgBot::InputFile::fromFile(message, mime));
-	}
-	catch (const TgBot::TgException& e)
-	{
-		emit errorOccurred(QString::fromStdString(e.what()));
-	}
+    try
+    {
+        bot_->getApi().sendPhoto(chatId, TgBot::InputFile::fromFile(message, mime));
+    }
+    catch (const TgBot::TgException& e)
+    {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
 }
 
 void LongPollWorker::stopLongPoll()
 {
-	m_stopRequested = true;
+    m_stopRequested = true;
 }
