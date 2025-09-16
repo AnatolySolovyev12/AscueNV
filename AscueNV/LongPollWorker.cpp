@@ -4,7 +4,7 @@
 #include <QCoreApplication.h>
 
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
-	: QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6)), pollTImer(new QTimer)
+	: QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 1, 3)), pollTImer(new QTimer)
 {
 	qDebug() << bot_->getApi().getMe()->username.c_str();
 
