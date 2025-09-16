@@ -38,10 +38,8 @@ void LongPollWorker::timerPoll()
 	}
 
 	try {
-		// Используйте неблокирующие вызовы или ограничьте время выполнения
 		longPoll->start();
 
-		// Обработайте события после каждого цикла
 		QCoreApplication::processEvents();
 
 		emit resetWatchDogs();
