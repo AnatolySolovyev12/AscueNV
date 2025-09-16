@@ -9,14 +9,7 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 	qDebug() << bot_->getApi().getMe()->username.c_str();
 
 	pollTImer->start(100);
-}
 
-LongPollWorker::~LongPollWorker()
-{
-}
-
-void LongPollWorker::doLongPoll()
-{
 	bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
 		try {
 			emit messageReceived(message);
@@ -25,13 +18,21 @@ void LongPollWorker::doLongPoll()
 			qWarning() << "Error in message handler:" << e.what();
 		}
 		});
+}
 
+LongPollWorker::~LongPollWorker()
+{
+}
+
+void LongPollWorker::doLongPoll()
+{
 	connect(pollTImer, &QTimer::timeout, this, &LongPollWorker::timerPoll);
 }
 
 
 void LongPollWorker::timerPoll()
 {
+	qDebug() << "TEST";
 	try
 	{
 		if (!QThread::currentThread()->isInterruptionRequested())
