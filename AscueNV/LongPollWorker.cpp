@@ -6,7 +6,7 @@
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
     : QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
 {   
-    printf("Bot username: %s\n\n", bot_->getApi().getMe()->username.c_str());
+    qDebug() << bot_->getApi().getMe()->username.c_str();
 }
 
 LongPollWorker::~LongPollWorker()
@@ -26,15 +26,18 @@ void LongPollWorker::doLongPoll()
 
     try
     {
-        while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
+        while (!QThread::currentThread()->isInterruptionRequested())
         {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 50); // Обрабатываем события. Без этого не запустится опроса приборов
-
             longPoll->start();
+
+            QCoreApplication::processEvents();
+
+            QThread::sleep(100);
+
             emit resetWatchDogs();
 
-            if (m_stopRequested)
-                break;
+            //if (m_stopRequested)
+            //    break;
         }
     } 
     catch (const std::exception& e)

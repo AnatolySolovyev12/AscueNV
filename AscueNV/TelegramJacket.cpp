@@ -36,15 +36,16 @@ void TelegramJacket::restartLongPoll()
 	destructionAndResurecctionTimer->stop();
 
 	if (longPollThread && longPollThread->isRunning()) {
-		emit stopNetworkConnectionSignal();
+		//emit stopNetworkConnectionSignal();
+		longPollThread->requestInterruption();
 
 		connect(longPollThread, &QThread::finished, this, [this]() { // по сигналу об остановке потока удаляем его и вложенный объект телеги
+			disconnect(longPollThread, nullptr, nullptr, nullptr);
+			disconnect(longPollWorker, nullptr, nullptr, nullptr);
 			longPollWorker->deleteLater();
 			longPollThread->deleteLater();
 			longPollWorker = nullptr;
 			longPollThread = nullptr;
-			disconnect(longPollThread, nullptr, nullptr, nullptr);
-			disconnect(longPollWorker, nullptr, nullptr, nullptr);
 
 			setupLongPoll(); // пересоздаём все эти объекты
 			restartWatchDogs(); //делаем ребут
@@ -78,7 +79,6 @@ void TelegramJacket::setupLongPoll()
 	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restartWatchDogs);
 	connect(this, &TelegramJacket::stopNetworkConnectionSignal, longPollWorker, &LongPollWorker::stopLongPoll);
 	connect(longPollWorker, &LongPollWorker::errorOccurred, this, &TelegramJacket::writeMessegeHistory);
-
 
 	longPollThread->start();
 }
