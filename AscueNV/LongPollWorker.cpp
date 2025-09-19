@@ -21,7 +21,7 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 LongPollWorker::~LongPollWorker()
 {
 }
-
+/*
 void LongPollWorker::doLongPoll()
 {
     try
@@ -41,7 +41,44 @@ void LongPollWorker::doLongPoll()
 
      emit finished();
 }
+*/
 
+void LongPollWorker::doLongPoll()
+{
+    try
+    {
+        while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
+        {
+            QCoreApplication::processEvents();
+
+            // Неблокирующий вызов longPoll с таймаутом
+            QFuture<void> future = QtConcurrent::run([this]() {
+                longPoll->start();
+                });
+
+            QFutureWatcher<void> watcher;
+            watcher.setFuture(future);
+
+            QEventLoop loop;
+            connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
+            QTimer::singleShot(10000, &loop, &QEventLoop::quit); // Таймаут 10 сек
+            loop.exec();
+
+            if (!future.isFinished()) {
+                // Прервать longPoll
+                m_stopRequested = true;
+                break;
+            }
+
+            emit resetWatchDogs();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        emit errorOccurred(QString::fromStdString(e.what()));
+    }
+    emit finished();
+}
 
 void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 {

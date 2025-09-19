@@ -42,7 +42,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;gui;network;widgets;sql</QtModules>
+    <QtModules>core;gui;network;widgets;concurrent;sql</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -114,15 +114,15 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TcpClientForTelegram.h" />
-</ItemGroup>
-<ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <QtMoc Include="VectorImage.h" />
-</ItemGroup>
-<ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <QtMoc Include="LongPollWorker.h" />
     <ClInclude Include="resource.h" />
-</ItemGroup>
-<ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="AscueNV.rc" />
   </ItemGroup>
   <ItemGroup>
