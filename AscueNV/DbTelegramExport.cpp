@@ -22,7 +22,7 @@ void DbTelegramExport::connectDataBase()
 		mw_db.lastError().databaseText(); // если что-то пойдёт не так то пишем это в переменные
 		mw_db.lastError().driverText();
 
-		qDebug() << "Cannot open database: " << mw_db.lastError();
+		qDebug() << "Cannot open database: " + mw_db.lastError().text();
 	}
 }
 
@@ -49,7 +49,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		if (!query.exec() || !query.next())
 		{
-			qDebug() << "Query failed or no results in current DB: " << query.lastError();
+			qDebug() << "Not found ID_Point for this device in DB: " + query.lastError().text();
 		}
 
 		iD = query.value(0).toInt();
@@ -58,6 +58,7 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		if (!iD && odbcName == "DBEN")
 		{
+			qDebug() << "Not found device. Correct your query.\n";
 			mw_db.close();
 			mw_db.removeDatabase(QSqlDatabase::defaultConnection);
 			break;
@@ -65,21 +66,23 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		if (!iD)
 		{
+			qDebug() << "Not found device in " + odbcName + " dataBase. Trying in DBEN dataBase.\n";
 			odbcName = "DBEN";
 			mw_db.close();
 			mw_db.removeDatabase(QSqlDatabase::defaultConnection);
 			continue;
 		}
-
-		//queryString = QString("select TOP (1) ID_USPD from AutoInfo where info like '%%1%' order by ID_USPD").arg(any); // alternative + обязательно с TOP делать OREDR BY т.к. ему так легче искать
 		
 		queryString = "%" + any + "%";
-
 		query.prepare("select TOP (1) ID_USPD from AutoInfo where info like :IdPrep order by ID_USPD"); // используем подготовленный запрос в начале как хорошую практику от инъекций. : - обязательный спецсимвол для указания вставки заполнителя.
+		                                                                                                // + обязательно с TOP делать OREDR BY т.к. ему так легче искать
 		query.bindValue(":IdPrep", queryString); // связываем вставку заполнитель со с переменной
 		
-		query.exec();
-		query.next();
+		if (!query.exec() || !query.next())
+		{
+			qDebug() << "Not found ID_USPD for this ID_Point" + QString::number(iD) + " in DB: " + query.lastError().text();
+		}
+
 		IdUSPD = query.value(0).toString();
 
 		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'"; // получаем ряд целевой информации
