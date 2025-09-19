@@ -21,27 +21,7 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 LongPollWorker::~LongPollWorker()
 {
 }
-/*
-void LongPollWorker::doLongPoll()
-{
-    try
-    {
-        while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
-        {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 200); // Обрабатываем события. Без этого не запустится опроса приборов
 
-            longPoll->start();
-            emit resetWatchDogs();
-        }
-    }
-    catch (const std::exception& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
-
-     emit finished();
-}
-*/
 
 void LongPollWorker::doLongPoll()
 {
