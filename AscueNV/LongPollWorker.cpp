@@ -52,19 +52,19 @@ void LongPollWorker::doLongPoll()
             QCoreApplication::processEvents();
 
             // Неблокирующий вызов longPoll с таймаутом
-            QFuture<void> future = QtConcurrent::run([this]() {
+            QFuture<void> future = QtConcurrent::run([this]() { // запускаем пол и ждём завершения future в пуле потоков
                 longPoll->start();
                 });
 
             QFutureWatcher<void> watcher;
-            watcher.setFuture(future);
+            watcher.setFuture(future); // связываем наблюдателя за завершением будущего события
 
-            QEventLoop loop;
+            QEventLoop loop; // делаем петлю и ловим момент завершения future (polla) и если он не завершится то таймер прервёт петлю. 
             connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
             QTimer::singleShot(10000, &loop, &QEventLoop::quit); // Таймаут 10 сек
             loop.exec();
 
-            if (!future.isFinished()) {
+            if (!future.isFinished()) { // если петля не завершится те сигналим о том что тут подвисло и всё это удаляется и строится заново иначе ресет и по новой
                 // Прервать longPoll
                 m_stopRequested = true;
                 break;
