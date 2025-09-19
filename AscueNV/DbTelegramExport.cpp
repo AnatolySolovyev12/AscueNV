@@ -33,7 +33,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		connectDataBase();
 
 		QSqlQuery query;
-		QString queryString;
+		QString queryString = "%" + any + "%";
 
 		int iD = 0;
 		int guidId;
@@ -44,14 +44,8 @@ void DbTelegramExport::queryDbResult(QString any)
 
 		QString timeInQuery = curDate.toString("yyyy-MM-dd"); // Разворачиваем формат даты так как в БД.
 
-		queryString = "select ID_MeterInfo from MeterInfo where SN = '" + any + "'"; // запрашиваем первичный ID по номеру прибора
-
-		query.prepare("select ID_MeterInfo from MeterInfo where SN = :MeterInfoPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций
-		query.bindValue(":MeterInfoPrep", any);
-
-		//query.exec();
-		//query.exec(queryString);
-		//query.next();
+		query.prepare("select ID_Point from Points where PointName like :IdPrep"); // используем подготовленный запрос в начале как хорошую практику от инъекций. : - обязательный спецсимвол для указания вставки заполнителя.
+		query.bindValue(":IdPrep", queryString); // связываем вставку заполнитель со с переменной
 
 		if (!query.exec() || !query.next())
 		{
@@ -77,33 +71,31 @@ void DbTelegramExport::queryDbResult(QString any)
 			continue;
 		}
 
-		//queryString = "select TOP 1 ID_USPD from AutoInfo where info like '%" + any + "%'";
-		queryString = QString("select TOP 1 ID_USPD from AutoInfo where info like '%%1%'").arg(any); // alternative
-		query.exec(queryString);
+		//queryString = QString("select TOP (1) ID_USPD from AutoInfo where info like '%%1%' order by ID_USPD").arg(any); // alternative + обязательно с TOP делать OREDR BY т.к. ему так легче искать
+		
+		queryString = "%" + any + "%";
+
+		query.prepare("select TOP (1) ID_USPD from AutoInfo where info like :IdPrep order by ID_USPD"); // используем подготовленный запрос в начале как хорошую практику от инъекций. : - обязательный спецсимвол для указания вставки заполнителя.
+		query.bindValue(":IdPrep", queryString); // связываем вставку заполнитель со с переменной
+		
+		query.exec();
 		query.next();
 		IdUSPD = query.value(0).toString();
 
-		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'";
+		queryString = "select Name, TypeUSD, URL, NumUSD, PhoneNum from USD where ID_USPD = '" + IdUSPD + "'"; // получаем ряд целевой информации
 		query.exec(queryString);
 		query.next();
 		fullIp = query.value(0).toString() + " " + query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString() + " " + query.value(4).toString();
 
 		ipForTcp = query.value(2).toString();
 
-		queryString = "select ID_Point from MeterMountHist where ID_MeterInfo = '" + any.setNum(iD) + "'"; // получаем ID из счётчика
-		//qDebug() << queryString;
-		query.exec(queryString);
-		query.next();
-		iD = query.value(0).toInt();
-
 		queryString = "select * from dbo.PointParams where ID_Point = '" + any.setNum(iD) + "' and ID_Param = '4'"; // получаем ID параметра активной энергии счётчика
-		//qDebug() << queryString;
 		query.exec(queryString);
 		query.next();
 
 		iD = query.value(0).toInt();
 
-		if (odbcName == "DBEN")
+		if (odbcName == "DBEN") // А+ Т1
 			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
 		else
 			queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '1' order by DT DESC";
@@ -113,7 +105,7 @@ void DbTelegramExport::queryDbResult(QString any)
 		day = query.value(0).toString();
 		dateDay = query.value(1).toString();
 
-		if (odbcName == "DBEN")
+		if (odbcName == "DBEN") // А+ Т2
 			queryString = "select Val, FORMAT(DT, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
 		else
 			queryString = "select Val, FORMAT(DT+1, 'yyyy-MM-dd') as DT from dbo.PointRatedNIs where  ID_PP = '" + any.setNum(iD) + "' and N_Rate = '2' order by DT DESC";
