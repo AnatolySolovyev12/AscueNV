@@ -118,13 +118,19 @@ void DbTelegramExport::queryDbResult(QString any)
 		night = query.value(0).toString();
 
 		queryString = "select ID_Parent from NDIETable where ID_PP = '" + any.setNum(iD) + "'"; // получаем ID для последующего получаения GUID
-		//qDebug() << queryString;
+
 		query.exec(queryString);
-		query.next();
+
+		query.last();
+
+		if ((query.at() + 1) >= 2) qDebug() << "\nWarning. This ID_PP have more one ID_Parent for find GUID\n"; // выявляем наличие второго идентификатора в системе.
+
+		query.first();
+
 		iD = query.value(0).toInt();
 
 		queryString = "select Code from NDIETable where ID_DIE = '" + any.setNum(iD) + "'"; // получаем GUID
-		//qDebug() << queryString;
+
 		query.exec(queryString);
 		query.next();
 		guid = query.value(0).toString();
