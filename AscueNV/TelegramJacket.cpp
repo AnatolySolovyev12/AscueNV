@@ -147,8 +147,6 @@ void TelegramJacket::cmdOpen()
 	FILE* stream;
 	freopen_s(&stream, "CONOUT$", "w", stdout); // Перенаправляем стандартный вывод
 	freopen_s(&stream, "CONOUT$", "w", stderr); // Перенаправляем стандартный вывод ошибок
-
-	printf("Bot username: %s\n\n", bot->getApi().getMe()->username.c_str());
 }
 
 

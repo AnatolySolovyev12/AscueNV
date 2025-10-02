@@ -6,6 +6,8 @@
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
     : QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
 {
+    AttachConsole(ATTACH_PARENT_PROCESS);
+
     bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         try {
             emit messageReceived(message);

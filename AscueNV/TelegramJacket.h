@@ -52,9 +52,6 @@ signals:
 	void stopNetworkConnectionSignal();
 	
 private:
-	TgBot::Bot* bot;
-	TgBot::TgLongPoll* longPoll;
-
 	bool currentNeed = false;
 	bool vecNeed = false;
 	bool relayCounterOn = false;
