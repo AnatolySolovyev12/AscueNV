@@ -144,9 +144,9 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 void TelegramJacket::cmdOpen()
 {
 	AllocConsole(); // Создаем консоль и присоединяем к ней текущий процесс
-	FILE* stream;
-	freopen_s(&stream, "CONOUT$", "w", stdout); // Перенаправляем стандартный вывод
-	freopen_s(&stream, "CONOUT$", "w", stderr); // Перенаправляем стандартный вывод ошибок
+	FILE* stream; // то через что перенаправляем поток. Без данной переменной приложение будет крашится
+	freopen_s(&stream, "CONOUT$", "w", stdout); // Перенаправляем стандартный вывод в CONOUT$
+	freopen_s(&stream, "CONOUT$", "w", stderr); // Перенаправляем стандартный вывод ошибок в CONOUT$
 }
 
 
