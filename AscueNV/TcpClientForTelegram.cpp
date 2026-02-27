@@ -668,7 +668,6 @@ void TcpClientForTelegram::exchange()
 				if (counterForResend == 1) //start 2
 				{
 					//7E A0 45 02 21 41 10 95 BF E6 E6 00 60 36 A1 09 06 07 60 85 74 05 08 01 01 8A 02 07 80 8B 07 60 85 74 05 08 02 01 AC 0A 80 08 30 30 30 30 30 30 30 30 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 00 7E 1F FF FF 00 D1 7E
-
 					QString hexValueZero = QString::number(0, 16);
 					QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
 
@@ -679,9 +678,9 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue4 = "\x7E\x1F\xFF\xFF";
 					QByteArray hexValue5 = "\xD1\x7E";
 
-					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
-
-					sendMessage(testArray);
+					//QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+					//sendMessage(testArray);
+					sendMessage(QByteArray::fromHex(QByteArray("7EA0450221411095BFE6E6006036A1090607608574050801018A0207808B0760857405080201AC0A80083030303030303030BE10040E01000000065F1F0400007E1FFFFF00D17E")));
 				}
 
 				if (counterForResend == 2) // A+ cur
