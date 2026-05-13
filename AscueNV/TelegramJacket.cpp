@@ -26,13 +26,14 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	restartWatchDogs();
+	//restartWatchDogs();
 	
-	connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
+	//connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
 }
 
 void TelegramJacket::restartLongPoll()
 {
+
 	destructionAndResurecctionTimer->stop();
 
 	if (longPollThread && longPollThread->isRunning()) {

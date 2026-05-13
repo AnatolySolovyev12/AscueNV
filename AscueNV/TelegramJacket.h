@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>

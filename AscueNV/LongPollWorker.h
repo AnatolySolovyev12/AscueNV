@@ -1,10 +1,12 @@
-#pragma once
+п»ї#pragma once
 
 #include <QObject>
 #include <QString>
 #include <tgbot/tgbot.h>
 #include <QThread>
 #include <QtConcurrent>
+#include <MaxClass.h>
+
 
 class LongPollWorker : public QObject
 {
@@ -14,7 +16,7 @@ public:
     ~LongPollWorker();
 
 public slots:
-    void doLongPoll();  // Запуск лонгпола, слот для потока
+    void doLongPoll();  // Р—Р°РїСѓСЃРє Р»РѕРЅРіРїРѕР»Р°, СЃР»РѕС‚ РґР»СЏ РїРѕС‚РѕРєР°
     void sendMessegeInTg(int64_t chatId, const std::string& message);
     void sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime);
     void stopLongPoll();
@@ -28,7 +30,10 @@ signals:
     void resetWatchDogs();
 
 private:
-    TgBot::Bot* bot_ = nullptr;
-    TgBot::TgLongPoll* longPoll = nullptr;
+   // TgBot::Bot* bot_ = nullptr;
+   // TgBot::TgLongPoll* longPoll = nullptr;
     bool m_stopRequested = false;
+    MaxClass* maxClass = nullptr;
+    TgBot::Message::Ptr message = std::make_shared<TgBot::Message>();
+    std::shared_ptr<TgBot::Chat> chat = std::make_shared<TgBot::Chat>();
 };
