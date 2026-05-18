@@ -26,17 +26,17 @@ public:
 	QString getChatIdFromFile();
 	void getLastMessageAsync();
 	void deleteNotification(QString idNotification);
-	void uploadFile(QString chatId, QString message, QString mime);
-	void sendFileWithImage(QString chatId, QString urlFile, QString fileName);
+	void uploadFile(const QString& chatId, const QString& message, const QString& mime);
+	void sendFileWithImage(const QString& chatId, const QString& urlFile, const QString& fileName);
+	void sendMessage(QString chatId, const QString& message);
 
 
 signals:
 	void lastMessageReceived(const QPair<QString, QString>takePair);
 	void sendIdNotificationForDelete(QString id);
-	void sendUrlFile(QString chatId, QString urlFile, QString fileName);
+	void sendUrlFile(const QString& chatId, const QString& urlFile, const QString& fileName);
 
-public slots:
-	void sendMessage(QString chatId, QString message);
+//public slots:
 
 private:
 	QNetworkAccessManager* manager = nullptr;

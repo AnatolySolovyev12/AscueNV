@@ -17,6 +17,18 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
         emit messageReceived(message);
 
         });
+
+    connect(this, &LongPollWorker::sendMessegeSignal, maxClass, &MaxClass::sendMessage);
+
+
+
+    connect(this, &LongPollWorker::sendImageSignal, maxClass, &MaxClass::uploadFile);
+
+  //  QTimer::singleShot(4000, [this]() {sendImageSignal("179757288", "179757288_vectorP.png", "image/png"); });
+
+
+
+
     /*
     bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         try {
@@ -81,8 +93,11 @@ void LongPollWorker::doLongPoll()
 
 void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 {
+    QString temp = QString::fromStdString(message);
 
-    maxClass->sendMessage(QString::number(chatId), QString::fromStdString(message));
+    sendMessegeSignal(QString::number(chatId), temp);
+  
+   // maxClass->sendMessage(QString::number(chatId), QString::fromStdString(message));
     /*
     try
     {
@@ -97,7 +112,8 @@ void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
-    maxClass->uploadFile(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
+    sendImageSignal(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
+   // maxClass->uploadFile(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
 
     /*
     try

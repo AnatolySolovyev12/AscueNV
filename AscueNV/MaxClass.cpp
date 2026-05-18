@@ -16,7 +16,7 @@ MaxClass::MaxClass(QObject* parent)
 
 
 
-void MaxClass::sendMessage(QString chatId, QString message)
+void MaxClass::sendMessage(QString chatId, const QString & message)
 {
 	if (message.isEmpty()) {
 		qWarning() << "Attempt to send empty message";
@@ -213,9 +213,11 @@ void MaxClass::deleteNotification(QString idNotification)
 
 
 
-void MaxClass::uploadFile(QString chatId, QString message, QString mime)
+void MaxClass::uploadFile(const QString& chatId, const QString& message, const QString& mime)
 {
-	const QString filePath = QCoreApplication::applicationDirPath() + "/" + message;
+	const QString filePath = message;
+
+	qDebug() << "filePath:" << filePath;
 
 	QFile file(filePath);
 	if (!file.exists()) {
@@ -227,33 +229,48 @@ void MaxClass::uploadFile(QString chatId, QString message, QString mime)
 		return;
 	}
 
-	QUrl url("https://3100.api.green-api.com/waInstance3100514553/uploadFile/134edc19c6c64e4f971e4578b787f54725492643c588466095");
+	const QByteArray fileData = file.readAll();
+	file.close();
+
+	const QUrl url("https://3100.api.green-api.com/waInstance3100514553/uploadFile/134edc19c6c64e4f971e4578b787f54725492643c588466095");
 
 	QNetworkRequest request(url);
-	request.setRawHeader("Content-Type", "image/png");
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "image/png");
 
-	QNetworkReply* reply = manager->post(request, &file);
+	QNetworkReply* reply = manager->post(request, fileData);
 
 	connect(reply, &QNetworkReply::finished, this, [this, chatId, message, reply]() {
+		
+		const QByteArray responseData = reply->readAll();
 
-		if (reply->error() == QNetworkReply::NoError) 
-		{
-			QByteArray responseData = reply->readAll();
-			QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
+		if (reply->error() == QNetworkReply::NoError) {
+			qDebug() << "uploadFile response:" << responseData;
 
-			if (!responseDoc.isNull())
+			const QJsonDocument doc = QJsonDocument::fromJson(responseData);
+
+			if (!doc.isObject()) 
 			{
-				qDebug() << "\nurlFile: " << responseDoc["urlFile"].toInt();
-
-				emit sendUrlFile(chatId, responseDoc["urlFile"].toString(), message);
+				qWarning() << "uploadFile response is not JSON object";
+				reply->deleteLater();
+				return;
 			}
-			else
-				std::cout << "Json for uploadFile is NULL array";
+
+			const QJsonObject obj = doc.object();
+			const QString urlFile = obj.value("urlFile").toString();
+
+			if (urlFile.isEmpty()) 
+			{
+				qWarning() << "urlFile is empty, response:" << responseData;
+			}
+			else 
+			{
+				qDebug() << chatId << "   " << urlFile << "   " << message;
+				emit sendFileWithImage(chatId, urlFile, message);
+			}
 		}
-		else 
-		{
+		else {
 			qDebug() << "Upload error:" << reply->error() << reply->errorString();
-			qDebug() << "Server reply:" << reply->readAll();
+			qDebug() << "Server reply:" << responseData;
 		}
 
 		reply->deleteLater();
@@ -262,17 +279,17 @@ void MaxClass::uploadFile(QString chatId, QString message, QString mime)
 
 
 
-
-void MaxClass::sendFileWithImage(QString chatId, QString urlFile, QString fileName)
+void MaxClass::sendFileWithImage(const QString& chatId, const QString& urlFile, const QString& fileName)
 {
 	if (urlFile.isEmpty()) {
 		qWarning() << "Attempt to send empty message";
 		return;
 	}
 
-	QUrl url(urlString);
+	QUrl url("https://3100.api.green-api.com/waInstance3100514553/sendFileByUrl/134edc19c6c64e4f971e4578b787f54725492643c588466095");
 
 	QJsonObject json;
+	json["chatId"] = chatId;
 	json["urlFile"] = urlFile;
 	json["fileName"] = fileName; // Используем переданное сообщение
 

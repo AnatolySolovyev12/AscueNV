@@ -15,19 +15,24 @@ public:
     explicit LongPollWorker(QString any, QObject* parent = nullptr);
     ~LongPollWorker();
 
-public slots:
+public slots://////////////
     void doLongPoll();  // Запуск лонгпола, слот для потока
+    void stopLongPoll();
+
+public slots:
     void sendMessegeInTg(int64_t chatId, const std::string& message);
     void sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime);
-    void stopLongPoll();
+
+
+signals:////////////////
+    void errorOccurred(const QString& error);
+    void finished();
+    void resetWatchDogs();
 
 signals:
     void messageReceived(const TgBot::Message::Ptr& message);
-    void errorOccurred(const QString& error);
-signals:
-    void finished();
-signals:
-    void resetWatchDogs();
+    void sendMessegeSignal(QString chatId, const QString& message);
+    void sendImageSignal(const QString& chatId, const QString& message, const QString& mime);
 
 private:
    // TgBot::Bot* bot_ = nullptr;
