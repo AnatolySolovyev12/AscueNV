@@ -26,7 +26,7 @@ public:
 	QString getChatIdFromFile();
 	void getLastMessageAsync();
 	void deleteNotification(QString idNotification);
-	void uploadFile(QString chatId, QString message, QByteArray mime);
+	void uploadFile(QString chatId, QString message, QString mime);
 	void sendFileWithImage(QString chatId, QString urlFile, QString fileName);
 
 

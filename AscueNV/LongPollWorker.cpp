@@ -97,6 +97,8 @@ void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
+    maxClass->uploadFile(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
+
     /*
     try
     {

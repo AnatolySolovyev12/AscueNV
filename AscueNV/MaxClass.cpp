@@ -213,7 +213,7 @@ void MaxClass::deleteNotification(QString idNotification)
 
 
 
-void MaxClass::uploadFile(QString chatId, QString message, QByteArray mime)
+void MaxClass::uploadFile(QString chatId, QString message, QString mime)
 {
 	const QString filePath = QCoreApplication::applicationDirPath() + "/" + message;
 
@@ -230,7 +230,7 @@ void MaxClass::uploadFile(QString chatId, QString message, QByteArray mime)
 	QUrl url("https://3100.api.green-api.com/waInstance3100514553/uploadFile/134edc19c6c64e4f971e4578b787f54725492643c588466095");
 
 	QNetworkRequest request(url);
-	request.setRawHeader("Content-Type", mime);
+	request.setRawHeader("Content-Type", "image/png");
 
 	QNetworkReply* reply = manager->post(request, &file);
 
