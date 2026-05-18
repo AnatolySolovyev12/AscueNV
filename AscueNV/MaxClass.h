@@ -26,10 +26,14 @@ public:
 	QString getChatIdFromFile();
 	void getLastMessageAsync();
 	void deleteNotification(QString idNotification);
+	void uploadFile(QString chatId, QString message, QByteArray mime);
+	void sendFileWithImage(QString chatId, QString urlFile, QString fileName);
+
 
 signals:
 	void lastMessageReceived(const QPair<QString, QString>takePair);
 	void sendIdNotificationForDelete(QString id);
+	void sendUrlFile(QString chatId, QString urlFile, QString fileName);
 
 public slots:
 	void sendMessage(QString chatId, QString message);

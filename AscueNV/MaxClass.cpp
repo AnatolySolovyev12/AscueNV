@@ -8,6 +8,8 @@ MaxClass::MaxClass(QObject* parent)
 	//chatId = getChatIdFromFile();
 
 	connect(this, &MaxClass::sendIdNotificationForDelete, this, &MaxClass::deleteNotification);
+	connect(this, &MaxClass::sendUrlFile, this, &MaxClass::sendFileWithImage);
+
 
 	QTimer::singleShot(2000, [this]() { getLastMessageAsync(); });
 }
@@ -126,6 +128,7 @@ void MaxClass::getLastMessageAsync()
 	QNetworkReply* reply = manager->get(request);
 
 	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
+		
 		if (reply->error() == QNetworkReply::NoError)
 		{
 			QByteArray responseData = reply->readAll();
@@ -205,4 +208,97 @@ void MaxClass::deleteNotification(QString idNotification)
 		reply->deleteLater();
 		}
 	);
+}
+
+
+
+
+void MaxClass::uploadFile(QString chatId, QString message, QByteArray mime)
+{
+	const QString filePath = QCoreApplication::applicationDirPath() + "/" + message;
+
+	QFile file(filePath);
+	if (!file.exists()) {
+		qWarning() << "File does not exist:" << filePath;
+		return;
+	}
+	if (!file.open(QIODevice::ReadOnly)) {
+		qWarning() << "Cannot open file:" << filePath << file.errorString();
+		return;
+	}
+
+	QUrl url("https://3100.api.green-api.com/waInstance3100514553/uploadFile/134edc19c6c64e4f971e4578b787f54725492643c588466095");
+
+	QNetworkRequest request(url);
+	request.setRawHeader("Content-Type", mime);
+
+	QNetworkReply* reply = manager->post(request, &file);
+
+	connect(reply, &QNetworkReply::finished, this, [this, chatId, message, reply]() {
+
+		if (reply->error() == QNetworkReply::NoError) 
+		{
+			QByteArray responseData = reply->readAll();
+			QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
+
+			if (!responseDoc.isNull())
+			{
+				qDebug() << "\nurlFile: " << responseDoc["urlFile"].toInt();
+
+				emit sendUrlFile(chatId, responseDoc["urlFile"].toString(), message);
+			}
+			else
+				std::cout << "Json for uploadFile is NULL array";
+		}
+		else 
+		{
+			qDebug() << "Upload error:" << reply->error() << reply->errorString();
+			qDebug() << "Server reply:" << reply->readAll();
+		}
+
+		reply->deleteLater();
+		});
+}
+
+
+
+
+void MaxClass::sendFileWithImage(QString chatId, QString urlFile, QString fileName)
+{
+	if (urlFile.isEmpty()) {
+		qWarning() << "Attempt to send empty message";
+		return;
+	}
+
+	QUrl url(urlString);
+
+	QJsonObject json;
+	json["urlFile"] = urlFile;
+	json["fileName"] = fileName; // Используем переданное сообщение
+
+	// Преобразование JSON-объекта в строку
+	QJsonDocument jsonDoc(json);
+	QByteArray jsonData = jsonDoc.toJson();
+
+	// Создание запроса
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+	// Отправка запроса
+	QNetworkReply* reply = manager->post(request, jsonData);
+
+	// Обработчик ответа (если необходимо). Пригодится.
+	QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+
+		if (reply->error() == QNetworkReply::NoError)
+		{
+			QString response = reply->readAll();
+			qDebug() << response;
+		}
+		else
+		{
+			qDebug() << "Error:: " << reply->error();
+		}
+		reply->deleteLater();
+		});
 }
