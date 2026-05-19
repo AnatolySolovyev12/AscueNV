@@ -213,21 +213,31 @@ void MaxClass::deleteNotification(QString idNotification)
 
 
 
-void MaxClass::uploadFile(const QString& chatId, const QString& message, const QString& mime)
+void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, const QString& mime)
 {
-	const QString filePath = message;
+	const QString filePath = fileMessege;
 
 	qDebug() << "filePath:" << filePath;
 
 	QFile file(filePath);
-	if (!file.exists()) {
+
+	if (!file.exists())
+	{
 		qWarning() << "File does not exist:" << filePath;
 		return;
 	}
-	if (!file.open(QIODevice::ReadOnly)) {
+	else
+		qDebug() << "File is Exist!";
+
+
+
+	if (!file.open(QIODevice::ReadOnly)) 
+	{
 		qWarning() << "Cannot open file:" << filePath << file.errorString();
 		return;
 	}
+	else
+		qDebug() << "File is Open!";
 
 	const QByteArray fileData = file.readAll();
 	file.close();
@@ -236,14 +246,16 @@ void MaxClass::uploadFile(const QString& chatId, const QString& message, const Q
 
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "image/png");
+	request.setAttribute(QNetworkRequest::Http2AllowedAttribute, false); // без этого атрибута начинает ругаться на HTTP/2 почему то. Приходится работать с HTTP/1.1
 
 	QNetworkReply* reply = manager->post(request, fileData);
 
-	connect(reply, &QNetworkReply::finished, this, [this, chatId, message, reply]() {
+	connect(reply, &QNetworkReply::finished, this, [this, chatId, fileMessege, reply]() {
 		
 		const QByteArray responseData = reply->readAll();
 
-		if (reply->error() == QNetworkReply::NoError) {
+		if (reply->error() == QNetworkReply::NoError) 
+		{
 			qDebug() << "uploadFile response:" << responseData;
 
 			const QJsonDocument doc = QJsonDocument::fromJson(responseData);
@@ -254,6 +266,8 @@ void MaxClass::uploadFile(const QString& chatId, const QString& message, const Q
 				reply->deleteLater();
 				return;
 			}
+			else
+				qDebug() << "File is JsonDocObject!";
 
 			const QJsonObject obj = doc.object();
 			const QString urlFile = obj.value("urlFile").toString();
@@ -264,8 +278,8 @@ void MaxClass::uploadFile(const QString& chatId, const QString& message, const Q
 			}
 			else 
 			{
-				qDebug() << chatId << "   " << urlFile << "   " << message;
-				emit sendFileWithImage(chatId, urlFile, message);
+				qDebug() << chatId << "   " << urlFile << "   " << fileMessege;
+				emit sendFileWithImage(chatId, urlFile, fileMessege);
 			}
 		}
 		else {

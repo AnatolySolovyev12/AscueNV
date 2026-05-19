@@ -24,10 +24,7 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 
     connect(this, &LongPollWorker::sendImageSignal, maxClass, &MaxClass::uploadFile);
 
-  //  QTimer::singleShot(4000, [this]() {sendImageSignal("179757288", "179757288_vectorP.png", "image/png"); });
-
-
-
+   // QTimer::singleShot(4000, [this]() {sendImageSignal("179757288", "179757288_vectorP.png", "image/png"); });
 
     /*
     bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
@@ -50,8 +47,6 @@ LongPollWorker::~LongPollWorker()
 
 void LongPollWorker::doLongPoll()
 {
-
-
 
     /*
     try
