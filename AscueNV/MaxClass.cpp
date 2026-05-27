@@ -152,8 +152,12 @@ void MaxClass::getLastMessageAsync()
 
 				if (objBody["typeWebhook"].toString() != "outgoingAPIMessageReceived")
 				{
+					QString tempText = objText["textMessage"].toString();
+
+					if (tempText.indexOf("**") >= 0 || tempText.indexOf("//") >= 0 || tempText.indexOf(">>") >= 0 || tempText.indexOf("__") >= 0) tempText = tempText.mid(1); // Fix проблемы с GreenAPI
+
 					qDebug() << "Send messege...";
-					emit lastMessageReceived(qMakePair<QString, QString>(objId["chatId"].toString(), objText["textMessage"].toString()));
+					emit lastMessageReceived(qMakePair(objId["chatId"].toString(), tempText));
 				}
 			}
 			else
