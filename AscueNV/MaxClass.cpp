@@ -118,7 +118,7 @@ void MaxClass::getLastMessageAsync()
 {
 	if (isBusy) return;
 	isBusy = true;
-	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100514553/receiveNotification/134edc19c6c64e4f971e4578b787f54725492643c588466095");
+	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100625292/receiveNotification/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
 
 	QUrl url(urlStringTemp);
 
@@ -174,7 +174,7 @@ void MaxClass::getLastMessageAsync()
 
 void MaxClass::deleteNotification(QString idNotification)
 {
-	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100514553/deleteNotification/134edc19c6c64e4f971e4578b787f54725492643c588466095/");
+	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100625292/deleteNotification/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd/");
 
 	urlStringTemp += idNotification;
 
@@ -242,7 +242,7 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 	const QByteArray fileData = file.readAll();
 	file.close();
 
-	const QUrl url("https://3100.api.green-api.com/waInstance3100514553/uploadFile/134edc19c6c64e4f971e4578b787f54725492643c588466095");
+	const QUrl url("https://3100.api.green-api.com/waInstance3100625292/uploadFile/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
 
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "image/png");
@@ -300,7 +300,7 @@ void MaxClass::sendFileWithImage(const QString& chatId, const QString& urlFile, 
 		return;
 	}
 
-	QUrl url("https://3100.api.green-api.com/waInstance3100514553/sendFileByUrl/134edc19c6c64e4f971e4578b787f54725492643c588466095");
+	QUrl url("https://3100.api.green-api.com/waInstance3100625292/sendFileByUrl/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
 
 	QJsonObject json;
 	json["chatId"] = chatId;
