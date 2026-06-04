@@ -31,9 +31,10 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	//connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
 }
 
+
+
 void TelegramJacket::restartLongPoll()
 {
-
 	destructionAndResurecctionTimer->stop();
 
 	if (longPollThread && longPollThread->isRunning()) {
@@ -69,6 +70,7 @@ void TelegramJacket::restartLongPoll()
 }
 
 
+
 void TelegramJacket::setupLongPoll()
 {
 	longPollWorker = new LongPollWorker(getTokenFromFile());
@@ -88,11 +90,13 @@ void TelegramJacket::setupLongPoll()
 }
 
 
+
 void TelegramJacket::restartWatchDogs()
 {
 	destructionAndResurecctionTimer->stop();
 	destructionAndResurecctionTimer->start(300000);
 }
+
 
 
 void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автовывод сообщения после получения текущих от счётчика
@@ -125,10 +129,12 @@ void TelegramJacket::setIntervalAfterGetString(const int64_t any) // автов�
 }
 
 
+
 void TelegramJacket::setStopForVector() // автовывод сообщения после получения текущих от счётчика
 {
 	stopVector = true;
 }
+
 
 
 void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
@@ -142,6 +148,7 @@ void TelegramJacket::iconActivated(QSystemTrayIcon::ActivationReason reason)
 }
 
 
+
 void TelegramJacket::cmdOpen()
 {
 	AllocConsole(); // Создаем консоль и присоединяем к ней текущий процесс
@@ -151,12 +158,14 @@ void TelegramJacket::cmdOpen()
 }
 
 
+
 void TelegramJacket::cmdClose()
 {
 	qDebug() << "\nProgramm disconnect from console.";
 
 	FreeConsole(); // Отделяем процесс от cmd. После cmd закрываем руками.
 }
+
 
 
 void TelegramJacket::validChatIdInMassive()
@@ -189,6 +198,7 @@ void TelegramJacket::validChatIdInMassive()
 }
 
 
+
 QString TelegramJacket::getTokenFromFile()
 {
 	QFile file(QCoreApplication::applicationDirPath() + "\\token.txt");
@@ -216,6 +226,7 @@ QString TelegramJacket::getTokenFromFile()
 }
 
 
+
 void TelegramJacket::writeMessegeHistory(QString any)
 {
 	QString filename = QCoreApplication::applicationDirPath() + "\\history.txt";
@@ -234,6 +245,7 @@ void TelegramJacket::writeMessegeHistory(QString any)
 
 	file.close();
 }
+
 
 
 void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)

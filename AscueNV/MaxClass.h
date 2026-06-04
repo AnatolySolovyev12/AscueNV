@@ -36,8 +36,6 @@ signals:
 	void sendIdNotificationForDelete(QString id);
 	void sendUrlFile(const QString& chatId, const QString& urlFile, const QString& fileName);
 
-//public slots:
-
 private:
 	QNetworkAccessManager* manager = nullptr;
 	QString chatId = "";

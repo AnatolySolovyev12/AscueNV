@@ -4,7 +4,7 @@
 #include <QCoreApplication.h>
 
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
-    : QObject(parent), maxClass(new MaxClass)//, bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
+    : QObject(parent), maxClass(new MaxClass)
 {
     AttachConsole(ATTACH_PARENT_PROCESS);
 
@@ -19,35 +19,19 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
         });
 
     connect(this, &LongPollWorker::sendMessegeSignal, maxClass, &MaxClass::sendMessage);
-
-
-
     connect(this, &LongPollWorker::sendImageSignal, maxClass, &MaxClass::uploadFile);
-
-   // QTimer::singleShot(4000, [this]() {sendImageSignal("179757288", "179757288_vectorP.png", "image/png"); });
-
-    /*
-    bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
-        try {
-            emit messageReceived(message);
-        }
-        catch (const std::exception& e) {
-            qWarning() << "Error in message handler:" << e.what();
-        }
-        });
-
-    qDebug() <<  bot_->getApi().getMe()->username.c_str();
-    */
 }
+
+
 
 LongPollWorker::~LongPollWorker()
 {
 }
 
 
+
 void LongPollWorker::doLongPoll()
 {
-
     /*
     try
     {
@@ -86,41 +70,23 @@ void LongPollWorker::doLongPoll()
     */
 }
 
+
+
 void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 {
     QString temp = QString::fromStdString(message);
 
     sendMessegeSignal(QString::number(chatId), temp);
-  
-   // maxClass->sendMessage(QString::number(chatId), QString::fromStdString(message));
-    /*
-    try
-    {
-        bot_->getApi().sendMessage(chatId, message);
-    }
-    catch (const TgBot::TgException& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
-    */
 }
+
+
 
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
     sendImageSignal(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
-   // maxClass->uploadFile(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
-
-    /*
-    try
-    {
-        bot_->getApi().sendPhoto(chatId, TgBot::InputFile::fromFile(message, mime));
-    }
-    catch (const TgBot::TgException& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
-    */
 }
+
+
 
 void LongPollWorker::stopLongPoll()
 {
