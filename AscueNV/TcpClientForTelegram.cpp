@@ -744,6 +744,8 @@ void TcpClientForTelegram::exchange()
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
+					//qDebug() << "TA DA DA DA DA DA DA";
+//sendMessage(QByteArray::fromHex(QByteArray("7EA04D022141949927E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA051DFF000000FF000000090C07EA0604FF000000FF000000010062237E"))); // запрос на 29.05.2026 в ЛЭРС к М2М-1
 					sendMessage(testArray);
 				}
 
@@ -1040,7 +1042,7 @@ void TcpClientForTelegram::exchange()
 
 					sendMessage(testArray);
 				}
-
+				//7E A0 4D 02 21 41 94 99 27 E6 E6 00 C0 01 C1 00 07 01 00 62 02 00 FF 02 01 01 02 04 02 04 12 00 08 09 06 00 00 01 00 00 FF 0F 02 12 00 00 09 0C 07 EA 05 1D FF 00 00 00 FF 00 00 00 09 0C 07 EA 06 04 FF 00 00 00 FF 00 00 00 01 00 62 23 7E
 				if (counterForResend == 6) //A + cur (phase 1)
 				{
 					//7E A0 1A 02 21 41 BA 5B AA E6 E6 00 C0 01 41 00 03 01 00 15 08 00 FF 02 00 35 A8 7E
