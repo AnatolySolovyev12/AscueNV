@@ -22,7 +22,7 @@ class MaxClass : public QObject
 
 public:
 	MaxClass(QObject* parent = nullptr);
-	QString getTokenFromFile();
+	void getTokenFromFile();
 	QString getChatIdFromFile();
 	void getLastMessageAsync();
 	void deleteNotification(QString idNotification);
@@ -42,5 +42,7 @@ private:
 	QNetworkAccessManager* manager = nullptr;
 	QString chatId = "";
 	QString urlString = "";
+	QString instanceNumber = "";
+	QString tokenFromInstance = "";
 	bool isBusy = false;
 };

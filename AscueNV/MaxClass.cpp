@@ -4,26 +4,28 @@ MaxClass::MaxClass(QObject* parent)
 	: QObject(parent), manager(new QNetworkAccessManager)
 {
 	AttachConsole(ATTACH_PARENT_PROCESS);
-	urlString = QString(getTokenFromFile());
-	//chatId = getChatIdFromFile();
+	getTokenFromFile();
 
 	connect(this, &MaxClass::sendIdNotificationForDelete, this, &MaxClass::deleteNotification);
 	connect(this, &MaxClass::sendUrlFile, this, &MaxClass::sendFileWithImage);
-
 
 	QTimer::singleShot(2000, [this]() { getLastMessageAsync(); });
 }
 
 
 
-void MaxClass::sendMessage(QString chatId, const QString & message)
+void MaxClass::sendMessage(QString chatId, const QString& message)
 {
 	if (message.isEmpty()) {
 		qWarning() << "Attempt to send empty message";
 		return;
 	}
 
-	QUrl url(urlString);
+	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/sendMessage/%2)")
+		.arg(instanceNumber)
+		.arg(tokenFromInstance);
+
+	QUrl url(urlStringTemp);
 
 	QJsonObject json;
 	json["chatId"] = chatId;
@@ -58,14 +60,16 @@ void MaxClass::sendMessage(QString chatId, const QString & message)
 
 
 
-QString MaxClass::getTokenFromFile()
+void MaxClass::getTokenFromFile()
 {
+	//Берем за основу любой метод из API GreenAPI в котором фигурирует номер инстанса и токен
+
 	QFile file(QCoreApplication::applicationDirPath() + "\\tokenMax.txt");
 
 	if (!file.open(QIODevice::ReadOnly))
 	{
 		qDebug() << "Don't find browse file. Add a directory with a token (tokenMax.txt).";
-		return 0;
+		return;
 	}
 
 	QTextStream out(&file);
@@ -75,13 +79,42 @@ QString MaxClass::getTokenFromFile()
 	if (myLine == "")
 	{
 		qDebug() << "Don't find browse file. Add a directory with a token (tokenMax.txt).";
+
 		file.close();
-		return 0;
+		return;
 	}
 
 	file.close();
 
-	return myLine;
+	// Через регулярку получаем сначала номер инстанса
+
+	QRegularExpression strPattern(QString(R"(waInstance([0-9]*))"));
+
+	QRegularExpressionMatch matchReg = strPattern.match(myLine);
+
+	if (matchReg.hasMatch())
+	{
+		instanceNumber = matchReg.captured().replace("waInstance", ""); // избавляемся от приставки заменяя её на пустоту
+		qDebug() << "instanceNumber = " + instanceNumber;
+	}
+	else
+		qDebug() << "No matches in RegEx for waInstance";
+
+	// Полученный номер инстанса добавляем к паттерну и ищем совпадения для токена которым завершается любой метод из API
+
+	strPattern.setPattern(QString(R"(waInstance%1/[\w]+/([\w]+))").arg(instanceNumber)); // группируем токен в отдельную группу в круглых скобках чтобы в дальнейшем извлечь через индекс
+
+	matchReg = strPattern.match(myLine);
+
+	if (matchReg.hasMatch())
+	{
+		tokenFromInstance = matchReg.captured(1); // извлекаем индексированную первую скобку в паттерне. (0) или () извлекает всё совпадение. (1) - то что было опоясано в паттерне круглыми скобками
+		qDebug() << "tokenFromInstance = " + tokenFromInstance;
+	}
+	else
+		qDebug() << "No matches in RegEx for tokenFromInstance";
+
+	return;
 }
 
 
@@ -118,7 +151,10 @@ void MaxClass::getLastMessageAsync()
 {
 	if (isBusy) return;
 	isBusy = true;
-	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100625292/receiveNotification/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
+
+	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/receiveNotification/%2)")
+		.arg(instanceNumber)
+		.arg(tokenFromInstance);
 
 	QUrl url(urlStringTemp);
 
@@ -128,7 +164,7 @@ void MaxClass::getLastMessageAsync()
 	QNetworkReply* reply = manager->get(request);
 
 	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
-		
+
 		if (reply->error() == QNetworkReply::NoError)
 		{
 			QByteArray responseData = reply->readAll();
@@ -178,7 +214,9 @@ void MaxClass::getLastMessageAsync()
 
 void MaxClass::deleteNotification(QString idNotification)
 {
-	QString urlStringTemp = QString("https://3100.api.green-api.com/waInstance3100625292/deleteNotification/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd/");
+	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/deleteNotification/%2/)")
+		.arg(instanceNumber)
+		.arg(tokenFromInstance);
 
 	urlStringTemp += idNotification;
 
@@ -235,7 +273,7 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 
 
 
-	if (!file.open(QIODevice::ReadOnly)) 
+	if (!file.open(QIODevice::ReadOnly))
 	{
 		qWarning() << "Cannot open file:" << filePath << file.errorString();
 		return;
@@ -246,7 +284,11 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 	const QByteArray fileData = file.readAll();
 	file.close();
 
-	const QUrl url("https://3100.api.green-api.com/waInstance3100625292/uploadFile/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
+	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/uploadFile/%2)")
+		.arg(instanceNumber)
+		.arg(tokenFromInstance);
+
+	QUrl url(urlStringTemp);
 
 	QNetworkRequest request(url);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "image/png");
@@ -255,16 +297,16 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 	QNetworkReply* reply = manager->post(request, fileData);
 
 	connect(reply, &QNetworkReply::finished, this, [this, chatId, fileMessege, reply]() {
-		
+
 		const QByteArray responseData = reply->readAll();
 
-		if (reply->error() == QNetworkReply::NoError) 
+		if (reply->error() == QNetworkReply::NoError)
 		{
 			qDebug() << "uploadFile response:" << responseData;
 
 			const QJsonDocument doc = QJsonDocument::fromJson(responseData);
 
-			if (!doc.isObject()) 
+			if (!doc.isObject())
 			{
 				qWarning() << "uploadFile response is not JSON object";
 				reply->deleteLater();
@@ -276,11 +318,11 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 			const QJsonObject obj = doc.object();
 			const QString urlFile = obj.value("urlFile").toString();
 
-			if (urlFile.isEmpty()) 
+			if (urlFile.isEmpty())
 			{
 				qWarning() << "urlFile is empty, response:" << responseData;
 			}
-			else 
+			else
 			{
 				qDebug() << chatId << "   " << urlFile << "   " << fileMessege;
 				emit sendFileWithImage(chatId, urlFile, fileMessege);
@@ -304,7 +346,11 @@ void MaxClass::sendFileWithImage(const QString& chatId, const QString& urlFile, 
 		return;
 	}
 
-	QUrl url("https://3100.api.green-api.com/waInstance3100625292/sendFileByUrl/1689e99e7f2b462fad51ad3ae206f50aa72f8957f330480cbd");
+	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/sendFileByUrl/%2)")
+		.arg(instanceNumber)
+		.arg(tokenFromInstance);
+
+	QUrl url(urlStringTemp);
 
 	QJsonObject json;
 	json["chatId"] = chatId;
