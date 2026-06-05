@@ -27,7 +27,7 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
 	//restartWatchDogs();
-	
+
 	//connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
 }
 
@@ -299,6 +299,20 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 		return;
 	}
 
+	QRegularExpression strPattern(QString(R"(\[[0-9]{2}\])"));
+
+	QRegularExpressionMatch matchReg = strPattern.match(messegeInTelegram);
+
+	if (matchReg.hasMatch())
+	{
+		messegeInTelegram.remove(matchReg.captured());
+		dailyArchiveString = matchReg.captured().remove("[").remove("]");
+		dailyArchiveBool = true;
+
+	}
+	else
+		qDebug() << "No matches in RegEx for " + messegeInTelegram;
+
 	for (auto& val : messegeInTelegram) // Validation messege
 	{
 		if ((val == '_' || val == '>') && counterForSlesh == 0)
@@ -355,6 +369,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 	}
 
 	forQuery->queryDbResult(forQuery->getAny());
+
 
 	if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
 	{
@@ -420,6 +435,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
 		}
 	}
+
 
 	if ((relayCounterOn || relayCounterOff) && (messegeInTelegram != ""))
 	{
@@ -490,14 +506,84 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 		}
 	}
 
-	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed)
+
+	if ((dailyArchiveBool) && (messegeInTelegram != ""))
+	{
+		for (auto& val : forQuery->getIpForTcp())
+		{
+			if (val == ':') break;
+			ipFromDbTelegram += val;
+		}
+
+		if (ipFromDbTelegram != "")
+		{
+			int count = 0;
+			serialStringForProtocolinTelegram = "";
+
+			for (auto& val : messegeInTelegram)
+			{
+				if (count == 3)
+				{
+					serialStringForProtocolinTelegram.push_front("]");
+
+					break;
+				}
+				serialStringForProtocolinTelegram += val;
+				++count;
+			}
+
+			if (numberList.indexOf(serialStringForProtocolinTelegram) >= 0)
+			{
+				if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
+				{
+					delete resultMassive.find(message->chat->id).value();
+					resultMassive.find(message->chat->id).value() = nullptr;
+					resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+					resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+					resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
+
+					QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+				}
+				else
+				{
+					resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
+					resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+					resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
+
+					QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
+					QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+				}
+
+				if (dailyArchiveBool)
+					emit sendMessageRequested(message->chat->id, "We started trying to get daily archive on " + dailyArchiveString.toStdString() + " ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get daily if you send: /result. Repeat if it needed.");
+
+				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+				ipFromDbTelegram = "";
+
+			}
+			else
+			{
+				emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+			}
+		}
+		else
+		{
+			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+		}
+	}
+
+	// Если нет активных специальных булквых то просто выводим данные из БД
+	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
 	{
 		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 	}
+
 	currentNeed = false;
 	relayCounterOn = false;
 	relayCounterOff = false;
 	vecNeed = false;
+	dailyArchiveBool = false;
 	messegeInTelegram = "";
 
 	if (StringTools::startsWith(message->text, "/start")) {

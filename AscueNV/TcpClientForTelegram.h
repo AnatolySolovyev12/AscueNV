@@ -30,6 +30,7 @@ public:
     void setKey(int64_t any);
     const int64_t getKey();
     QString getSerialStringForProtocol();
+    void getDaily();
 
 signals:
     void messageReceived(const int64_t&);

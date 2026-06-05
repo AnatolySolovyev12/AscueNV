@@ -43,9 +43,17 @@ void TcpClientForTelegram::onConnected()
 	qDebug() << "\nConnected to server\n";
 
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	{
 		vecExchange();
+	}
+	else if (serialStringForProtocol == "]101" || serialStringForProtocol == "]102" || serialStringForProtocol == "]103" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
+	{
+		getDaily();
+	}
 	else
+	{
 		exchange();
+	}
 }
 
 void TcpClientForTelegram::onDisconnected()
@@ -113,6 +121,7 @@ void TcpClientForTelegram::onReadyRead()
 			summAnswer(temporaryAnswer);
 		}
 	}
+
 	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
 	{
 		if (counterForResend >= 2 && counterForResend != 30)
@@ -122,10 +131,22 @@ void TcpClientForTelegram::onReadyRead()
 		}
 
 	}
+
+	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
+	{
+		if (counterForResend == 2)
+		{
+			QString temporaryAnswer = data.toHex();
+			summAnswer(temporaryAnswer);
+		}
+
+	}
+
 	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104") && counterForResend == 4)
 	{
 		answerString += "Relay was connect";
 	}
+
 	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") && counterForResend == 4)
 	{
 		answerString += "Relay was disconnect";
@@ -138,7 +159,6 @@ void TcpClientForTelegram::onReadyRead()
 			QString temporaryAnswer = data.toHex();
 			summAnswervector(temporaryAnswer);
 		}
-
 	}
 
 	myTimer->stop();
@@ -147,6 +167,8 @@ void TcpClientForTelegram::onReadyRead()
 
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 		vecExchange();
+	else if (serialStringForProtocol == "]101" || serialStringForProtocol == "]102" || serialStringForProtocol == "]103" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
+		getDaily();
 	else
 		exchange();
 }
@@ -161,6 +183,44 @@ void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketEr
 
 void TcpClientForTelegram::summAnswer(QString& any)
 {
+	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
+	{
+		QString dayVal = any.sliced(90);
+		dayVal.chop(400);
+
+		QString nigntVal = any.sliced(108);
+		nigntVal.chop(382);
+
+		QString sumVal = any.sliced(162);
+		sumVal.chop(328);
+
+		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
+
+		for (auto& val : { sumVal, dayVal, nigntVal })
+		{
+			bool ok;
+			bool minus = false;
+			QString temporaryAnswer = val;
+
+			if ((val.toUInt(&ok, 16) > 4200000000) && counterForResend > 5)
+			{
+				temporaryAnswer = QString("%1")
+					.arg(4294967295 - temporaryAnswer.toUInt(&ok, 16));
+				minus = true;
+			}
+			else
+			{
+				temporaryAnswer = QString("%1")
+					.arg(temporaryAnswer.toULongLong(&ok, 16));
+			}
+
+			temporaryAnswer.insert((temporaryAnswer.length() - 6), ',');
+			answerString += temporaryAnswer + '\n';
+		}
+
+		qDebug() << "after convert " + answerString << '\n';
+	}
+
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		bool ok;
@@ -409,7 +469,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front("0");
 			}
-			else 
+			else
 			{
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front(temporaryAnswer);
@@ -566,7 +626,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front("0");
 			}
-			else 
+			else
 			{
 				frankenshteinString.push_front(",");
 				frankenshteinString.push_front(temporaryAnswer);
@@ -1670,12 +1730,12 @@ void TcpClientForTelegram::vecExchange()
 
 					sendMessage(testArray);
 				}
-				
+
 				/*
 				if (counterForResend == 3) //Type
 				{
 					//7E A0 1A 02 21 41 54 2B A4 E6 E6 00 C0 01 C1 00 01 00 00 60 01 01 FF 02 00 32 BC 7E
-					
+
 					QByteArray hexValue1 = "\x7E\xA0\x1A\x02\x21\x41\x54\x2B\xA4\xE6\xE6";
 					QByteArray hexValue2 = "\xC0\x01\xC1";
 					QByteArray hexValue3 = "\x01";
@@ -1702,7 +1762,7 @@ void TcpClientForTelegram::vecExchange()
 
 					sendMessage(testArray);
 				}
-				
+
 				if (counterForResend == 4) // I (phase 1)
 				{
 					//7E A0 1A 02 21 41 76 3B A6 E6 E6 00 C0 01 41 00 03 01 00 33 07 00 FF 02 00 53 5F 7E
@@ -1864,13 +1924,93 @@ void TcpClientForTelegram::vecExchange()
 	}
 }
 
+
+
+void TcpClientForTelegram::getDaily()
+{
+	if (counterForResend != 4)
+	{
+		QTimer::singleShot(500, [this]() {
+
+			QString hexValueZero = QString::number(0, 16);
+			QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+
+			if (counterForResend == 0) //start 1
+			{
+				//7E A0 1F 02 21 41 93 CC 30 81 80 12 05 01 F0 06 01 F0 07 04 00 00 00 01 08 04 00 00 00 01 F9 CB 7E
+
+				QByteArray hexValue1 = "\x7e\xa0\x1f\x02\x21\x41\x93\xcc\x30\x81\x80\x12\x05\x01\xf0\x06\x01\xf0\x07\x04";
+				QByteArray hexValue2 = "\x01\x08\x04";
+				QByteArray hexValue3 = "\x01\xf9\xcb\x7e";
+
+				QByteArray testArray = hexValue1 + nullVal + nullVal + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3;
+
+				sendMessage(testArray);
+			}
+
+			if (counterForResend == 1) //start 2
+			{
+				//7E A0 45 02 21 41 10 95 BF E6 E6 00 60 36 A1 09 06 07 60 85 74 05 08 01 01 8A 02 07 80 8B 07 60 85 74 05 08 02 01 AC 0A 80 08 30 30 30 30 30 30 30 30 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 00 7E 1F FF FF 00 D1 7E
+				QString hexValueZero = QString::number(0, 16);
+				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+
+				QByteArray hexValue1 = "\x7E\xA0\x45\x02\x21\x41\x10\x95\xBF\xE6\xE6";
+
+				QByteArray hexValue2 = "\x60\x36\xA1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\x8A\x02\x07\x80\x8B\x07\x60\x85\x74\x05\x08\x02\x01\xAC\x0A\x80\x08\x30\x30\x30\x30\x30\x30\x30\x30\xBE\x10\x04\x0E\x01";
+				QByteArray hexValue3 = "\x06\x5F\x1F\x04";
+				QByteArray hexValue4 = "\x7E\x1F\xFF\xFF";
+				QByteArray hexValue5 = "\xD1\x7E";
+
+				//QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+				//sendMessage(testArray);
+				sendMessage(QByteArray::fromHex(QByteArray("7EA0450221411095BFE6E6006036A1090607608574050801018A0207808B0760857405080201AC0A80083030303030303030BE10040E01000000065F1F0400007E1FFFFF00D17E")));
+			}
+
+			if (counterForResend == 2) // daily
+			{
+				sendMessage(QByteArray::fromHex(QByteArray("7EA04D022141949927E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA051DFF000000FF000000090C07EA0604FF000000FF000000010062237E"))); // запрос на 29.05.2026 в ЛЭРС к М2М-1
+			}
+
+			if (counterForResend == 3) // end
+			{
+				//7E A0 08 02 21 41 53 5C 72 7E
+
+				QByteArray hexValue1 = "\x7E\xA0\x08\x02\x21\x41\x53\x5C\x72\x7E";
+				QByteArray testArray = hexValue1;
+
+				sendMessage(testArray);
+			}
+
+			if (reTransmitQuery >= 4)
+			{
+				counterForResend = 4;
+				answerString += "\nNo, stopped or incorrect responses from remote socket";
+			}
+
+			myTimer->start(20000);
+			});
+	}
+	else
+	{
+		myTimer->stop();
+		socket->close();
+		qDebug() << '\n' << answerString;
+		ip = "";
+		reTransmitQuery = 0;
+
+		emit messageReceived(getKey());
+	}
+}
+
+
+
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
 	{
 		bool ok;
 		bool minus = false;
-		
+
 		QString temporaryAnswer;
 
 		if (counterForResend > 3 && (any.length() == 96)) // защита от сдвоенного ответа
