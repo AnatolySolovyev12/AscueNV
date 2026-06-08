@@ -185,14 +185,14 @@ void TcpClientForTelegram::summAnswer(QString& any)
 {
 	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
 	{
-		QString dayVal = any.sliced(92);
-		dayVal.chop(398);
+        QString dayVal = any.sliced(74);
+		dayVal.chop(416);
 
-		QString nigntVal = any.sliced(110);
-		nigntVal.chop(380);
+		QString nigntVal = any.sliced(92);
+		nigntVal.chop(398);
 
-		QString sumVal = any.sliced(164);
-		sumVal.chop(326);
+		QString sumVal = any.sliced(146);
+		sumVal.chop(308);
 
 		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
 
