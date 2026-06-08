@@ -1968,8 +1968,11 @@ void TcpClientForTelegram::getDaily()
 
 			if (counterForResend == 2) // daily
 			{
-				sendMessage(QByteArray::fromHex(QByteArray("7EA04D022141949927E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA051DFF000000FF000000090C07EA0604FF000000FF000000010062237E"))); // запрос на 29.05.2026 в ЛЭРС к М2М-1
-			}
+				QString temp = hexDateFunc(dailyArchiveString);
+				//sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA0601FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // запрос на 01.06.2026 в ЛЭРС к М2М-1
+
+				sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C") + temp.toUtf8() + QByteArray("FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // запрос на 01.06.2026 в ЛЭРС к М2М-1
+			}                     
 
 			if (counterForResend == 3) // end
 			{
@@ -2144,17 +2147,62 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 	}
 }
 
+
+
 void TcpClientForTelegram::setKey(int64_t any)
 {
 	key = any;
 }
+
+
 
 const int64_t TcpClientForTelegram::getKey()
 {
 	return key;
 }
 
+
+
 QString TcpClientForTelegram::getSerialStringForProtocol()
 {
 	return serialStringForProtocol;
 }
+
+
+
+void TcpClientForTelegram::setDailyArchive(QString temp)
+{
+	dailyArchiveString = temp;
+}
+
+
+
+QString TcpClientForTelegram::hexDateFunc(QString date)
+{
+	bool ok;
+	int purposeDay = date.toInt();
+
+	QString dateCurr = QDate::currentDate().toString("yyyy.MM.dd");
+
+	QString dayString = dateCurr.sliced(8);
+	int currDay = dayString.toInt();
+
+	QString monthString = dateCurr.sliced(5);
+	monthString.chop(3);
+	int month = monthString.toInt();
+
+	dateCurr.chop(6);
+	int year = dateCurr.toInt();
+
+	QString hexString = QString("%1").arg(year, 4, 16, QChar('0')).toUpper(); // значение, количество знаков, преобразование, заполнитель начальный
+
+	if (purposeDay >= currDay) --month;
+
+	hexString += QString("%1").arg(month, 2, 16, QChar('0')).toUpper();
+	hexString += QString("%1").arg(purposeDay, 2, 16, QChar('0')).toUpper();
+
+	return hexString;
+}
+
+
+

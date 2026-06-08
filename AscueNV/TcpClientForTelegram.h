@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QTextStream>
 #include <windows.h>
+#include <qdatetime.h>
 
 class TcpClientForTelegram : public QObject
 {
@@ -31,6 +32,8 @@ public:
     const int64_t getKey();
     QString getSerialStringForProtocol();
     void getDaily();
+    void setDailyArchive(QString temp);
+    QString hexDateFunc(QString date);
 
 signals:
     void messageReceived(const int64_t&);
@@ -55,6 +58,7 @@ private:
     int reTransmitQuery = 0;
     QString serialStringForProtocol;
     int64_t key = 0;
+    QString dailyArchiveString = "";
 };
 
 #endif // TCPCLIENT_H

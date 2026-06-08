@@ -557,8 +557,10 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 
 				if (dailyArchiveBool)
 					emit sendMessageRequested(message->chat->id, "We started trying to get daily archive on " + dailyArchiveString.toStdString() + " ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get daily if you send: /result. Repeat if it needed.");
-
+				
+				resultMassive.find(message->chat->id).value()->setDailyArchive(dailyArchiveString);
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+
 				ipFromDbTelegram = "";
 
 			}
