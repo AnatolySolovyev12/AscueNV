@@ -192,7 +192,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		nigntVal.chop(398);
 
 		QString sumVal = any.sliced(146);
-		sumVal.chop(308);
+		sumVal.chop(344);
 
 		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
 
