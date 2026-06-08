@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
@@ -57,6 +57,7 @@ private:
 	bool relayCounterOn = false;
 	bool relayCounterOff = false;
 	bool stopVector = false;
+	bool dailyArchiveBool = false;
 
 	QTimer* myTimer = nullptr;
 
@@ -64,12 +65,18 @@ private:
 	QString messegeFromTcp = "empty";
 	QString ipFromDbTelegram;
 	QString serialStringForProtocolinTelegram;
+	QString dailyArchiveString = "";
 
 	TcpClientForTelegram* tcpObj = nullptr;
 
 	int counterForSlesh = 0;
 
-	QList <QString> numberList{ "101", "102", "103", "104", "106", "/101", "/102", "/103" ,"/104", "/106", ">101", ">102", ">103" ,">104","_101", "_102", "_103", "_104", "*101", "*102", "*103", "*104", "*106"};
+	QList <QString> numberList{ "101", "102", "103", "104", "106", "109", 
+		                        "/101", "/102", "/103" ,"/104", "/106", "/109", 
+		                        ">101", ">102", ">103" ,">104", ">109", 
+		                        "_101", "_102", "_103", "_104", "_109", 
+		                        "*101", "*102", "*103", "*104", "*106", "*109", 
+		                        "]101", "]102", "]103", "]104", "]106", "]109"};
 
 	int64_t myChat = 0;
 
