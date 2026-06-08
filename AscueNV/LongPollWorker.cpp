@@ -1,53 +1,59 @@
-#include "LongPollWorker.h"
+п»ї#include "LongPollWorker.h"
 #include <QThread>
 #include <qdebug.h>
 #include <QCoreApplication.h>
 
 LongPollWorker::LongPollWorker(QString any, QObject* parent)
-    : QObject(parent), bot_(new TgBot::Bot(any.toStdString())), longPoll(new TgBot::TgLongPoll(*bot_, 90, 6))
+    : QObject(parent), maxClass(new MaxClass)
 {
     AttachConsole(ATTACH_PARENT_PROCESS);
 
-    bot_->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
-        try {
-            emit messageReceived(message);
-        }
-        catch (const std::exception& e) {
-            qWarning() << "Error in message handler:" << e.what();
-        }
+    connect(maxClass, &MaxClass::lastMessageReceived, [this](const QPair<QString, QString>takePair) {
+
+        message->text = takePair.second.toStdString();
+        chat->id = takePair.first.toInt();
+        message->chat = chat;
+
+        emit messageReceived(message);
+
         });
 
-    qDebug() <<  bot_->getApi().getMe()->username.c_str();
+    connect(this, &LongPollWorker::sendMessegeSignal, maxClass, &MaxClass::sendMessage);
+    connect(this, &LongPollWorker::sendImageSignal, maxClass, &MaxClass::uploadFile);
 }
+
+
 
 LongPollWorker::~LongPollWorker()
 {
 }
 
 
+
 void LongPollWorker::doLongPoll()
 {
+    /*
     try
     {
         while (!QThread::currentThread()->isInterruptionRequested() && !m_stopRequested)
         {
             QCoreApplication::processEvents();
 
-            // Неблокирующий вызов longPoll с таймаутом
-            QFuture<void> future = QtConcurrent::run([this]() { // запускаем пол и ждём завершения future в пуле потоков
+            // РќРµР±Р»РѕРєРёСЂСѓСЋС‰РёР№ РІС‹Р·РѕРІ longPoll СЃ С‚Р°Р№РјР°СѓС‚РѕРј
+            QFuture<void> future = QtConcurrent::run([this]() { // Р·Р°РїСѓСЃРєР°РµРј РїРѕР» Рё Р¶РґС‘Рј Р·Р°РІРµСЂС€РµРЅРёСЏ future РІ РїСѓР»Рµ РїРѕС‚РѕРєРѕРІ
                 longPoll->start();
                 });
 
             QFutureWatcher<void> watcher;
-            watcher.setFuture(future); // связываем наблюдателя за завершением будущего события
+            watcher.setFuture(future); // СЃРІСЏР·С‹РІР°РµРј РЅР°Р±Р»СЋРґР°С‚РµР»СЏ Р·Р° Р·Р°РІРµСЂС€РµРЅРёРµРј Р±СѓРґСѓС‰РµРіРѕ СЃРѕР±С‹С‚РёСЏ
 
-            QEventLoop loop; // делаем петлю и ловим момент завершения future (polla) и если он не завершится то таймер прервёт петлю. 
+            QEventLoop loop; // РґРµР»Р°РµРј РїРµС‚Р»СЋ Рё Р»РѕРІРёРј РјРѕРјРµРЅС‚ Р·Р°РІРµСЂС€РµРЅРёСЏ future (polla) Рё РµСЃР»Рё РѕРЅ РЅРµ Р·Р°РІРµСЂС€РёС‚СЃСЏ С‚Рѕ С‚Р°Р№РјРµСЂ РїСЂРµСЂРІС‘С‚ РїРµС‚Р»СЋ. 
             connect(&watcher, &QFutureWatcher<void>::finished, &loop, &QEventLoop::quit);
-            QTimer::singleShot(10000, &loop, &QEventLoop::quit); // Таймаут 10 сек
+            QTimer::singleShot(10000, &loop, &QEventLoop::quit); // РўР°Р№РјР°СѓС‚ 10 СЃРµРє
             loop.exec();
 
-            if (!future.isFinished()) { // если петля не завершится те сигналим о том что тут подвисло и всё это удаляется и строится заново иначе ресет и по новой
-                // Прервать longPoll
+            if (!future.isFinished()) { // РµСЃР»Рё РїРµС‚Р»СЏ РЅРµ Р·Р°РІРµСЂС€РёС‚СЃСЏ С‚Рµ СЃРёРіРЅР°Р»РёРј Рѕ С‚РѕРј С‡С‚Рѕ С‚СѓС‚ РїРѕРґРІРёСЃР»Рѕ Рё РІСЃС‘ СЌС‚Рѕ СѓРґР°Р»СЏРµС‚СЃСЏ Рё СЃС‚СЂРѕРёС‚СЃСЏ Р·Р°РЅРѕРІРѕ РёРЅР°С‡Рµ СЂРµСЃРµС‚ Рё РїРѕ РЅРѕРІРѕР№
+                // РџСЂРµСЂРІР°С‚СЊ longPoll
                 m_stopRequested = true;
                 break;
             }
@@ -60,31 +66,27 @@ void LongPollWorker::doLongPoll()
         emit errorOccurred(QString::fromStdString(e.what()));
     }
     emit finished();
+
+    */
 }
+
+
 
 void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 {
-    try
-    {
-        bot_->getApi().sendMessage(chatId, message);
-    }
-    catch (const TgBot::TgException& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
+    QString temp = QString::fromStdString(message);
+
+    sendMessegeSignal(QString::number(chatId), temp);
 }
+
+
 
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
-    try
-    {
-        bot_->getApi().sendPhoto(chatId, TgBot::InputFile::fromFile(message, mime));
-    }
-    catch (const TgBot::TgException& e)
-    {
-        emit errorOccurred(QString::fromStdString(e.what()));
-    }
+    sendImageSignal(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
 }
+
+
 
 void LongPollWorker::stopLongPoll()
 {

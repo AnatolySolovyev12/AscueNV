@@ -102,6 +102,7 @@
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
+    <ClCompile Include="MaxClass.cpp" />
     <ClCompile Include="TcpClientForTelegram.cpp" />
     <ClCompile Include="TelegramJacket.cpp" />
     <ClCompile Include="VectorImage.cpp" />
@@ -120,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LongPollWorker.h" />
+    <QtMoc Include="MaxClass.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
