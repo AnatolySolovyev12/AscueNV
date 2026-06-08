@@ -1,4 +1,4 @@
-#include "TcpClientForTelegram.h"
+п»ї#include "TcpClientForTelegram.h"
 
 TcpClientForTelegram::TcpClientForTelegram(QString any, QObject* parent) : serialStringForProtocol(any), QObject(parent), socket(new QTcpSocket(this))
 {
@@ -68,7 +68,7 @@ void TcpClientForTelegram::onReadyRead()
 
 	qDebug() << "RX << " << data.toHex();
 
-	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////РЅР°РґРѕ РєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ Р·Р°С‰РёС‚Сѓ
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -805,7 +805,7 @@ void TcpClientForTelegram::exchange()
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
 					//qDebug() << "TA DA DA DA DA DA DA";
-//sendMessage(QByteArray::fromHex(QByteArray("7EA04D022141949927E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA051DFF000000FF000000090C07EA0604FF000000FF000000010062237E"))); // запрос на 29.05.2026 в ЛЭРС к М2М-1
+//sendMessage(QByteArray::fromHex(QByteArray("7EA04D022141949927E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA051DFF000000FF000000090C07EA0604FF000000FF000000010062237E"))); // Р·Р°РїСЂРѕСЃ РЅР° 29.05.2026 РІ Р›Р­Р РЎ Рє Рњ2Рњ-1
 					sendMessage(testArray);
 				}
 
@@ -1488,7 +1488,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 30) // завершающий
+				if (counterForResend == 30) // Р·Р°РІРµСЂС€Р°СЋС‰РёР№
 				{
 					//7E A0 08 02 21 41 53 5C 72 7E
 
@@ -1519,7 +1519,7 @@ void TcpClientForTelegram::exchange()
 		}
 	}
 
-	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") // включение/отключение реле
+	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") // РІРєР»СЋС‡РµРЅРёРµ/РѕС‚РєР»СЋС‡РµРЅРёРµ СЂРµР»Рµ
 	{
 
 		if (counterForResend != 5)
@@ -1558,7 +1558,7 @@ void TcpClientForTelegram::exchange()
 				}
 
 
-				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //  проверка подлинности при включении реле
+				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //  РїСЂРѕРІРµСЂРєР° РїРѕРґР»РёРЅРЅРѕСЃС‚Рё РїСЂРё РІРєР»СЋС‡РµРЅРёРё СЂРµР»Рµ
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 B3 55 E5 CE 9A 8F C9 5A 4B BD 68 37 E6 C1 0E 1C 2E 13 7E
 
@@ -1573,7 +1573,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // проверка подлинности при отключении реле
+				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // РїСЂРѕРІРµСЂРєР° РїРѕРґР»РёРЅРЅРѕСЃС‚Рё РїСЂРё РѕС‚РєР»СЋС‡РµРЅРёРё СЂРµР»Рµ
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 5A F9 3E D6 AA A0 0C 7F C5 6E 15 D6 88 60 D8 C1 B0 0E 7E
 
@@ -1603,7 +1603,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //включение реле
+				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //РІРєР»СЋС‡РµРЅРёРµ СЂРµР»Рµ
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 02 01 0F 00 A5 83 7E
 
@@ -1618,7 +1618,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // отключение реле
+				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // РѕС‚РєР»СЋС‡РµРЅРёРµ СЂРµР»Рµ
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 01 01 0F 00 68 A6 7E
 
@@ -1968,10 +1968,13 @@ void TcpClientForTelegram::getDaily()
 
 			if (counterForResend == 2) // daily
 			{
-				QString temp = hexDateFunc(dailyArchiveString);
-				//sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA0601FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // запрос на 01.06.2026 в ЛЭРС к М2М-1
-
-				sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C") + temp.toUtf8() + QByteArray("FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // запрос на 01.06.2026 в ЛЭРС к М2М-1
+				QString firstDay = hexDateFunc(dailyArchiveString);
+				int tempInt = dailyArchiveString.toInt();
+				++tempInt;
+				QString secondDay = hexDateFunc(QString::number(tempInt));
+				
+				//sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA0601FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // Р·Р°РїСЂРѕСЃ РЅР° 01.06.2026 РІ Р›Р­Р РЎ Рє Рњ2Рњ-1
+				sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C") + firstDay.toUtf8() + QByteArray("FF000000FF000000090C") + secondDay.toUtf8() + QByteArray("FF000000FF000000010070FC7E")));
 			}                     
 
 			if (counterForResend == 3) // end
@@ -2016,7 +2019,7 @@ void TcpClientForTelegram::summAnswervector(QString& any)
 
 		QString temporaryAnswer;
 
-		if (counterForResend > 3 && (any.length() == 96)) // защита от сдвоенного ответа
+		if (counterForResend > 3 && (any.length() == 96)) // Р·Р°С‰РёС‚Р° РѕС‚ СЃРґРІРѕРµРЅРЅРѕРіРѕ РѕС‚РІРµС‚Р°
 			temporaryAnswer = any.sliced(84);
 		else
 			temporaryAnswer = any.sliced(36);
@@ -2194,7 +2197,7 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 	dateCurr.chop(6);
 	int year = dateCurr.toInt();
 
-	QString hexString = QString("%1").arg(year, 4, 16, QChar('0')).toUpper(); // значение, количество знаков, преобразование, заполнитель начальный
+	QString hexString = QString("%1").arg(year, 4, 16, QChar('0')).toUpper(); // Р·РЅР°С‡РµРЅРёРµ, РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РЅР°РєРѕРІ, РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ, Р·Р°РїРѕР»РЅРёС‚РµР»СЊ РЅР°С‡Р°Р»СЊРЅС‹Р№
 
 	if (purposeDay >= currDay) --month;
 
@@ -2203,6 +2206,3 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 
 	return hexString;
 }
-
-
-
