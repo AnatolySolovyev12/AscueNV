@@ -2242,22 +2242,43 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 
 
 quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) {
-	quint16 crc = 0xFFFF;
+	const uint16_t poly = 0x1021;
+	const uint16_t init = 0xFFFF;
+	const bool ref_in = true;
+	const bool ref_out = true;
+	const uint16_t xor_out = 0xFFFF;
+
+	uint16_t crc = init;
 	for (char ch : data) {
-		crc ^= (quint8)ch;
-		for (int i = 0; i < 8; ++i) {
-			if (crc & 1)
-				crc = (crc >> 1) ^ 0x1021;
+		uint8_t byte = static_cast<uint8_t>(ch);
+		// Отражение входного байта (ref_in)
+		if (ref_in) {
+			uint8_t reflected = 0;
+			for (int b = 0; b < 8; ++b) {
+				if (byte & (1 << b))
+					reflected |= (1 << (7 - b));
+			}
+			byte = reflected;
+		}
+		crc ^= (byte << 8);
+		for (int b = 0; b < 8; ++b) {
+			if (crc & 0x8000)
+				crc = (crc << 1) ^ poly;
 			else
-				crc >>= 1;
+				crc <<= 1;
+			crc &= 0xFFFF;
 		}
 	}
-	// Отражение всех 16 бит (ref_out = true)
-	quint16 reflected = 0;
-	for (int i = 0; i < 16; ++i) {
-		if (crc & (1 << i))
-			reflected |= (1 << (15 - i));
+	// Отражение результата (ref_out)
+	if (ref_out) {
+		uint16_t reflected = 0;
+		for (int b = 0; b < 16; ++b) {
+			if (crc & (1 << b))
+				reflected |= (1 << (15 - b));
+		}
+		crc = reflected;
 	}
-	// Инверсия (xor_out = 0xFFFF)
-	return reflected ^ 0xFFFF;
+	// Инверсия (xor_out)
+	crc ^= xor_out;
+	return crc;
 }
