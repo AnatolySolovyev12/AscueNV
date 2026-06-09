@@ -8,6 +8,7 @@
 #include <QTextStream>
 #include <windows.h>
 #include <qdatetime.h>
+#include <QtEndian>
 
 class TcpClientForTelegram : public QObject
 {
@@ -34,6 +35,8 @@ public:
     void getDaily();
     void setDailyArchive(QString temp);
     QString hexDateFunc(QString date);
+
+    quint16 crc16Kermit(const QByteArray& data);
 
 signals:
     void messageReceived(const int64_t&);

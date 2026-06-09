@@ -1978,14 +1978,36 @@ void TcpClientForTelegram::getDaily()
 
 			if (counterForResend == 2) // daily
 			{
-				QString firstDay = hexDateFunc(dailyArchiveString);
+				QString firstDayStr = hexDateFunc(dailyArchiveString);
 				int tempInt = dailyArchiveString.toInt();
 				++tempInt;
-				QString secondDay = hexDateFunc(QString::number(tempInt));
-				
-				//sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C07EA0601FF000000FF000000090C07EA0602FF000000FF000000010070FC7E"))); // запрос на 01.06.2026 в ЛЭРС к М2М-1
-				sendMessage(QByteArray::fromHex(QByteArray("7EA04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C") + firstDay.toUtf8() + QByteArray("FF000000FF000000090C") + secondDay.toUtf8() + QByteArray("FF000000FF000000010070FC7E")));
-			}                     
+				QString secondDayStr = hexDateFunc(QString::number(tempInt));
+
+				// Преобразуем строки в бинарные байты (4 байта каждая)
+				QByteArray firstDayBytes = QByteArray::fromHex(firstDayStr.toUtf8());
+				QByteArray secondDayBytes = QByteArray::fromHex(secondDayStr.toUtf8());
+
+				// Фиксированные части кадра (без флагов 7E и CRC)
+				QByteArray prefix = QByteArray::fromHex(
+					"A04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C"
+				);
+				QByteArray middle = QByteArray::fromHex("FF000000FF000000090C");
+				QByteArray suffix = QByteArray::fromHex("FF000000FF0000000100");
+
+				// Собираем тело пакета для расчёта CRC (все байты от A0 до последнего 00)
+				QByteArray body = prefix + firstDayBytes + middle + secondDayBytes + suffix;
+
+				// Вычисляем CRC-16/KERMIT
+				quint16 crc = crc16Kermit(body);
+				QByteArray crcBytes;
+				crcBytes.append(char(crc & 0xFF));       // младший байт (little-endian)
+				crcBytes.append(char((crc >> 8) & 0xFF));
+
+				// Полный кадр с обрамлением 0x7E
+				QByteArray fullFrame = QByteArray::fromHex("7E") + body + crcBytes + QByteArray::fromHex("7E");
+
+				sendMessage(fullFrame);
+			}
 
 			if (counterForResend == 3) // end
 			{
@@ -2215,4 +2237,27 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 	hexString += QString("%1").arg(purposeDay, 2, 16, QChar('0')).toUpper();
 
 	return hexString;
+}
+
+
+
+quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) {
+	quint16 crc = 0xFFFF;
+	for (char ch : data) {
+		crc ^= (quint8)ch;
+		for (int i = 0; i < 8; ++i) {
+			if (crc & 1)
+				crc = (crc >> 1) ^ 0x1021;
+			else
+				crc >>= 1;
+		}
+	}
+	// Отражение всех 16 бит (ref_out = true)
+	quint16 reflected = 0;
+	for (int i = 0; i < 16; ++i) {
+		if (crc & (1 << i))
+			reflected |= (1 << (15 - i));
+	}
+	// Инверсия (xor_out = 0xFFFF)
+	return reflected ^ 0xFFFF;
 }
