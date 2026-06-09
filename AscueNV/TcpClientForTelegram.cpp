@@ -223,7 +223,8 @@ void TcpClientForTelegram::summAnswer(QString& any)
 					.arg(temporaryAnswer.toULongLong(&ok, 16));
 			}
 
-			temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
+			//Отделяем целую часть от дробной исходя из типа счётчика
+			serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
 			answerString += temporaryAnswer + '\n';
 		}
 
