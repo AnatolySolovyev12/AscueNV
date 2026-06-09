@@ -113,6 +113,15 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
+	if (data.toHex().length() < 35 && (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109") && counterForResend >= 2)
+	{
+		qDebug() << "\nincorrect RX. Resend";
+		reTransmitQuery++;
+		myTimer->stop();
+		getDaily();
+		return;
+	}
+
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
 	{
 		if (counterForResend >= 2 && counterForResend != 16)
@@ -214,7 +223,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 					.arg(temporaryAnswer.toULongLong(&ok, 16));
 			}
 
-			temporaryAnswer.insert((temporaryAnswer.length() - 6), ',');
+			temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
 			answerString += temporaryAnswer + '\n';
 		}
 
@@ -1990,7 +1999,7 @@ void TcpClientForTelegram::getDaily()
 			if (reTransmitQuery >= 4)
 			{
 				counterForResend = 4;
-				answerString += "\nNo, stopped or incorrect responses from remote socket";
+				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
 			}
 
 			myTimer->start(20000);

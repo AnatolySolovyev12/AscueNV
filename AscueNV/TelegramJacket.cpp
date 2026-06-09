@@ -32,6 +32,10 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 }
 
 
+TelegramJacket::~TelegramJacket()
+{
+}
+
 void TelegramJacket::restartLongPoll()
 {
 	destructionAndResurecctionTimer->stop();

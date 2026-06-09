@@ -15,6 +15,7 @@
 #include <QAction>
 #include <QMainWindow>
 #include <windows.h>
+#include <shellapi.h>
 #include <qhash.h>
 #include <qpair.h>
 #include <QScopedPointer>
@@ -28,6 +29,7 @@ class TelegramJacket : public QMainWindow
 
 public:
 	TelegramJacket(QWidget* parent = nullptr);
+	~TelegramJacket();
 
 private slots:
 	void setIntervalAfterGetString(const int64_t any);
