@@ -194,7 +194,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 {
 	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
 	{
-        QString dayVal = any.sliced(74);
+		QString dayVal = any.sliced(74);
 		dayVal.chop(416);
 
 		QString nigntVal = any.sliced(92);
@@ -204,6 +204,8 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		sumVal.chop(344);
 
 		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
+
+		int counter = 1;
 
 		for (auto& val : { sumVal, dayVal, nigntVal })
 		{
@@ -223,9 +225,15 @@ void TcpClientForTelegram::summAnswer(QString& any)
 					.arg(temporaryAnswer.toULongLong(&ok, 16));
 			}
 
+			QString tariffText = "";
+			if (counter == 1) tariffText = "SUM - ";
+			else if (counter == 2) tariffText = "T1 - ";
+			else  tariffText = "T2 - ";
+
+			++counter;
 			//Отделяем целую часть от дробной исходя из типа счётчика
 			serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
-			answerString += temporaryAnswer + '\n';
+			answerString += tariffText + temporaryAnswer + '\n';
 		}
 
 		qDebug() << "after convert " + answerString << '\n';
@@ -1980,17 +1988,13 @@ void TcpClientForTelegram::getDaily()
 			{
 				QString firstDayStr = hexDateFunc(dailyArchiveString);
 				int tempInt = dailyArchiveString.toInt();
-				++tempInt;
 				QString secondDayStr = hexDateFunc(QString::number(tempInt));
 
-				// Преобразуем строки в бинарные байты (4 байта каждая)
 				QByteArray firstDayBytes = QByteArray::fromHex(firstDayStr.toUtf8());
 				QByteArray secondDayBytes = QByteArray::fromHex(secondDayStr.toUtf8());
 
 				// Фиксированные части кадра (без флагов 7E и CRC)
-				QByteArray prefix = QByteArray::fromHex(
-					"A04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C"
-				);
+				QByteArray prefix = QByteArray::fromHex("A04D0221411491A3E6E600C001C100070100620200FF0201010204020412000809060000010000FF0F02120000090C");
 				QByteArray middle = QByteArray::fromHex("FF000000FF000000090C");
 				QByteArray suffix = QByteArray::fromHex("FF000000FF0000000100");
 
@@ -2207,7 +2211,7 @@ QString TcpClientForTelegram::getSerialStringForProtocol()
 
 void TcpClientForTelegram::setDailyArchive(QString temp)
 {
-	dailyArchiveString = temp;
+    dailyArchiveString = temp;
 }
 
 
@@ -2231,7 +2235,7 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 
 	QString hexString = QString("%1").arg(year, 4, 16, QChar('0')).toUpper(); // значение, количество знаков, преобразование, заполнитель начальный
 
-	if (purposeDay >= currDay) --month;
+	if (purposeDay > currDay) --month;
 
 	hexString += QString("%1").arg(month, 2, 16, QChar('0')).toUpper();
 	hexString += QString("%1").arg(purposeDay, 2, 16, QChar('0')).toUpper();
