@@ -194,14 +194,32 @@ void TcpClientForTelegram::summAnswer(QString& any)
 {
 	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
 	{
-		QString dayVal = any.sliced(74);
-		dayVal.chop(416);
+		QString dayVal;
+		QString nigntVal;
+		QString sumVal;
 
-		QString nigntVal = any.sliced(92);
-		nigntVal.chop(398);
+		if (any.length() > 480)
+		{
+			dayVal = any.sliced(74);
+			dayVal.chop(416);
 
-		QString sumVal = any.sliced(146);
-		sumVal.chop(344);
+			nigntVal = any.sliced(92);
+			nigntVal.chop(398);
+
+			sumVal = any.sliced(146);
+			sumVal.chop(344);
+		}
+		else
+		{
+			dayVal = any.sliced(74);
+			dayVal.chop(348);
+
+			nigntVal = any.sliced(92);
+			nigntVal.chop(330);
+
+			sumVal = any.sliced(146);
+			sumVal.chop(276);
+		}
 
 		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
 
