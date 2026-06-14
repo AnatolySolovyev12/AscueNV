@@ -1154,7 +1154,7 @@ void TcpClientForTelegram::exchange()
 
 					//sendMessage(testArray);
 
-					//7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E
+					//7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E //summ cur
 					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E")));
 				}
 
@@ -1171,7 +1171,7 @@ void TcpClientForTelegram::exchange()
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 					
-					sendMessage(testArray);
+					//sendMessage(testArray);
 
 					//7EA01A022141100BA0E6E600C001C100030100010801FF020089747E
 					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141100BA0E6E600C001C100030100010801FF020089747E")));
@@ -1190,7 +1190,7 @@ void TcpClientForTelegram::exchange()
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 					
-					sendMessage(testArray);
+					//sendMessage(testArray);
 
 					//7EA01A022141542BA4E6E600C001C100030100010802FF020044517E
 					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141542BA4E6E600C001C100030100010802FF020044517E")));
