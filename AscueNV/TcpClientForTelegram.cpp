@@ -1138,7 +1138,7 @@ void TcpClientForTelegram::exchange()
 
 					sendMessage(testArray);
 				}
-				//7E A0 4D 02 21 41 94 99 27 E6 E6 00 C0 01 C1 00 07 01 00 62 02 00 FF 02 01 01 02 04 02 04 12 00 08 09 06 00 00 01 00 00 FF 0F 02 12 00 00 09 0C 07 EA 05 1D FF 00 00 00 FF 00 00 00 09 0C 07 EA 06 04 FF 00 00 00 FF 00 00 00 01 00 62 23 7E
+
 				if (counterForResend == 6) //A + cur (phase 1)
 				{
 					//7E A0 1A 02 21 41 BA 5B AA E6 E6 00 C0 01 41 00 03 01 00 15 08 00 FF 02 00 35 A8 7E
@@ -1152,7 +1152,10 @@ void TcpClientForTelegram::exchange()
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
-					sendMessage(testArray);
+					//sendMessage(testArray);
+
+					//7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E
+					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E")));
 				}
 
 				if (counterForResend == 7) //A + cur (phase 2)
@@ -1167,8 +1170,11 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue6 = "\x11\x5E\x7E";
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
-
+					
 					sendMessage(testArray);
+
+					//7EA01A022141100BA0E6E600C001C100030100010801FF020089747E
+					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141100BA0E6E600C001C100030100010801FF020089747E")));
 				}
 
 				if (counterForResend == 8) //A + cur (phase 3)
@@ -1183,8 +1189,11 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue6 = "\x0D\x0C\x7E";
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
-
+					
 					sendMessage(testArray);
+
+					//7EA01A022141542BA4E6E600C001C100030100010802FF020044517E
+					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141542BA4E6E600C001C100030100010802FF020044517E")));
 				}
 
 				if (counterForResend == 9) //A - cur (phase 1)
