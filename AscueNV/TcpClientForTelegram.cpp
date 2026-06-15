@@ -319,6 +319,8 @@ void TcpClientForTelegram::summAnswer(QString& any)
 				break;
 				};
 
+				serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
+
 				answerString += temporaryAnswer + ' ';
 				qDebug() << "after convert " + temporaryAnswer << '\n';
 			}
@@ -2137,7 +2139,7 @@ void TcpClientForTelegram::getDaily()
 
 void TcpClientForTelegram::getCurr()
 {
-	if (counterForResend != 5)
+	if (counterForResend != 6)
 	{
 		QTimer::singleShot(500, [this]() {
 
