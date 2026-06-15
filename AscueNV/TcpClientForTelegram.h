@@ -1,4 +1,4 @@
-#ifndef TCPCLIENT_H
+﻿#ifndef TCPCLIENT_H
 #define TCPCLIENT_H
 
 #include <QObject>
@@ -35,8 +35,8 @@ public:
     void getDaily();
     void setDailyArchive(QString temp);
     QString hexDateFunc(QString date);
-
     quint16 crc16Kermit(const QByteArray& data);
+    void getCurr();
 
 signals:
     void messageReceived(const int64_t&);

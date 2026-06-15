@@ -143,10 +143,21 @@ void TcpClientForTelegram::onReadyRead()
 
 	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
 	{
-		if (counterForResend == 2)
+		if (dailyArchiveString != "00")
 		{
-			QString temporaryAnswer = data.toHex();
-			summAnswer(temporaryAnswer);
+			if (counterForResend == 2)
+			{
+				QString temporaryAnswer = data.toHex();
+				summAnswer(temporaryAnswer);
+			}
+		}
+		else
+		{
+			if (counterForResend == 2 || counterForResend == 3 || counterForResend == 4)
+			{
+				QString temporaryAnswer = data.toHex();
+				summAnswer(temporaryAnswer);
+			}
 		}
 
 	}
@@ -194,44 +205,84 @@ void TcpClientForTelegram::summAnswer(QString& any)
 {
 	if (serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]102" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109")
 	{
-		QString dayVal;
-		QString nigntVal;
-		QString sumVal;
-
-		if (any.length() > 480)
+		if (dailyArchiveString != "00")
 		{
-			dayVal = any.sliced(74);
-			dayVal.chop(416);
+			QString dayVal;
+			QString nigntVal;
+			QString sumVal;
 
-			nigntVal = any.sliced(92);
-			nigntVal.chop(398);
+			if (any.length() > 480)
+			{
+				dayVal = any.sliced(74);
+				dayVal.chop(416);
 
-			sumVal = any.sliced(146);
-			sumVal.chop(344);
+				nigntVal = any.sliced(92);
+				nigntVal.chop(398);
+
+				sumVal = any.sliced(146);
+				sumVal.chop(344);
+			}
+			else
+			{
+				dayVal = any.sliced(74);
+				dayVal.chop(348);
+
+				nigntVal = any.sliced(92);
+				nigntVal.chop(330);
+
+				sumVal = any.sliced(146);
+				sumVal.chop(276);
+			}
+
+			qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
+
+			int counter = 1;
+
+			for (auto& val : { sumVal, dayVal, nigntVal })
+			{
+				bool ok;
+				bool minus = false;
+				QString temporaryAnswer = val;
+
+				if ((val.toUInt(&ok, 16) > 4200000000) && counterForResend > 5)
+				{
+					temporaryAnswer = QString("%1")
+						.arg(4294967295 - temporaryAnswer.toUInt(&ok, 16));
+					minus = true;
+				}
+				else
+				{
+					temporaryAnswer = QString("%1")
+						.arg(temporaryAnswer.toULongLong(&ok, 16));
+				}
+
+				QString tariffText = "";
+				if (counter == 1) tariffText = "SUM - ";
+				else if (counter == 2) tariffText = "T1 - ";
+				else  tariffText = "T2 - ";
+
+				++counter;
+				//Отделяем целую часть от дробной исходя из типа счётчика
+				serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
+				answerString += tariffText + temporaryAnswer + '\n';
+			}
+
+			qDebug() << "after convert " + answerString << '\n';
 		}
 		else
 		{
-			dayVal = any.sliced(74);
-			dayVal.chop(348);
+			QString tempVal;
 
-			nigntVal = any.sliced(92);
-			nigntVal.chop(330);
+			tempVal = any.sliced(38);
+			tempVal.chop(6);
 
-			sumVal = any.sliced(146);
-			sumVal.chop(276);
-		}
+			qDebug() << "after sliced and chop:   " + tempVal << '\n';
 
-		qDebug() << "after sliced and chop:   " + sumVal << "   " << dayVal << "   " << nigntVal << '\n';
-
-		int counter = 1;
-
-		for (auto& val : { sumVal, dayVal, nigntVal })
-		{
 			bool ok;
 			bool minus = false;
-			QString temporaryAnswer = val;
+			QString temporaryAnswer = tempVal;
 
-			if ((val.toUInt(&ok, 16) > 4200000000) && counterForResend > 5)
+			if ((tempVal.toUInt(&ok, 16) > 4200000000) && counterForResend > 5)
 			{
 				temporaryAnswer = QString("%1")
 					.arg(4294967295 - temporaryAnswer.toUInt(&ok, 16));
@@ -243,18 +294,36 @@ void TcpClientForTelegram::summAnswer(QString& any)
 					.arg(temporaryAnswer.toULongLong(&ok, 16));
 			}
 
-			QString tariffText = "";
-			if (counter == 1) tariffText = "SUM - ";
-			else if (counter == 2) tariffText = "T1 - ";
-			else  tariffText = "T2 - ";
+			if (counterForResend < 5)
+			{
+			
+				switch (counterForResend)
+				{
+				case 2:
+				{
+					answerString += "SUM - ";
+					break;
+				}
+				case 3:
+				{
+					answerString += "\nT1 - ";
+					break;
+				}
+				case 4:
+				{
+					answerString += "\nT2 - ";
+					break;
+				}
+				break;
+				};
 
-			++counter;
+				answerString += temporaryAnswer + ' ';
+				qDebug() << "after convert " + temporaryAnswer << '\n';
+			}
+
 			//Отделяем целую часть от дробной исходя из типа счётчика
-			serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
-			answerString += tariffText + temporaryAnswer + '\n';
+			//serialStringForProtocol == "]101" || serialStringForProtocol == "]103" || serialStringForProtocol == "]109" ? temporaryAnswer.insert((temporaryAnswer.length() - 6), ',') : temporaryAnswer.insert((temporaryAnswer.length() - 7), ',');
 		}
-
-		qDebug() << "after convert " + answerString << '\n';
 	}
 
 	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
@@ -1152,10 +1221,7 @@ void TcpClientForTelegram::exchange()
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
 
-					//sendMessage(testArray);
-
-					//7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E //summ cur
-					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E")));
+					sendMessage(testArray);
 				}
 
 				if (counterForResend == 7) //A + cur (phase 2)
@@ -1170,11 +1236,8 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue6 = "\x11\x5E\x7E";
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
-					
-					//sendMessage(testArray);
 
-					//7EA01A022141100BA0E6E600C001C100030100010801FF020089747E
-					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141100BA0E6E600C001C100030100010801FF020089747E")));
+					sendMessage(testArray);
 				}
 
 				if (counterForResend == 8) //A + cur (phase 3)
@@ -1189,11 +1252,8 @@ void TcpClientForTelegram::exchange()
 					QByteArray hexValue6 = "\x0D\x0C\x7E";
 
 					QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + hexValue3 + nullVal + hexValue4 + nullVal + hexValue5 + nullVal + hexValue6;
-					
-					//sendMessage(testArray);
 
-					//7EA01A022141542BA4E6E600C001C100030100010802FF020044517E
-					sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141542BA4E6E600C001C100030100010802FF020044517E")));
+					sendMessage(testArray);
 				}
 
 				if (counterForResend == 9) //A - cur (phase 1)
@@ -2073,6 +2133,97 @@ void TcpClientForTelegram::getDaily()
 
 
 
+void TcpClientForTelegram::getCurr()
+{
+	if (counterForResend != 4)
+	{
+		QTimer::singleShot(500, [this]() {
+
+			QString hexValueZero = QString::number(0, 16);
+			QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+
+			if (counterForResend == 0) //start 1
+			{
+				//7E A0 1F 02 21 41 93 CC 30 81 80 12 05 01 F0 06 01 F0 07 04 00 00 00 01 08 04 00 00 00 01 F9 CB 7E
+
+				QByteArray hexValue1 = "\x7e\xa0\x1f\x02\x21\x41\x93\xcc\x30\x81\x80\x12\x05\x01\xf0\x06\x01\xf0\x07\x04";
+				QByteArray hexValue2 = "\x01\x08\x04";
+				QByteArray hexValue3 = "\x01\xf9\xcb\x7e";
+
+				QByteArray testArray = hexValue1 + nullVal + nullVal + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3;
+
+				sendMessage(testArray);
+			}
+
+			if (counterForResend == 1) //start 2
+			{
+				//7E A0 45 02 21 41 10 95 BF E6 E6 00 60 36 A1 09 06 07 60 85 74 05 08 01 01 8A 02 07 80 8B 07 60 85 74 05 08 02 01 AC 0A 80 08 30 30 30 30 30 30 30 30 BE 10 04 0E 01 00 00 00 06 5F 1F 04 00 00 7E 1F FF FF 00 D1 7E
+				QString hexValueZero = QString::number(0, 16);
+				QByteArray nullVal = QByteArray::fromHex(hexValueZero.toUtf8());
+
+				QByteArray hexValue1 = "\x7E\xA0\x45\x02\x21\x41\x10\x95\xBF\xE6\xE6";
+
+				QByteArray hexValue2 = "\x60\x36\xA1\x09\x06\x07\x60\x85\x74\x05\x08\x01\x01\x8A\x02\x07\x80\x8B\x07\x60\x85\x74\x05\x08\x02\x01\xAC\x0A\x80\x08\x30\x30\x30\x30\x30\x30\x30\x30\xBE\x10\x04\x0E\x01";
+				QByteArray hexValue3 = "\x06\x5F\x1F\x04";
+				QByteArray hexValue4 = "\x7E\x1F\xFF\xFF";
+				QByteArray hexValue5 = "\xD1\x7E";
+
+				//QByteArray testArray = hexValue1 + nullVal + hexValue2 + nullVal + nullVal + nullVal + hexValue3 + nullVal + nullVal + hexValue4 + nullVal + hexValue5;
+				//sendMessage(testArray);
+				sendMessage(QByteArray::fromHex(QByteArray("7EA0450221411095BFE6E6006036A1090607608574050801018A0207808B0760857405080201AC0A80083030303030303030BE10040E01000000065F1F0400007E1FFFFF00D17E")));
+			}
+
+			if (counterForResend == 2) // daily
+			{
+				//7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E //summ cur
+				sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141DC6BACE6E600C001C100030100010800FF020032687E")));
+			}
+
+			if (counterForResend == 3) // daily
+			{
+				//7EA01A022141100BA0E6E600C001C100030100010801FF020089747E // day curr
+				sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141100BA0E6E600C001C100030100010801FF020089747E")));
+			}
+
+			if (counterForResend == 4) // daily
+			{
+				//7EA01A022141542BA4E6E600C001C100030100010802FF020044517E // night curr
+				sendMessage(QByteArray::fromHex(QByteArray("7EA01A022141542BA4E6E600C001C100030100010802FF020044517E")));
+			}
+
+			if (counterForResend == 5) // end
+			{
+				//7E A0 08 02 21 41 53 5C 72 7E
+
+				QByteArray hexValue1 = "\x7E\xA0\x08\x02\x21\x41\x53\x5C\x72\x7E";
+				QByteArray testArray = hexValue1;
+
+				sendMessage(testArray);
+			}
+
+			if (reTransmitQuery >= 4)
+			{
+				counterForResend = 6;
+				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+			}
+
+			myTimer->start(20000);
+			});
+	}
+	else
+	{
+		myTimer->stop();
+		socket->close();
+		qDebug() << '\n' << answerString;
+		ip = "";
+		reTransmitQuery = 0;
+
+		emit messageReceived(getKey());
+	}
+}
+
+
+
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
@@ -2238,12 +2389,12 @@ QString TcpClientForTelegram::getSerialStringForProtocol()
 
 void TcpClientForTelegram::setDailyArchive(QString temp)
 {
-    dailyArchiveString = temp;
+	dailyArchiveString = temp;
 }
 
 
 
-QString TcpClientForTelegram::hexDateFunc(QString date)
+QString TcpClientForTelegram::hexDateFunc(QString date) // формарования целевой даты в виде HEX последовательности
 {
 	bool ok;
 	int purposeDay = date.toInt();
@@ -2272,7 +2423,8 @@ QString TcpClientForTelegram::hexDateFunc(QString date)
 
 
 
-quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) {
+quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) // расчёт контрольной суммы CRC-16 при запросе суточных показаний
+{
 	const uint16_t poly = 0x1021;
 	const uint16_t init = 0xFFFF;
 	const bool ref_in = true;
@@ -2280,19 +2432,27 @@ quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) {
 	const uint16_t xor_out = 0xFFFF;
 
 	uint16_t crc = init;
-	for (char ch : data) {
+
+	for (char ch : data)
+	{
 		uint8_t byte = static_cast<uint8_t>(ch);
 		// Отражение входного байта (ref_in)
-		if (ref_in) {
+		if (ref_in)
+		{
 			uint8_t reflected = 0;
-			for (int b = 0; b < 8; ++b) {
+
+			for (int b = 0; b < 8; ++b)
+			{
 				if (byte & (1 << b))
 					reflected |= (1 << (7 - b));
 			}
 			byte = reflected;
 		}
+
 		crc ^= (byte << 8);
-		for (int b = 0; b < 8; ++b) {
+
+		for (int b = 0; b < 8; ++b)
+		{
 			if (crc & 0x8000)
 				crc = (crc << 1) ^ poly;
 			else
@@ -2301,9 +2461,12 @@ quint16 TcpClientForTelegram::crc16Kermit(const QByteArray& data) {
 		}
 	}
 	// Отражение результата (ref_out)
-	if (ref_out) {
+	if (ref_out)
+	{
 		uint16_t reflected = 0;
-		for (int b = 0; b < 16; ++b) {
+
+		for (int b = 0; b < 16; ++b)
+		{
 			if (crc & (1 << b))
 				reflected |= (1 << (15 - b));
 		}

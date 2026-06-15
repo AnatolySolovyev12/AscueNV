@@ -1,4 +1,4 @@
-#include <QApplication>
+﻿#include<QApplication>
 #include "TelegramJacket.h"
 #include <qdatetime.h>
 #include <stdio.h>
