@@ -2137,7 +2137,7 @@ void TcpClientForTelegram::getDaily()
 
 void TcpClientForTelegram::getCurr()
 {
-	if (counterForResend != 4)
+	if (counterForResend != 5)
 	{
 		QTimer::singleShot(500, [this]() {
 
