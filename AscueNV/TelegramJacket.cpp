@@ -261,7 +261,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 
 	if (messegeInTelegram == "/start")
 	{
-		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + "\n<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off");
+		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + "\n<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off\n<[date]serial> - daily tarrif archive\n<[00]serial> - current tarrif values");
 		myChat = message->chat->id;
 
 		return;
@@ -492,9 +492,9 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 				}
 
 				if (relayCounterOn)
-					emit sendMessageRequested(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get status if you send: /result. Repeat if it needed.");
 				else
-					emit sendMessageRequested(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get status if you send: /result. Repeat if it needed.");
 
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 				ipFromDbTelegram = "";
@@ -560,39 +560,42 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 				}
 
 				if (dailyArchiveBool)
-					emit sendMessageRequested(message->chat->id, "We started trying to get daily archive on " + dailyArchiveString.toStdString() + " ​​for device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get daily if you send: /result. Repeat if it needed.");
-				
-				resultMassive.find(message->chat->id).value()->setDailyArchive(dailyArchiveString);
-				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+				{
+					if (dailyArchiveString != "00")
+						emit sendMessageRequested(message->chat->id, "We started trying to get daily tarrif archive on " + dailyArchiveString.toStdString() + " ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get daily if you send: /result. Repeat if it needed.");
+					else
+						emit sendMessageRequested(message->chat->id, "We started trying to get current tarrif values ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current values if you send: /result. Repeat if it needed.");
 
-				ipFromDbTelegram = "";
-
+					resultMassive.find(message->chat->id).value()->setDailyArchive(dailyArchiveString);
+					resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+					ipFromDbTelegram = "";
+				}
+				else
+				{
+					emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+				}
 			}
 			else
 			{
-				emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
 			}
 		}
-		else
+
+		// Если нет активных специальных булквых то просто выводим данные из БД
+		if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
 		{
-			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+			emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 		}
-	}
 
-	// Если нет активных специальных булквых то просто выводим данные из БД
-	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
-	{
-		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
-	}
+		currentNeed = false;
+		relayCounterOn = false;
+		relayCounterOff = false;
+		vecNeed = false;
+		dailyArchiveBool = false;
+		messegeInTelegram = "";
 
-	currentNeed = false;
-	relayCounterOn = false;
-	relayCounterOff = false;
-	vecNeed = false;
-	dailyArchiveBool = false;
-	messegeInTelegram = "";
-
-	if (StringTools::startsWith(message->text, "/start")) {
-		return;
+		if (StringTools::startsWith(message->text, "/start")) {
+			return;
+		}
 	}
 }
