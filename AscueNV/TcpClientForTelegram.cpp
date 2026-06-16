@@ -42,7 +42,7 @@ void TcpClientForTelegram::onConnected()
 	// connectedState = true;
 	qDebug() << "\nConnected to server\n";
 
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 	{
 		vecExchange();
 	}
