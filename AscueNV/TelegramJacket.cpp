@@ -431,7 +431,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 			}
 			else
 			{
-				emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+				emit sendMessageRequested(message->chat->id, "#1 - Incorrect device for this command");
 			}
 		}
 		else
@@ -501,7 +501,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 			}
 			else
 			{
-				emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+				emit sendMessageRequested(message->chat->id, "#2 - Incorrect device for this command");
 			}
 		}
 		else
@@ -572,7 +572,7 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 				}
 				else
 				{
-					emit sendMessageRequested(message->chat->id, "Incorrect device for this command");
+					emit sendMessageRequested(message->chat->id, "#3 - Incorrect device for this command");
 				}
 			}
 			else
@@ -580,22 +580,22 @@ void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
 				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
 			}
 		}
+	}
 
-		// Если нет активных специальных булквых то просто выводим данные из БД
-		if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
-		{
-			emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
-		}
+	// Если нет активных специальных булквых то просто выводим данные из БД
+	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
+	{
+		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
+	}
 
-		currentNeed = false;
-		relayCounterOn = false;
-		relayCounterOff = false;
-		vecNeed = false;
-		dailyArchiveBool = false;
-		messegeInTelegram = "";
+	currentNeed = false;
+	relayCounterOn = false;
+	relayCounterOff = false;
+	vecNeed = false;
+	dailyArchiveBool = false;
+	messegeInTelegram = "";
 
-		if (StringTools::startsWith(message->text, "/start")) {
-			return;
-		}
+	if (StringTools::startsWith(message->text, "/start")) {
+		return;
 	}
 }
