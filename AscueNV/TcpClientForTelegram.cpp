@@ -68,7 +68,7 @@ void TcpClientForTelegram::onReadyRead()
 
 	qDebug() << "RX << " << data.toHex();
 
-	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) ////////////////////////надо корректировать защиту
+	if (data.toHex().length() < 35 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109" || serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109")) ////////////////////////надо корректировать защиту
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -77,7 +77,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103") && (counterForResend != 16))
+	if (data.toHex().length() < 42 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "109") && (counterForResend != 16))
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -95,7 +95,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") && counterForResend >= 2)
+	if (data.toHex().length() > 68 && (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106" || serialStringForProtocol == "109") && counterForResend >= 2)
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -104,7 +104,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106"))
+	if (data.toHex().length() < 35 && (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109"))
 	{
 		qDebug() << "\nincorrect RX. Resend";
 		reTransmitQuery++;
@@ -122,7 +122,7 @@ void TcpClientForTelegram::onReadyRead()
 		return;
 	}
 
-	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "109")
 	{
 		if (counterForResend >= 2 && counterForResend != 16)
 		{
@@ -162,17 +162,17 @@ void TcpClientForTelegram::onReadyRead()
 
 	}
 
-	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104") && counterForResend == 4)
+	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109") && counterForResend == 4)
 	{
 		answerString += "Relay was connect";
 	}
 
-	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") && counterForResend == 4)
+	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109") && counterForResend == 4)
 	{
 		answerString += "Relay was disconnect";
 	}
 
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 	{
 		if (counterForResend >= 2 && counterForResend != 13)
 		{
@@ -185,7 +185,7 @@ void TcpClientForTelegram::onReadyRead()
 	counterForResend++;
 	reTransmitQuery = 0;
 
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 		vecExchange();
 	else if ((serialStringForProtocol == "]101" || serialStringForProtocol == "]102" || serialStringForProtocol == "]103" || serialStringForProtocol == "]104" || serialStringForProtocol == "]106" || serialStringForProtocol == "]109") && dailyArchiveString != "00")
 		getDaily();
@@ -330,7 +330,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		}
 	}
 
-	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "109")
 	{
 		bool ok;
 		bool minus = false;
@@ -528,7 +528,7 @@ void TcpClientForTelegram::summAnswer(QString& any)
 		}
 	}
 
-	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106") ////
+	if (serialStringForProtocol == "102" || serialStringForProtocol == "104" || serialStringForProtocol == "106")
 	{
 		bool ok;
 		bool minus = false;
@@ -811,7 +811,7 @@ void TcpClientForTelegram::setResultString(QString any)
 
 void TcpClientForTelegram::exchange()
 {
-	if (serialStringForProtocol == "101" || serialStringForProtocol == "103")
+	if (serialStringForProtocol == "101" || serialStringForProtocol == "103" || serialStringForProtocol == "109")
 	{
 
 		if (counterForResend != 17)
@@ -1628,7 +1628,7 @@ void TcpClientForTelegram::exchange()
 		}
 	}
 
-	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104") // включение/отключение реле
+	if (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109" || serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109") // включение/отключение реле
 	{
 
 		if (counterForResend != 5)
@@ -1667,7 +1667,7 @@ void TcpClientForTelegram::exchange()
 				}
 
 
-				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //  проверка подлинности при включении реле
+				if (counterForResend == 2 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109")) //  проверка подлинности при включении реле
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 B3 55 E5 CE 9A 8F C9 5A 4B BD 68 37 E6 C1 0E 1C 2E 13 7E
 
@@ -1682,7 +1682,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // проверка подлинности при отключении реле
+				if (counterForResend == 2 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109")) // проверка подлинности при отключении реле
 				{
 					//7E A0 2C 02 21 61 32 61 6E E6 E6 00 C3 01 C1 00 0F 00 00 28 00 00 FF 01 01 09 10 5A F9 3E D6 AA A0 0C 7F C5 6E 15 D6 88 60 D8 C1 B0 0E 7E
 
@@ -1712,7 +1712,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104")) //включение реле
+				if (counterForResend == 4 && (serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109")) //включение реле
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 02 01 0F 00 A5 83 7E
 
@@ -1727,7 +1727,7 @@ void TcpClientForTelegram::exchange()
 					sendMessage(testArray);
 				}
 
-				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104")) // отключение реле
+				if (counterForResend == 4 && (serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109")) // отключение реле
 				{
 					//7E A0 1C 02 21 61 76 90 BE E6 E6 00 C3 01 C1 00 46 00 00 60 03 0A FF 01 01 0F 00 68 A6 7E
 
@@ -1778,7 +1778,7 @@ void TcpClientForTelegram::resetAnswerString()
 void TcpClientForTelegram::exchangeFromTimer()
 {
 	++reTransmitQuery;
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 		vecExchange();
 	else
 		exchange();
@@ -1786,7 +1786,7 @@ void TcpClientForTelegram::exchangeFromTimer()
 
 void TcpClientForTelegram::vecExchange()
 {
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 	{
 		if (counterForResend != 13)
 		{
@@ -2230,7 +2230,7 @@ void TcpClientForTelegram::getCurr()
 
 void TcpClientForTelegram::summAnswervector(QString& any)
 {
-	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106")
+	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
 	{
 		bool ok;
 		bool minus = false;
