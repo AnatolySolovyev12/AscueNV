@@ -251,9 +251,9 @@ void TelegramJacket::writeMessegeHistory(QString any)
 
 
 
-void TelegramJacket::onMessageReceived(TgBot::Message::Ptr message)
+void TelegramJacket::onMessageReceived(MyMessageObj* message)
 {
-	messegeInTelegram = message->text.c_str();
+	messegeInTelegram = QString::fromStdString(message->text);
 
 	qDebug() << messegeInTelegram;
 

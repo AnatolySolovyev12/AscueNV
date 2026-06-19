@@ -37,12 +37,12 @@
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;gui;network;widgets;concurrent;sql;sql</QtModules>
+    <QtModules>core;gui;network;widgets;concurrent;sql</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
     <QtInstall>6.2.4_msvc2019_64</QtInstall>
-    <QtModules>core;gui;network;widgets;concurrent;sql;concurrent;sql</QtModules>
+    <QtModules>core;gui;network;widgets;concurrent;sql</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -122,6 +122,7 @@
   <ItemGroup>
     <QtMoc Include="LongPollWorker.h" />
     <QtMoc Include="MaxClass.h" />
+    <ClInclude Include="MessegeStruct.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

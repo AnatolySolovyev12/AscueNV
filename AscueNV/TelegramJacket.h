@@ -22,6 +22,7 @@
 #include <qfile.h>
 #include <LongPollWorker.h>
 #include <QThread.h>
+#include <MessegeStruct.h>
 
 class TelegramJacket : public QMainWindow
 {
@@ -40,7 +41,8 @@ private slots:
 	void validChatIdInMassive();
 	QString getTokenFromFile();
 	void writeMessegeHistory(QString any);
-	void onMessageReceived(TgBot::Message::Ptr message);
+	//void onMessageReceived(TgBot::Message::Ptr message);
+	void onMessageReceived(MyMessageObj * message);
 
 	void restartWatchDogs();
 	void restartLongPoll();

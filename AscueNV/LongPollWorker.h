@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <MaxClass.h>
+#include <MessegeStruct.h>
 
 
 class LongPollWorker : public QObject
@@ -30,7 +31,9 @@ signals:////////////////
     void resetWatchDogs();
 
 signals:
-    void messageReceived(const TgBot::Message::Ptr& message);
+   // void messageReceived(const TgBot::Message::Ptr& message);
+    void messageReceived(MyMessageObj* msg);
+
     void sendMessegeSignal(QString chatId, const QString& message);
     void sendImageSignal(const QString& chatId, const QString& message, const QString& mime);
 
