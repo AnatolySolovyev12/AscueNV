@@ -10,15 +10,14 @@ LongPollWorker::LongPollWorker(QString any, QObject* parent)
 
     connect(maxClass, &MaxClass::lastMessageReceived, [this](const QPair<QString, QString>takePair) {
 
-        message->text = takePair.second.toStdString();
-        chat->id = takePair.first.toInt();
-        message->chat = chat;
+       // message->text = takePair.second.toStdString();
+       // chat->id = takePair.first.toInt();
+       // message->chat = chat;
 
-       // emit messageReceived(message);
-
-        //auto msg = std::make_unique<MyMessageObj>(takePair.first.toInt(), takePair.second.toStdString());
-
-        MyMessageObj* msg = new MyMessageObj(takePair.first.toInt(), takePair.second.toStdString());
+        auto msg = QSharedPointer<MyMessageObj>::create(
+            takePair.first.toInt(),
+            takePair.second.toStdString()
+        );
 
         emit messageReceived(msg);
 

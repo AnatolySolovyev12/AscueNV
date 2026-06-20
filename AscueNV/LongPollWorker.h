@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QString>
-#include <tgbot/tgbot.h>
+//#include <tgbot/tgbot.h>
 #include <QThread>
 #include <QtConcurrent>
 #include <MaxClass.h>
@@ -32,7 +32,7 @@ signals:////////////////
 
 signals:
    // void messageReceived(const TgBot::Message::Ptr& message);
-    void messageReceived(MyMessageObj* msg);
+    void messageReceived(QSharedPointer<MyMessageObj>);
 
     void sendMessegeSignal(QString chatId, const QString& message);
     void sendImageSignal(const QString& chatId, const QString& message, const QString& mime);
@@ -42,6 +42,6 @@ private:
    // TgBot::TgLongPoll* longPoll = nullptr;
     bool m_stopRequested = false;
     MaxClass* maxClass = nullptr;
-    TgBot::Message::Ptr message = std::make_shared<TgBot::Message>();
-    std::shared_ptr<TgBot::Chat> chat = std::make_shared<TgBot::Chat>();
+  //  TgBot::Message::Ptr message = std::make_shared<TgBot::Message>();
+  //  std::shared_ptr<TgBot::Chat> chat = std::make_shared<TgBot::Chat>();
 };

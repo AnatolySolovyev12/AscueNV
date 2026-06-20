@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <tgbot/tgbot.h>
+//#include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
 #include <VectorImage.h>
@@ -41,8 +41,7 @@ private slots:
 	void validChatIdInMassive();
 	QString getTokenFromFile();
 	void writeMessegeHistory(QString any);
-	//void onMessageReceived(TgBot::Message::Ptr message);
-	void onMessageReceived(MyMessageObj * message);
+	void onMessageReceived(QSharedPointer<MyMessageObj>message);
 
 	void restartWatchDogs();
 	void restartLongPoll();

@@ -251,7 +251,7 @@ void TelegramJacket::writeMessegeHistory(QString any)
 
 
 
-void TelegramJacket::onMessageReceived(MyMessageObj* message)
+void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 {
 	messegeInTelegram = QString::fromStdString(message->text);
 
@@ -595,7 +595,7 @@ void TelegramJacket::onMessageReceived(MyMessageObj* message)
 	dailyArchiveBool = false;
 	messegeInTelegram = "";
 
-	if (StringTools::startsWith(message->text, "/start")) {
+	if (message->text._Starts_with("/start")) {
 		return;
 	}
 }
