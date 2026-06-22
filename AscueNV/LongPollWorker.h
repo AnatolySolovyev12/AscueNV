@@ -12,7 +12,7 @@ class LongPollWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit LongPollWorker(QString any, QObject* parent = nullptr);
+    explicit LongPollWorker(QObject* parent = nullptr);
     ~LongPollWorker();
 
 public slots:
@@ -31,9 +31,9 @@ signals:
 
 signals:
     void messageReceived(QSharedPointer<MyMessageObj>);
-
     void sendMessegeSignal(QString chatId, const QString& message);
     void sendImageSignal(const QString& chatId, const QString& message, const QString& mime);
+    void signalForPoll();
 
 private:
     bool m_stopRequested = false;

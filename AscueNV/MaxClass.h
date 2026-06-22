@@ -35,6 +35,9 @@ signals:
 	void lastMessageReceived(const QPair<QString, QString>takePair);
 	void sendIdNotificationForDelete(QString id);
 	void sendUrlFile(const QString& chatId, const QString& urlFile, const QString& fileName);
+	void startNetworkAccessSignal();
+	void finishNetworkAccessSignal();
+
 
 private:
 	QNetworkAccessManager* manager = nullptr;

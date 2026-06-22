@@ -163,7 +163,11 @@ void MaxClass::getLastMessageAsync()
 
 	QNetworkReply* reply = manager->get(request);
 
+	emit startNetworkAccessSignal();
+
 	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
+
+		emit finishNetworkAccessSignal();
 
 		if (reply->error() == QNetworkReply::NoError)
 		{
@@ -205,8 +209,6 @@ void MaxClass::getLastMessageAsync()
 		reply->deleteLater();
 		isBusy = false;
 
-		// Самовызов через 5 секунд
-		QTimer::singleShot(3000, this, &MaxClass::getLastMessageAsync);
 		});
 }
 

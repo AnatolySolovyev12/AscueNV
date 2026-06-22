@@ -26,9 +26,9 @@ TelegramJacket::TelegramJacket(QWidget* parent)
 
 	connect(trayIcon, &QSystemTrayIcon::activated, this, &TelegramJacket::iconActivated);
 
-	//restartWatchDogs();
+	restartWatchDogs();
 
-	//connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
+	connect(destructionAndResurecctionTimer, &QTimer::timeout, this, &TelegramJacket::restartLongPoll);
 }
 
 
@@ -76,19 +76,18 @@ void TelegramJacket::restartLongPoll()
 
 void TelegramJacket::setupLongPoll()
 {
-	longPollWorker = new LongPollWorker(getTokenFromFile());
+	longPollWorker = new LongPollWorker();
 	longPollThread = new QThread(this);
 	longPollWorker->moveToThread(longPollThread);
 
 	connect(longPollThread, &QThread::started, longPollWorker, &LongPollWorker::doLongPoll, Qt::UniqueConnection); // после старта потока сигналим на запуск LongPoll
-
 	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived, Qt::UniqueConnection); // приём сообщений из бота
 	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg, Qt::UniqueConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
 	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg, Qt::UniqueConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
+	
 	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restartWatchDogs, Qt::UniqueConnection);
 	connect(this, &TelegramJacket::stopNetworkConnectionSignal, longPollWorker, &LongPollWorker::stopLongPoll, Qt::UniqueConnection);
-	connect(longPollWorker, &LongPollWorker::errorOccurred, this, &TelegramJacket::writeMessegeHistory, Qt::UniqueConnection);
-
+	
 	longPollThread->start();
 }
 
@@ -97,7 +96,7 @@ void TelegramJacket::setupLongPoll()
 void TelegramJacket::restartWatchDogs()
 {
 	destructionAndResurecctionTimer->stop();
-	destructionAndResurecctionTimer->start(300000);
+	destructionAndResurecctionTimer->start(10000);
 }
 
 
