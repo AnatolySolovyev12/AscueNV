@@ -20,7 +20,7 @@ What can:
 6) ChatID контроль для команды управления реле.
 7) Подключение и отключение CMD для просмотра журнала.
 
-PS - Second brunch was adapted for messendger MAX / Вторая ветка была адаптирована под мессенджер МАХ
+PS - Second brunch was adapted for messendger MAX (GreenApi) / Вторая ветка была адаптирована под мессенджер МАХ (GreenApi)
 
 ![1](https://github.com/user-attachments/assets/148524c1-8ad4-4e2f-8211-1b477b07598c)
 ![2](https://github.com/user-attachments/assets/c1d13b9f-6985-4748-a3d4-3928587e8204)
