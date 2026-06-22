@@ -2117,7 +2117,7 @@ void TcpClientForTelegram::getDaily()
 			if (reTransmitQuery >= 4)
 			{
 				counterForResend = 4;
-				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15 or maybe havent daily archive on query date";
 			}
 
 			myTimer->start(20000);

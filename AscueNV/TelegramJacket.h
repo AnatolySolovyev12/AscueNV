@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-//#include <tgbot/tgbot.h>
 #include <DbTelegramExport.h>
 #include <TcpClientForTelegram.h>
 #include <VectorImage.h>
