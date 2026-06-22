@@ -1,7 +1,7 @@
 ﻿#include "MaxClass.h"
 
 MaxClass::MaxClass(QObject* parent)
-	: QObject(parent), manager(new QNetworkAccessManager)
+	: QObject(parent)
 {
 	AttachConsole(ATTACH_PARENT_PROCESS);
 	getTokenFromFile();
@@ -9,6 +9,7 @@ MaxClass::MaxClass(QObject* parent)
 	connect(this, &MaxClass::sendIdNotificationForDelete, this, &MaxClass::deleteNotification);
 	connect(this, &MaxClass::sendUrlFile, this, &MaxClass::sendFileWithImage);
 
+	QTimer::singleShot(1500, [this]() { manager = new QNetworkAccessManager(this); }); // создаём его в рабочем потоке чтобы не было конфликтов разных потоков
 	QTimer::singleShot(2000, [this]() { getLastMessageAsync(); });
 }
 
@@ -149,6 +150,12 @@ QString MaxClass::getChatIdFromFile()
 
 void MaxClass::getLastMessageAsync()
 {
+	if (!manager) // защита от не инициализированно manager
+	{
+		QTimer::singleShot(100, this, &MaxClass::getLastMessageAsync);
+		return;
+	}
+
 	if (isBusy) return;
 	isBusy = true;
 

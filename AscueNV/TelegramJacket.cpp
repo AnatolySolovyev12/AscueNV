@@ -59,7 +59,6 @@ void TelegramJacket::restartLongPoll()
 			});
 
 		longPollThread->quit();
-		longPollThread->wait(); // дождаться завершения
 	}
 	else {
 		// Если поток не запущен, просто пересоздаем
@@ -96,7 +95,7 @@ void TelegramJacket::setupLongPoll()
 void TelegramJacket::restartWatchDogs()
 {
 	destructionAndResurecctionTimer->stop();
-	destructionAndResurecctionTimer->start(10000);
+	destructionAndResurecctionTimer->start(300000);
 }
 
 

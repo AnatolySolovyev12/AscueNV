@@ -29,8 +29,9 @@ LongPollWorker::LongPollWorker(QObject* parent)
 
 
 
-LongPollWorker::~LongPollWorker()
+void LongPollWorker::stopLongPoll()
 {
+	m_stopRequested = true;
 }
 
 
@@ -43,6 +44,9 @@ void LongPollWorker::doLongPoll()
 
 		emit resetWatchDogs();
 	}
+
+	if (m_stopRequested)
+		emit finished();
 }
 
 
@@ -59,11 +63,4 @@ void LongPollWorker::sendMessegeInTg(int64_t chatId, const std::string& message)
 void LongPollWorker::sendPhotoInTg(int64_t chatId, const std::string& message, const std::string& mime)
 {
 	sendImageSignal(QString::number(chatId), QString::fromStdString(message), QString::fromStdString(mime));
-}
-
-
-
-void LongPollWorker::stopLongPoll()
-{
-	m_stopRequested = true;
 }
