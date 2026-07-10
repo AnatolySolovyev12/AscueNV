@@ -83,10 +83,10 @@ void TelegramJacket::setupLongPoll()
 	connect(longPollWorker, &LongPollWorker::messageReceived, this, &TelegramJacket::onMessageReceived, Qt::UniqueConnection); // приём сообщений из бота
 	connect(this, &TelegramJacket::sendMessageRequested, longPollWorker, &LongPollWorker::sendMessegeInTg, Qt::UniqueConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
 	connect(this, &TelegramJacket::sendVectorPhoto, longPollWorker, &LongPollWorker::sendPhotoInTg, Qt::UniqueConnection); // отправка сигнала с сообщением в бота который в отбельном потоке
-	
+
 	connect(longPollWorker, &LongPollWorker::resetWatchDogs, this, &TelegramJacket::restartWatchDogs, Qt::UniqueConnection);
 	connect(this, &TelegramJacket::stopNetworkConnectionSignal, longPollWorker, &LongPollWorker::stopLongPoll, Qt::UniqueConnection);
-	
+
 	longPollThread->start();
 }
 
@@ -344,6 +344,13 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			continue;
 		}
 
+		if (val == '%' && counterForSlesh == 0)
+		{
+			testConnect = true;
+			counterForSlesh++;
+			continue;
+		}
+
 		if (val.isNumber())
 			continue;
 
@@ -352,6 +359,8 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		vecNeed = false;
 		relayCounterOn = false;
 		relayCounterOff = false;
+		dailyArchiveBool = false;
+		testConnect = false;
 		emit sendMessageRequested(message->chat->id, "Incorrect symbol in number");
 		return;
 	}
@@ -360,7 +369,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 	QScopedPointer<DbTelegramExport>forQuery(new DbTelegramExport);
 
-	if (currentNeed || vecNeed || relayCounterOn || relayCounterOff)
+	if (currentNeed || vecNeed || relayCounterOn || relayCounterOff || testConnect)
 	{
 		messegeInTelegram = messegeInTelegram.sliced(1);
 		forQuery->setAny(messegeInTelegram);
@@ -371,6 +380,51 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	}
 
 	forQuery->queryDbResult(forQuery->getAny());
+
+
+	if (testConnect && (messegeInTelegram != ""))
+	{
+		for (auto& val : forQuery->getIpForTcp())
+		{
+			if (val == ':') break;
+			ipFromDbTelegram += val;
+		}
+
+		if (ipFromDbTelegram != "")
+		{
+			serialStringForProtocolinTelegram.push_front('%');
+
+			if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
+			{
+				delete resultMassive.find(message->chat->id).value();
+				resultMassive.find(message->chat->id).value() = nullptr;
+				resultMassive.find(message->chat->id).value() = new TcpClientForTelegram(serialStringForProtocolinTelegram);
+				resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+				resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
+
+				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t))); // connect для автовывода сообщения в чат после опроса текущих
+				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+			}
+			else
+			{
+				resultMassive.insert(message->chat->id, new TcpClientForTelegram(serialStringForProtocolinTelegram));
+				resultMassive.find(message->chat->id).value()->setKey(message->chat->id);
+				resultMassive.find(message->chat->id).value()->setResultString(messegeInTelegram);
+
+				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageReceived(int64_t)), this, SLOT(setIntervalAfterGetString(int64_t)));  // connect для автовывода сообщения в чат после опроса текущих
+				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
+			}
+
+			emit sendMessageRequested(message->chat->id, "We started trying to test TCP connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+
+			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+			ipFromDbTelegram = "";
+		}
+		else
+		{
+			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+		}
+	}
 
 
 	if ((currentNeed || vecNeed) && (messegeInTelegram != ""))
@@ -581,7 +635,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	}
 
 	// Если нет активных специальных булквых то просто выводим данные из БД
-	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool)
+	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool && !testConnect)
 	{
 		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 	}

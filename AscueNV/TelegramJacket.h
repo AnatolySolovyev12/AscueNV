@@ -60,6 +60,7 @@ private:
 	bool relayCounterOff = false;
 	bool stopVector = false;
 	bool dailyArchiveBool = false;
+	bool testConnect = false;
 
 	QTimer* myTimer = nullptr;
 
