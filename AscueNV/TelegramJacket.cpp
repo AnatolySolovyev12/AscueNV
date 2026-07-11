@@ -375,12 +375,9 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		forQuery->setAny(messegeInTelegram);
 	}
 	else
-	{
 		forQuery->setAny(messegeInTelegram);
-	}
 
 	forQuery->queryDbResult(forQuery->getAny());
-
 
 	if (testConnect && (messegeInTelegram != ""))
 	{
@@ -428,13 +425,9 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
-			ipFromDbTelegram = "";
-			portFromDbTelegram = "";
 		}
 		else
-		{
 			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
-		}
 	}
 
 
@@ -490,17 +483,12 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 					emit sendMessageRequested(message->chat->id, "We started trying to get vector and identification parameters ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and you get a messege. Also you can get these if you send: /result. Repeat if it needed.");
 
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
-				ipFromDbTelegram = "";
 			}
 			else
-			{
 				emit sendMessageRequested(message->chat->id, "#1 - Incorrect device for this command");
-			}
 		}
 		else
-		{
 			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
-		}
 	}
 
 
@@ -560,17 +548,12 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 					emit sendMessageRequested(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get status if you send: /result. Repeat if it needed.");
 
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
-				ipFromDbTelegram = "";
 			}
 			else
-			{
 				emit sendMessageRequested(message->chat->id, "#2 - Incorrect device for this command");
-			}
 		}
 		else
-		{
 			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
-		}
 	}
 
 
@@ -592,7 +575,6 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				if (count == 3)
 				{
 					serialStringForProtocolinTelegram.push_front("]");
-
 					break;
 				}
 				serialStringForProtocolinTelegram += val;
@@ -631,25 +613,18 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 					resultMassive.find(message->chat->id).value()->setDailyArchive(dailyArchiveString);
 					resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
-					ipFromDbTelegram = "";
 				}
 				else
-				{
 					emit sendMessageRequested(message->chat->id, "#3 - Incorrect device for this command");
-				}
 			}
 			else
-			{
 				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
-			}
 		}
 	}
 
 	// Если нет активных специальных булквых то просто выводим данные из БД
 	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool && !testConnect)
-	{
 		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
-	}
 
 	currentNeed = false;
 	relayCounterOn = false;
@@ -657,7 +632,10 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	vecNeed = false;
 	dailyArchiveBool = false;
 	testConnect = false;
+
 	messegeInTelegram = "";
+	ipFromDbTelegram = "";
+	portFromDbTelegram = "";
 
 	if (message->text._Starts_with("/start")) {
 		return;
