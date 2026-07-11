@@ -648,6 +648,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	relayCounterOff = false;
 	vecNeed = false;
 	dailyArchiveBool = false;
+	testConnect = false;
 	messegeInTelegram = "";
 
 	if (message->text._Starts_with("/start")) {
