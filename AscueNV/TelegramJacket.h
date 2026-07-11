@@ -67,6 +67,7 @@ private:
 	QString messegeInTelegram;
 	QString messegeFromTcp = "empty";
 	QString ipFromDbTelegram;
+	QString portFromDbTelegram;
 	QString serialStringForProtocolinTelegram;
 	QString dailyArchiveString = "";
 

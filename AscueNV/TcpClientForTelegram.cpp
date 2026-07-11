@@ -1769,10 +1769,10 @@ void TcpClientForTelegram::exchange()
 	}
 }
 
-void TcpClientForTelegram::startToConnect(QString any)
+void TcpClientForTelegram::startToConnect(QString any, QString port)
 {
 	ip = any;
-	connectToServer(ip, port);
+	connectToServer(ip, port.toInt());
 }
 
 void TcpClientForTelegram::resetAnswerString()

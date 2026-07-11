@@ -386,7 +386,10 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	{
 		for (auto& val : forQuery->getIpForTcp())
 		{
-			if (val == ':') break;
+			if (val == ':') {
+				portFromDbTelegram += val;
+				continue;
+			}
 			ipFromDbTelegram += val;
 		}
 
@@ -417,7 +420,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 			emit sendMessageRequested(message->chat->id, "We started trying to test TCP connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
-			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
+			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 			ipFromDbTelegram = "";
 		}
 		else
