@@ -57,7 +57,7 @@ private:
 	int counterForResend = 0;
 	QString answerString;
 	QString ip = "";
-	int port = 8888;
+	//int port = 8888;
 	int reTransmitQuery = 0;
 	QString serialStringForProtocol;
 	int64_t key = 0;

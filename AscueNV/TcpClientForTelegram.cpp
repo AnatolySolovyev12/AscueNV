@@ -22,7 +22,7 @@ TcpClientForTelegram::~TcpClientForTelegram()
 void TcpClientForTelegram::connectToServer(const QString& host, quint16 port)
 {
 	socket->connectToHost(QHostAddress(host), port);
-	qDebug() << "Connect to " + QHostAddress(host).toString();
+	qDebug() << "Connect to " + QHostAddress(host).toString() << ':' << port;
 }
 
 void TcpClientForTelegram::sendMessage(const QByteArray& message)

@@ -384,13 +384,20 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 	if (testConnect && (messegeInTelegram != ""))
 	{
+		bool portBool = false;
+
 		for (auto& val : forQuery->getIpForTcp())
 		{
-			if (val == ':') {
-				portFromDbTelegram += val;
+			if (val == ':')
+			{
+				portBool = true;
 				continue;
 			}
-			ipFromDbTelegram += val;
+
+			if (!portBool)
+				ipFromDbTelegram += val;
+			else
+				portFromDbTelegram += val;
 		}
 
 		if (ipFromDbTelegram != "")
@@ -418,10 +425,11 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 			}
 
-			emit sendMessageRequested(message->chat->id, "We started trying to test TCP connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 			ipFromDbTelegram = "";
+			portFromDbTelegram = "";
 		}
 		else
 		{
