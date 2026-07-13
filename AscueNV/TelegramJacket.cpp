@@ -259,7 +259,16 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 	if (messegeInTelegram == "/start")
 	{
-		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + "\n<serial> - last daily and connection parameters\n</serial> - current values\n<*serial> - vector and identifications\n<_serial> - relay on\n<>serial> - relay off\n<[date]serial> - daily tarrif archive\n<[00]serial> - current tarrif values");
+		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + 
+			"\n<serial> - last daily and connection parameters"
+			"\n</serial> - current values"
+			"\n<*serial> - vector and identifications"
+			"\n<_serial> - relay on"
+			"\n<>serial> - relay off"
+			"\n<[date]serial> - daily tarrif archive"
+			"\n<[00]serial> - current tarrif values"
+			"\n<%serial> - test TCP connection for device"
+			"\n<&IP:PORT> - test TCP connection for host");
 		myChat = message->chat->id;
 
 		return;
@@ -272,18 +281,15 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			//messegeFromTcp = tcpObj->returnResultString();
 
 			if (resultMassive.find(message->chat->id).value()->returnResultString().toStdString() == "")
-			{
+
 				emit sendMessageRequested(message->chat->id, "empty");
-			}
 			else
-			{
+
 				emit sendMessageRequested(message->chat->id, resultMassive.find(message->chat->id).value()->returnResultString().toStdString());
-			}
 		}
 		else
-		{
 			emit sendMessageRequested(message->chat->id, "empty");
-		}
+
 		return;
 	}
 
@@ -294,7 +300,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		return;
 	}
 
-	if (messegeInTelegram.length() > 16) // Validation messege
+	if (messegeInTelegram.length() > 20) // Validation messege
 	{
 		messegeInTelegram = "";
 		emit sendMessageRequested(message->chat->id, "Incorrect length. Need less");
@@ -310,7 +316,6 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		messegeInTelegram.remove(matchReg.captured());
 		dailyArchiveString = matchReg.captured().remove("[").remove("]");
 		dailyArchiveBool = true;
-
 	}
 	else
 		qDebug() << "No matches in RegEx for " + messegeInTelegram;
@@ -351,6 +356,13 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			continue;
 		}
 
+		if (val == '&' && counterForSlesh == 0)
+		{
+			testConnectIpPort = true;
+			counterForSlesh++;
+			break;
+		}
+
 		if (val.isNumber())
 			continue;
 
@@ -361,6 +373,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		relayCounterOff = false;
 		dailyArchiveBool = false;
 		testConnect = false;
+		testConnectIpPort = false;
 		emit sendMessageRequested(message->chat->id, "Incorrect symbol in number");
 		return;
 	}
@@ -369,21 +382,28 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 	QScopedPointer<DbTelegramExport>forQuery(new DbTelegramExport);
 
-	if (currentNeed || vecNeed || relayCounterOn || relayCounterOff || testConnect)
-	{
+	if (testConnectIpPort)
 		messegeInTelegram = messegeInTelegram.sliced(1);
-		forQuery->setAny(messegeInTelegram);
-	}
 	else
-		forQuery->setAny(messegeInTelegram);
+	{
 
-	forQuery->queryDbResult(forQuery->getAny());
+		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff || testConnect)
+		{
+			messegeInTelegram = messegeInTelegram.sliced(1);
+			forQuery->setAny(messegeInTelegram);
+		}
+		else
+			forQuery->setAny(messegeInTelegram);
 
-	if (testConnect && (messegeInTelegram != ""))
+		forQuery->queryDbResult(forQuery->getAny());
+	}
+
+	if ((testConnectIpPort || testConnect) && (messegeInTelegram != ""))
 	{
 		bool portBool = false;
 
-		for (auto& val : forQuery->getIpForTcp())
+
+		for (auto& val : (testConnect == true ? forQuery->getIpForTcp() : messegeInTelegram))
 		{
 			if (val == ':')
 			{
@@ -422,7 +442,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 			}
 
-			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection" + (testConnectIpPort == true ? "" : ("for device " + forQuery->getAny().toStdString())) + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 		}
@@ -623,7 +643,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	}
 
 	// Если нет активных специальных булквых то просто выводим данные из БД
-	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool && !testConnect)
+	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool && !testConnect && !testConnectIpPort)
 		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 
 	currentNeed = false;
@@ -632,6 +652,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	vecNeed = false;
 	dailyArchiveBool = false;
 	testConnect = false;
+	testConnectIpPort = false;
 
 	messegeInTelegram = "";
 	ipFromDbTelegram = "";

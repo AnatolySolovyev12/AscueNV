@@ -67,7 +67,7 @@ void TcpClientForTelegram::onConnected()
 void TcpClientForTelegram::onDisconnected()
 {
 	connectedState = false;
-	qDebug() << "\nDisconnected from server.";
+	qDebug() << "\nDisconnected from server.\n";
 }
 
 void TcpClientForTelegram::onReadyRead()

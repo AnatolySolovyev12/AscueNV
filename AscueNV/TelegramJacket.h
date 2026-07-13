@@ -61,6 +61,7 @@ private:
 	bool stopVector = false;
 	bool dailyArchiveBool = false;
 	bool testConnect = false;
+	bool testConnectIpPort = false;
 
 	QTimer* myTimer = nullptr;
 
