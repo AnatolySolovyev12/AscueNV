@@ -386,7 +386,6 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		messegeInTelegram = messegeInTelegram.sliced(1);
 	else
 	{
-
 		if (currentNeed || vecNeed || relayCounterOn || relayCounterOff || testConnect)
 		{
 			messegeInTelegram = messegeInTelegram.sliced(1);
@@ -416,6 +415,13 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			else
 				portFromDbTelegram += val;
 		}
+
+		QRegularExpression strPattern(QString(R"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:[0-9]{2,5})"));
+
+		QRegularExpressionMatch matchReg = strPattern.match(testConnect == true ? forQuery->getIpForTcp() : messegeInTelegram);
+
+		if (!matchReg.hasMatch())
+			ipFromDbTelegram = "";
 
 		if (ipFromDbTelegram != "")
 		{
@@ -447,7 +453,12 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 		}
 		else
-			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+		{
+			if (testConnect)
+				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+			else
+				emit sendMessageRequested(message->chat->id, "Incorrect format Host adress. Check your Host adress and try again");
+		}
 	}
 
 
