@@ -188,7 +188,7 @@ void TelegramJacket::validChatIdInMassive()
 
 		if (chatIdMassive.length() > 22)
 		{
-			qDebug() << "Error: Max length for chatIdMassive is 20";
+			qDebug() << "Error: Max length for chatIdMassive is 22";
 			break;
 		}
 
