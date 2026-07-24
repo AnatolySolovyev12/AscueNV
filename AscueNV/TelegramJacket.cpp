@@ -186,9 +186,9 @@ void TelegramJacket::validChatIdInMassive()
 	{
 		line = in.readLine(12);
 
-		if (chatIdMassive.length() > 22)
+		if (chatIdMassive.length() > 20)
 		{
-			qDebug() << "Error: Max length for chatIdMassive is 22";
+			qDebug() << "Error: Max length for chatIdMassive is 20";
 			break;
 		}
 
@@ -300,7 +300,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		return;
 	}
 
-	if (messegeInTelegram.length() > 20) // Validation messege
+	if (messegeInTelegram.length() > 22) // Validation messege
 	{
 		messegeInTelegram = "";
 		emit sendMessageRequested(message->chat->id, "Incorrect length. Need less");
