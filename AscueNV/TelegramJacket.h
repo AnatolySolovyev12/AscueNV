@@ -74,8 +74,6 @@ private:
 
 	TcpClientForTelegram* tcpObj = nullptr;
 
-	int counterForSlesh = 0;
-
 	QList <QString> numberList{ "101", "102", "103", "104", "106", "109", 
 		                        "/101", "/102", "/103" ,"/104", "/106", "/109", 
 		                        ">101", ">102", ">103" ,">104", ">109", 

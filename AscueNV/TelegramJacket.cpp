@@ -331,6 +331,8 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	else
 		qDebug() << "No matches in RegEx for " + messegeInTelegram;
 
+	int counterForSlesh = 0;
+
 	for (auto& val : messegeInTelegram) // Validation messege
 	{
 		if ((val == '_' || val == '>') && counterForSlesh == 0)
