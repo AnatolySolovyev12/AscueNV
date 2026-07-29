@@ -271,6 +271,17 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			"\n<&IP:PORT> - test TCP connection for host");
 		myChat = message->chat->id;
 
+		messegeInTelegram = "";
+		ipFromDbTelegram = "";
+		portFromDbTelegram = "";
+		currentNeed = false;
+		vecNeed = false;
+		relayCounterOn = false;
+		relayCounterOff = false;
+		dailyArchiveBool = false;
+		testConnect = false;
+		testConnectIpPort = false;
+
 		return;
 	}
 
@@ -367,6 +378,8 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 			continue;
 
 		messegeInTelegram = "";
+		ipFromDbTelegram = "";
+		portFromDbTelegram = "";
 		currentNeed = false;
 		vecNeed = false;
 		relayCounterOn = false;
@@ -374,6 +387,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		dailyArchiveBool = false;
 		testConnect = false;
 		testConnectIpPort = false;
+
 		emit sendMessageRequested(message->chat->id, "Incorrect symbol in number");
 		return;
 	}
