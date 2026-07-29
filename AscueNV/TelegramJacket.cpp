@@ -464,7 +464,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 			}
 
-			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection" + (testConnectIpPort == true ? "" : ("for device " + forQuery->getAny().toStdString())) + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection " + (testConnectIpPort == true ? "" : ("for device " + forQuery->getAny().toStdString())) + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
 
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 		}
