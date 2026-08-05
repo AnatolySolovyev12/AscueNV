@@ -32,8 +32,8 @@ PS - Second brunch was adapted for messendger MAX (GreenApi) / Вторая ве
 
 <img width="728" height="972" alt="image" src="https://github.com/user-attachments/assets/3da2ef5f-5c90-40e8-99e9-407cdcd67bc8" />
 <img width="732" height="1105" alt="image" src="https://github.com/user-attachments/assets/febe7b0c-9a70-4e18-85ec-1fbfe590a231" />
-<img width="771" height="1023" alt="image" src="https://github.com/user-attachments/assets/f061e918-6ac8-42d9-b6b7-33d77b7f2da3" />
-<img width="727" height="387" alt="image" src="https://github.com/user-attachments/assets/d0bb510d-6437-4fef-8241-9f2e126c4f7b" />
+<img width="745" height="907" alt="image" src="https://github.com/user-attachments/assets/9ccb67d8-6d40-4cab-b9ec-c8c4ddaeb3fc" />
+
 
 
 
