@@ -417,8 +417,12 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	{
 		bool portBool = false;
 
+		QString temp = (testConnect == true ? forQuery->getIpForTcp() : messegeInTelegram);
 
-		for (auto& val : (testConnect == true ? forQuery->getIpForTcp() : messegeInTelegram))
+		temp.trimmed();
+		temp.remove(QRegularExpression("[\\r\\n]")); // убираем возможный Enter из адреса хоста
+
+		for (auto& val : temp)
 		{
 			if (val == ':')
 			{
@@ -434,7 +438,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 		QRegularExpression strPattern(QString(R"([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\:[0-9]{2,5})"));
 
-		QRegularExpressionMatch matchReg = strPattern.match(testConnect == true ? forQuery->getIpForTcp() : messegeInTelegram);
+		QRegularExpressionMatch matchReg = strPattern.match(temp);
 
 		if (!matchReg.hasMatch())
 			ipFromDbTelegram = "";
