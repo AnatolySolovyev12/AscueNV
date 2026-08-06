@@ -30,6 +30,10 @@ What can:
 
 PS - Second brunch was adapted for messendger MAX (GreenApi) / Вторая ветка была адаптирована под мессенджер МАХ (GreenApi)
 
-![1](https://github.com/user-attachments/assets/148524c1-8ad4-4e2f-8211-1b477b07598c)
-![2](https://github.com/user-attachments/assets/c1d13b9f-6985-4748-a3d4-3928587e8204)
-![3](https://github.com/user-attachments/assets/45d0c4a8-1c87-4671-b307-784e44430ff3)
+<img width="728" height="972" alt="image" src="https://github.com/user-attachments/assets/3da2ef5f-5c90-40e8-99e9-407cdcd67bc8" />
+<img width="732" height="1105" alt="image" src="https://github.com/user-attachments/assets/febe7b0c-9a70-4e18-85ec-1fbfe590a231" />
+<img width="745" height="907" alt="image" src="https://github.com/user-attachments/assets/9ccb67d8-6d40-4cab-b9ec-c8c4ddaeb3fc" />
+
+
+
+
