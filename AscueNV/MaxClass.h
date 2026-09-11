@@ -14,6 +14,9 @@
 #include <windows.h>
 #include <QFile.h>
 #include <iostream>
+#include <QHttpMultiPart>
+#include <QVariant>
+
 
 
 class MaxClass : public QObject

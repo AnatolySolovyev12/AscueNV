@@ -14,6 +14,302 @@ MaxClass::MaxClass(QObject* parent)
 }
 
 
+/*
+
+
+	{ // получение статуса бота
+		QUrl url(R"(https://platform-api2.max.ru/me)");
+
+		// Создание запроса
+		QNetworkRequest request(url);
+		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+		// Формируем заголовок
+		QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
+		QByteArray authHeaderValue = token.toUtf8();
+		request.setRawHeader("Authorization", authHeaderValue);
+		// -------------------------
+
+		// Отправка запроса
+		QNetworkReply* reply = manager->get(request);
+
+		// Обработчик ответа
+		QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+			if (reply->error() == QNetworkReply::NoError)
+			{
+				QString response = reply->readAll();
+				qDebug() << "Success:" << response;
+			}
+			else
+			{
+				// Выводим не только код ошибки Qt, но и текст ошибки от сервера (там часто пишут детали)
+				qDebug() << "Error code:" << reply->error();
+				qDebug() << "Error text:" << reply->errorString();
+				qDebug() << "Server response on error:" << reply->readAll();
+			}
+			reply->deleteLater();
+			});
+	}
+
+
+	{   // отправка текста
+		QString message = "TEST TEST123";
+
+		QUrl url(R"(https://platform-api2.max.ru/messages?user_id=179757288)");
+
+		QJsonObject json;
+		json["text"] = message; // Используем переданное сообщение
+
+		// Преобразование JSON-объекта в строку
+		QJsonDocument jsonDoc(json);
+		QByteArray jsonData = jsonDoc.toJson();
+
+		// Создание запроса
+		QNetworkRequest request(url);
+		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+		QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
+		QByteArray authHeaderValue = token.toUtf8();
+		request.setRawHeader("Authorization", authHeaderValue);
+
+		// Отправка запроса
+		QNetworkReply* reply = manager->post(request, jsonData);
+
+		// Обработчик ответа (если необходимо). Пригодится.
+		QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+
+			if (reply->error() == QNetworkReply::NoError)
+			{
+				QString response = reply->readAll();
+				qDebug() << response;
+			}
+			else
+				qDebug() << "Error:: " << reply->error();
+
+			reply->deleteLater();
+			});
+	}
+
+	*/
+
+	/*
+	{ // получение ссылки для загрузки файла
+
+		QUrl url(R"(https://platform-api2.max.ru/uploads?type=image)");
+
+		QNetworkRequest request(url);
+		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+		QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
+		QByteArray authHeaderValue = token.toUtf8();
+		request.setRawHeader("Authorization", authHeaderValue);
+
+		QNetworkReply* reply = manager->post(request, "");
+
+		connect(reply, &QNetworkReply::finished, [this, reply]() {
+
+			const QByteArray responseData = reply->readAll();
+
+			if (reply->error() == QNetworkReply::NoError)
+			{
+				qDebug() << responseData;
+
+				const QJsonDocument doc = QJsonDocument::fromJson(responseData);
+
+				QJsonObject objURL = doc.object();
+
+				if (!doc.isObject())
+				{
+					qWarning() << "uploadFile response is not JSON object";
+					reply->deleteLater();
+					return;
+				}
+
+				urlString = objURL.value("url").toString();
+
+				if (urlString.isEmpty())
+				{
+					qWarning() << "urlFile is empty, response:" << responseData;
+				}
+				else
+				{
+					QUrl url(urlString);
+					QNetworkRequest request(url);
+
+					// 1. Создаем контейнер для multipart/form-data
+					QHttpMultiPart* multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+					// 2. Создаем текстовую или файловую часть (часть формы)
+					QHttpPart filePart;
+
+					filePart.setHeader(QNetworkRequest::ContentDispositionHeader,
+						QVariant("form-data; name=\"data\"; filename=\"icon.png\""));
+
+					// Указываем тип контента для файла (для картинок - image/png или image/jpeg)
+					filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("image/png"));
+
+					// 3. Читаем сам файл с диска
+					QFile* file = new QFile("icon.png");
+
+					if (!file->open(QIODevice::ReadOnly))
+					{
+						qWarning() << "Could not open file for reading!";
+						delete multiPart;
+						delete file;
+						return;
+					}
+
+					// Привязываем устройство файла к части запроса
+					filePart.setBodyDevice(file);
+
+					// Делаем так, чтобы файл удалился из памяти автоматически вместе с multiPart
+					file->setParent(multiPart);
+
+					// Добавляем готовую часть с файлом в наш multipart-контейнер
+					multiPart->append(filePart);
+
+					// 4. Отправляем POST-запрос с бинарными данными формы вместо JSON строки
+					QNetworkReply* reply = manager->post(request, multiPart);
+
+					// Привязываем multiPart к reply, чтобы он удалился после завершения запроса
+					multiPart->setParent(reply);
+
+					// Обработчик ответа сервера загрузки
+					QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
+
+						if (reply->error() == QNetworkReply::NoError)
+						{
+							const QByteArray responseData = reply->readAll();
+							qDebug() << "Upload Success! Server Response:" << responseData;
+
+							const QJsonDocument doc = QJsonDocument::fromJson(responseData);
+
+							QJsonObject objURL = doc.object();
+
+							if (!doc.isObject())
+							{
+								qWarning() << "uploadFile response is not JSON object";
+								reply->deleteLater();
+								return;
+							}
+
+							QJsonObject photosObj = QJsonDocument::fromJson(responseData).object().value("photos").toObject();
+
+							QJsonObject firstFileObj = photosObj.constBegin().value().toObject();
+
+							urlString = firstFileObj.value("token").toString();
+
+							QUrl url(R"(https://platform-api2.max.ru/messages?user_id=179757288)");
+
+							// 1. Создаем самый внутренний объект payload и добавляем туда токен
+							QJsonObject payloadObj;
+							payloadObj["token"] = urlString;
+
+							// 2. Создаем объект вложения, задаем тип и вкладываем туда наш payloadObj
+							QJsonObject attachmentObj;
+							attachmentObj["type"] = "image";
+							attachmentObj["payload"] = payloadObj;
+
+							// 3. Создаем массив attachments и добавляем туда объект вложения
+							QJsonArray attachmentsArray;
+							attachmentsArray.append(attachmentObj);
+
+							// 4. Создаем корневой объект запроса
+							QJsonObject rootObj;
+							rootObj["text"] = "Test image";
+							rootObj["attachments"] = attachmentsArray;
+
+							// 5. Преобразуем в документ и байтовый массив для отправки через QNetworkAccessManager
+							QJsonDocument jsonDoc(rootObj);
+							QByteArray jsonData = jsonDoc.toJson(QJsonDocument::Compact); // Compact уберет лишние пробелы и переносы строк
+
+							// Создание запроса
+							QNetworkRequest request(url);
+							request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+							QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
+							QByteArray authHeaderValue = token.toUtf8();
+							request.setRawHeader("Authorization", authHeaderValue);
+
+							// Отправка запроса
+							QNetworkReply* reply = manager->post(request, jsonData);
+
+							// Обработчик ответа (если необходимо). Пригодится.
+							QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+
+								if (reply->error() == QNetworkReply::NoError)
+								{
+									QString response = reply->readAll();
+									qDebug() << response;
+								}
+								else
+									qDebug() << "Error:: " << reply->error();
+
+								reply->deleteLater();
+								});
+						}
+						else
+						{
+							qDebug() << "Error:: " << reply->error();
+							qDebug() << "Error text:: " << reply->errorString();
+							qDebug() << "Server response on error:: " << reply->readAll();
+						}
+						reply->deleteLater();
+						});
+				}
+			}
+			else
+			{
+				qDebug() << "Upload error:" << reply->error() << reply->errorString();
+				qDebug() << "Server reply:" << responseData;
+			}
+
+			reply->deleteLater();
+			});
+	}
+	*/
+
+	/*
+		{ // получение обновлений
+			QUrl url(R"(https://platform-api2.max.ru/updates)");
+
+			QUrlQuery query;
+			query.addQueryItem("limit", "30");  // Запрашиваем до 100 событий
+			query.addQueryItem("timeout", "10"); // Сервер будет ждать события до 90 секунд
+			url.setQuery(query);
+
+			// Создание запроса
+			QNetworkRequest request(url);
+			request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+			// Формируем заголовок
+			QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
+			QByteArray authHeaderValue = token.toUtf8();
+			request.setRawHeader("Authorization", authHeaderValue);
+
+			// Отправка запроса
+			QNetworkReply* reply = manager->get(request);
+
+			// Обработчик ответа
+			QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+				if (reply->error() == QNetworkReply::NoError)
+				{
+					QString response = reply->readAll();
+					qDebug() << "Success:" << response;
+				}
+				else
+				{
+					// Выводим не только код ошибки Qt, но и текст ошибки от сервера (там часто пишут детали)
+					qDebug() << "Error code:" << reply->error();
+					qDebug() << "Error text:" << reply->errorString();
+					qDebug() << "Server response on error:" << reply->readAll();
+				}
+				reply->deleteLater();
+				});
+		}
+		*/
+
+
 
 void MaxClass::sendMessage(QString chatId, const QString& message)
 {
