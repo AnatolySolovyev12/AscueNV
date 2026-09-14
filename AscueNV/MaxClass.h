@@ -28,7 +28,6 @@ public:
 	void getTokenFromFile();
 	QString getChatIdFromFile();
 	void getLastMessageAsync();
-	void deleteNotification(QString idNotification);
 	void uploadFile(const QString& chatId, const QString& fileMessege, const QString& mime);
 	void sendFileWithImage(const QString& chatId, const QString& urlFile, const QString& fileName);
 	void sendMessage(QString chatId, const QString& message);
