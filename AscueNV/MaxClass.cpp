@@ -6,9 +6,6 @@ MaxClass::MaxClass(QObject* parent)
 	AttachConsole(ATTACH_PARENT_PROCESS);
 	getTokenFromFile();
 
-	//connect(this, &MaxClass::sendIdNotificationForDelete, this, &MaxClass::deleteNotification);
-	//connect(this, &MaxClass::sendUrlFile, this, &MaxClass::sendFileWithImage);
-
 	QTimer::singleShot(1500, [this]() {
 		manager = new QNetworkAccessManager(this);
 		getStatusBoth(); }); // создаём его в рабочем потоке чтобы не было конфликтов разных потоков
@@ -116,7 +113,7 @@ void MaxClass::getTokenFromFile()
 
 	file.close();
 
-	tokenMaxBoth = myLine;
+	tokenMaxBoth = myLine.trimmed();
 
 	qDebug() << "Token from file = " + tokenMaxBoth << '\n';
 
@@ -430,6 +427,7 @@ void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, con
 
 void MaxClass::sendFileWithImage(const QString& chatId, const QString& urlFile, const QString& fileName)
 {
+	/*
 	if (urlFile.isEmpty()) {
 		qWarning() << "Attempt to send empty message";
 		return;
@@ -471,4 +469,5 @@ void MaxClass::sendFileWithImage(const QString& chatId, const QString& urlFile, 
 		}
 		reply->deleteLater();
 		});
+		*/
 }
