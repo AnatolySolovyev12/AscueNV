@@ -32,6 +32,7 @@ public:
 	void uploadFile(const QString& chatId, const QString& fileMessege, const QString& mime);
 	void sendFileWithImage(const QString& chatId, const QString& urlFile, const QString& fileName);
 	void sendMessage(QString chatId, const QString& message);
+	void getStatusBoth();
 
 
 signals:
@@ -49,5 +50,5 @@ private:
 	QString instanceNumber = "";
 	QString tokenFromInstance = "";
 	bool isBusy = false;
-	QString token = "";
+	QString tokenMaxBoth = "";
 };

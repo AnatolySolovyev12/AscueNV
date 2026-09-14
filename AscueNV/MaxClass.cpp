@@ -9,89 +9,229 @@ MaxClass::MaxClass(QObject* parent)
 	connect(this, &MaxClass::sendIdNotificationForDelete, this, &MaxClass::deleteNotification);
 	connect(this, &MaxClass::sendUrlFile, this, &MaxClass::sendFileWithImage);
 
-	QTimer::singleShot(1500, [this]() { manager = new QNetworkAccessManager(this); }); // создаём его в рабочем потоке чтобы не было конфликтов разных потоков
+	QTimer::singleShot(1500, [this]() { 
+		manager = new QNetworkAccessManager(this); 
+		getStatusBoth(); }); // создаём его в рабочем потоке чтобы не было конфликтов разных потоков
+
 	QTimer::singleShot(2000, [this]() { getLastMessageAsync(); });
 }
 
 
-/*
 
+void MaxClass::getStatusBoth()
+{
+	QUrl url(R"(https://platform-api2.max.ru/me)");
 
-	{ // получение статуса бота
-		QUrl url(R"(https://platform-api2.max.ru/me)");
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-		// Создание запроса
-		QNetworkRequest request(url);
-		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+	QByteArray authHeaderValue = tokenMaxBoth.toUtf8();
+	request.setRawHeader("Authorization", authHeaderValue);
 
-		// Формируем заголовок
-		QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
-		QByteArray authHeaderValue = token.toUtf8();
-		request.setRawHeader("Authorization", authHeaderValue);
-		// -------------------------
+	QNetworkReply* reply = manager->get(request);
 
-		// Отправка запроса
-		QNetworkReply* reply = manager->get(request);
+	QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+		if (reply->error() == QNetworkReply::NoError)
+		{
+			QByteArray response = reply->readAll();
+			QJsonDocument responseDoc = QJsonDocument::fromJson(response);
 
-		// Обработчик ответа
-		QObject::connect(reply, &QNetworkReply::finished, [reply]() {
-			if (reply->error() == QNetworkReply::NoError)
-			{
-				QString response = reply->readAll();
-				qDebug() << "Success:" << response;
-			}
+			if (!responseDoc.isNull())
+				qDebug() << "user_id: " << responseDoc["user_id"].toInt() << '\n' << "username: " << responseDoc["username"].toString() << '\n' << "name: " << responseDoc["name"].toString() << '\n';
 			else
-			{
-				// Выводим не только код ошибки Qt, но и текст ошибки от сервера (там часто пишут детали)
-				qDebug() << "Error code:" << reply->error();
-				qDebug() << "Error text:" << reply->errorString();
-				qDebug() << "Server response on error:" << reply->readAll();
-			}
-			reply->deleteLater();
-			});
+				qDebug() << '\n' << "responseDoc is NULL\n";
+		}
+		else
+		{
+			qDebug() << "Error code:" << reply->error();
+			qDebug() << "Error text:" << reply->errorString();
+			qDebug() << "Server response on error:" << reply->readAll();
+		}
+		reply->deleteLater();
+		});
+}
+
+
+
+void MaxClass::sendMessage(QString chatId, const QString& message)
+{
+	QString urlString = QString("https://platform-api2.max.ru/messages?user_id=%1").arg(chatId);
+	QUrl url(urlString);
+
+	QJsonObject json;
+	json["text"] = message; // Используем переданное сообщение
+
+	// Преобразование JSON-объекта в строку
+	QJsonDocument jsonDoc(json);
+	QByteArray jsonData = jsonDoc.toJson();
+
+	// Создание запроса
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+	QByteArray authHeaderValue = tokenMaxBoth.toUtf8();
+	request.setRawHeader("Authorization", authHeaderValue);
+
+	// Отправка запроса
+	QNetworkReply* reply = manager->post(request, jsonData);
+
+	// Обработчик ответа (если необходимо). Пригодится.
+	QObject::connect(reply, &QNetworkReply::finished, [reply]() {
+
+		if (reply->error() == QNetworkReply::NoError)
+		{
+			QString response = reply->readAll();
+			qDebug() << '\n' << response;
+		}
+		else
+			qDebug() << "Error:: " << reply->error();
+
+		reply->deleteLater();
+		});
+}
+
+
+
+void MaxClass::getTokenFromFile()
+{
+	QFile file(QCoreApplication::applicationDirPath() + "\\tokenMax.txt");
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qDebug() << "Don't find browse file. Add a directory with a token (tokenMax.txt).";
+		return;
 	}
 
+	QTextStream out(&file);
 
-	{   // отправка текста
-		QString message = "TEST TEST123";
+	QString myLine = out.readLine(); // метод readLine() считывает одну строку из потока
 
-		QUrl url(R"(https://platform-api2.max.ru/messages?user_id=179757288)");
+	if (myLine == "")
+	{
+		qDebug() << "File is empty. Add a directory with a token (tokenMax.txt).";
 
-		QJsonObject json;
-		json["text"] = message; // Используем переданное сообщение
-
-		// Преобразование JSON-объекта в строку
-		QJsonDocument jsonDoc(json);
-		QByteArray jsonData = jsonDoc.toJson();
-
-		// Создание запроса
-		QNetworkRequest request(url);
-		request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-		QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
-		QByteArray authHeaderValue = token.toUtf8();
-		request.setRawHeader("Authorization", authHeaderValue);
-
-		// Отправка запроса
-		QNetworkReply* reply = manager->post(request, jsonData);
-
-		// Обработчик ответа (если необходимо). Пригодится.
-		QObject::connect(reply, &QNetworkReply::finished, [reply]() {
-
-			if (reply->error() == QNetworkReply::NoError)
-			{
-				QString response = reply->readAll();
-				qDebug() << response;
-			}
-			else
-				qDebug() << "Error:: " << reply->error();
-
-			reply->deleteLater();
-			});
+		file.close();
+		return;
 	}
 
-	*/
+	file.close();
 
+	tokenMaxBoth = myLine;
+
+	qDebug() << "Token from file = " + tokenMaxBoth << '\n';
+
+	return;
+}
+
+
+
+QString MaxClass::getChatIdFromFile()
+{
+	QFile file(QCoreApplication::applicationDirPath() + "\\chatIdMax.txt");
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		qDebug() << "Don't find browse file. Add a directory with a token (chatIdMax.txt).";
+		return 0;
+	}
+
+	QTextStream out(&file);
+
+	QString myLine = out.readLine(); // метод readLine() считывает одну строку из потока
+
+	if (myLine == "")
+	{
+		qDebug() << "Don't find browse file. Add a directory with a token (chatIdMax.txt).";
+		file.close();
+		return 0;
+	}
+
+	file.close();
+
+	return myLine;
+}
+
+
+
+void MaxClass::getLastMessageAsync()
+{
+	if (!manager) // защита от не инициализированно manager
+	{
+		QTimer::singleShot(100, this, &MaxClass::getLastMessageAsync);
+		return;
+	}
+
+	if (isBusy) return;
+	isBusy = true;
+
+	QUrl url(R"(https://platform-api2.max.ru/updates)");
+
+	QUrlQuery query;
+	query.addQueryItem("limit", "30");  // Запрашиваем до 100 событий
+	query.addQueryItem("timeout", "10"); // Сервер будет ждать события до 90 секунд
+	url.setQuery(query);
+
+	QNetworkRequest request(url);
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+	QByteArray authHeaderValue = tokenMaxBoth.toUtf8();
+	request.setRawHeader("Authorization", authHeaderValue);
+
+	// Отправка запроса
+	QNetworkReply* reply = manager->get(request);
+
+	emit startNetworkAccessSignal();
+
+	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
+
+		emit finishNetworkAccessSignal();
+
+		if (reply->error() == QNetworkReply::NoError)
+		{
+			QByteArray responseData = reply->readAll();
+			QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
+
+			if (!responseDoc.isNull())
+			{
+				QJsonArray messegeArray = responseDoc["updates"].toArray();
+
+				if (messegeArray.isEmpty())
+					std::cout << "\r" << QDate::currentDate().toString("dd.MM.yyyy").toStdString() << "   " << QTime::currentTime().toString().toStdString();
+				else
+				{
+					qDebug() << "QJsonArray :\n" << messegeArray << "\n";
+
+					for (auto val : messegeArray)
+					{
+						QJsonObject object = val.toObject();
+						QJsonObject message = object["message"].toObject();
+						QJsonObject body = message["body"].toObject();
+						QString text = body["text"].toString();
+						QJsonObject sender = message["sender"].toObject();
+						QString userId = QString::number(sender["user_id"].toInteger());
+						QString name = sender["name"].toString();
+
+						qDebug() << "userId: " << userId << "\nname: " << name << "\nText: " << text << '\n';
+
+						emit lastMessageReceived(qMakePair(userId, text));
+					}
+				}
+			}
+
+		}
+		else
+			qDebug() << "Error:" << reply->errorString();
+
+		reply->deleteLater();
+		isBusy = false;
+
+		});
+}
+
+
+
+void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, const QString& mime)
+{
 	/*
 	{ // получение ссылки для загрузки файла
 
@@ -269,299 +409,6 @@ MaxClass::MaxClass(QObject* parent)
 	}
 	*/
 
-	/*
-		{ // получение обновлений
-			QUrl url(R"(https://platform-api2.max.ru/updates)");
-
-			QUrlQuery query;
-			query.addQueryItem("limit", "30");  // Запрашиваем до 100 событий
-			query.addQueryItem("timeout", "10"); // Сервер будет ждать события до 90 секунд
-			url.setQuery(query);
-
-			// Создание запроса
-			QNetworkRequest request(url);
-			request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-			// Формируем заголовок
-			QString token = "f9LHodD0cOL5wwI6F6CtFLL1z4RGzkHuLs3LB3VeXtfnw20hiqFa3LOzj4AnPogt65hWzzjUNKf5Uy8uSwOR";
-			QByteArray authHeaderValue = token.toUtf8();
-			request.setRawHeader("Authorization", authHeaderValue);
-
-			// Отправка запроса
-			QNetworkReply* reply = manager->get(request);
-
-			// Обработчик ответа
-			QObject::connect(reply, &QNetworkReply::finished, [reply]() {
-				if (reply->error() == QNetworkReply::NoError)
-				{
-					QString response = reply->readAll();
-					qDebug() << "Success:" << response;
-				}
-				else
-				{
-					// Выводим не только код ошибки Qt, но и текст ошибки от сервера (там часто пишут детали)
-					qDebug() << "Error code:" << reply->error();
-					qDebug() << "Error text:" << reply->errorString();
-					qDebug() << "Server response on error:" << reply->readAll();
-				}
-				reply->deleteLater();
-				});
-		}
-		*/
-
-
-
-void MaxClass::sendMessage(QString chatId, const QString& message)
-{
-	if (message.isEmpty()) {
-		qWarning() << "Attempt to send empty message";
-		return;
-	}
-
-	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/sendMessage/%2)")
-		.arg(instanceNumber)
-		.arg(tokenFromInstance);
-
-	QUrl url(urlStringTemp);
-
-	QJsonObject json;
-	json["chatId"] = chatId;
-	json["message"] = message; // Используем переданное сообщение
-
-	// Преобразование JSON-объекта в строку
-	QJsonDocument jsonDoc(json);
-	QByteArray jsonData = jsonDoc.toJson();
-
-	// Создание запроса
-	QNetworkRequest request(url);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-	// Отправка запроса
-	QNetworkReply* reply = manager->post(request, jsonData);
-
-	// Обработчик ответа (если необходимо). Пригодится.
-	QObject::connect(reply, &QNetworkReply::finished, [reply]() {
-
-		if (reply->error() == QNetworkReply::NoError)
-		{
-			QString response = reply->readAll();
-			qDebug() << response;
-		}
-		else
-		{
-			qDebug() << "Error:: " << reply->error();
-		}
-		reply->deleteLater();
-		});
-}
-
-
-
-void MaxClass::getTokenFromFile()
-{
-	//Берем за основу любой метод из API GreenAPI в котором фигурирует номер инстанса и токен
-
-	QFile file(QCoreApplication::applicationDirPath() + "\\tokenMax.txt");
-
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		qDebug() << "Don't find browse file. Add a directory with a token (tokenMax.txt).";
-		return;
-	}
-
-	QTextStream out(&file);
-
-	QString myLine = out.readLine(); // метод readLine() считывает одну строку из потока
-
-	if (myLine == "")
-	{
-		qDebug() << "Don't find browse file. Add a directory with a token (tokenMax.txt).";
-
-		file.close();
-		return;
-	}
-
-	file.close();
-
-	// Через регулярку получаем сначала номер инстанса
-
-	QRegularExpression strPattern(QString(R"(waInstance([0-9]*))"));
-
-	QRegularExpressionMatch matchReg = strPattern.match(myLine);
-
-	if (matchReg.hasMatch())
-	{
-		instanceNumber = matchReg.captured().replace("waInstance", ""); // избавляемся от приставки заменяя её на пустоту
-		qDebug() << "instanceNumber = " + instanceNumber;
-	}
-	else
-		qDebug() << "No matches in RegEx for waInstance";
-
-	// Полученный номер инстанса добавляем к паттерну и ищем совпадения для токена которым завершается любой метод из API
-
-	strPattern.setPattern(QString(R"(waInstance%1/[\w]+/([\w]+))").arg(instanceNumber)); // группируем токен в отдельную группу в круглых скобках чтобы в дальнейшем извлечь через индекс
-
-	matchReg = strPattern.match(myLine);
-
-	if (matchReg.hasMatch())
-	{
-		tokenFromInstance = matchReg.captured(1); // извлекаем индексированную первую скобку в паттерне. (0) или () извлекает всё совпадение. (1) - то что было опоясано в паттерне круглыми скобками
-		qDebug() << "tokenFromInstance = " + tokenFromInstance;
-	}
-	else
-		qDebug() << "No matches in RegEx for tokenFromInstance";
-
-	return;
-}
-
-
-
-QString MaxClass::getChatIdFromFile()
-{
-	QFile file(QCoreApplication::applicationDirPath() + "\\chatIdMax.txt");
-
-	if (!file.open(QIODevice::ReadOnly))
-	{
-		qDebug() << "Don't find browse file. Add a directory with a token (chatIdMax.txt).";
-		return 0;
-	}
-
-	QTextStream out(&file);
-
-	QString myLine = out.readLine(); // метод readLine() считывает одну строку из потока
-
-	if (myLine == "")
-	{
-		qDebug() << "Don't find browse file. Add a directory with a token (chatIdMax.txt).";
-		file.close();
-		return 0;
-	}
-
-	file.close();
-
-	return myLine;
-}
-
-
-
-void MaxClass::getLastMessageAsync()
-{
-	if (!manager) // защита от не инициализированно manager
-	{
-		QTimer::singleShot(100, this, &MaxClass::getLastMessageAsync);
-		return;
-	}
-
-	if (isBusy) return;
-	isBusy = true;
-
-	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/receiveNotification/%2)")
-		.arg(instanceNumber)
-		.arg(tokenFromInstance);
-
-	QUrl url(urlStringTemp);
-
-	QNetworkRequest request(url);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-	QNetworkReply* reply = manager->get(request);
-
-	emit startNetworkAccessSignal();
-
-	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
-
-		emit finishNetworkAccessSignal();
-
-		if (reply->error() == QNetworkReply::NoError)
-		{
-			QByteArray responseData = reply->readAll();
-			QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
-
-			if (!responseDoc.isNull())
-			{
-				qDebug() << "\nreceiptId: " << responseDoc["receiptId"].toInt();
-
-				QJsonObject objBody = responseDoc["body"].toObject();
-				QJsonObject objMessage = objBody["messageData"].toObject();
-				QJsonObject objText = objMessage["textMessageData"].toObject();
-
-				qDebug() << "text: " << objText["textMessage"].toString();
-
-				QJsonObject objId = objBody["senderData"].toObject();
-
-				qDebug() << "chatId: " << objId["chatId"].toString();
-
-				emit sendIdNotificationForDelete(QString::number(responseDoc["receiptId"].toInt()));
-
-				if (objBody["typeWebhook"].toString() != "outgoingAPIMessageReceived")
-				{
-					QString tempText = objText["textMessage"].toString();
-
-					if (tempText.indexOf("**") >= 0 || tempText.indexOf("//") >= 0 || tempText.indexOf(">>") >= 0 || tempText.indexOf("__") >= 0) tempText = tempText.mid(1); // Fix проблемы с GreenAPI
-
-					qDebug() << "Send messege...";
-					emit lastMessageReceived(qMakePair(objId["chatId"].toString(), tempText));
-				}
-			}
-			else
-				std::cout << "\r" << QDate::currentDate().toString().toStdString() << "   " << QTime::currentTime().toString().toStdString();
-		}
-		else
-			qDebug() << "Error:" << reply->errorString();
-
-		reply->deleteLater();
-		isBusy = false;
-
-		});
-}
-
-
-
-void MaxClass::deleteNotification(QString idNotification)
-{
-	QString urlStringTemp = QString(R"(https://3100.api.green-api.com/waInstance%1/deleteNotification/%2/)")
-		.arg(instanceNumber)
-		.arg(tokenFromInstance);
-
-	urlStringTemp += idNotification;
-
-	QUrl url(urlStringTemp);
-
-	QNetworkRequest request(url);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-	QNetworkReply* reply = manager->deleteResource(request);
-
-	QObject::connect(reply, &QNetworkReply::finished, [this, reply]() {
-
-		if (reply->error() == QNetworkReply::NoError)
-		{
-			QByteArray responseData = reply->readAll();
-			QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
-
-			if (!responseDoc.isNull())
-			{
-				if (!responseDoc["result"].toBool())
-					qDebug() << responseDoc["reason"].toString();
-				else
-					qDebug() << "Notification was delete";
-			}
-			else
-				qDebug() << "Not array or null";
-		}
-		else
-			qDebug() << "Error:" << reply->errorString();
-
-		reply->deleteLater();
-		}
-	);
-}
-
-
-
-
-void MaxClass::uploadFile(const QString& chatId, const QString& fileMessege, const QString& mime)
-{
 	const QString filePath = fileMessege;
 
 	qDebug() << "filePath:" << filePath;
