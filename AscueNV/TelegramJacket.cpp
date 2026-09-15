@@ -259,7 +259,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 
 	if (messegeInTelegram == "/start")
 	{
-		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + 
+		emit sendMessageRequested(message->chat->id, "Ваш ChatID: " + QString::number(message->chat->id).toStdString() + 
 			"\n<serial> - последние суточные показания, параметры подключения, ID"
 			"\n</serial> - текущие значения сети и энергий по направлениям"
 			"\n<*serial> - векторная диаграмма с параметрами сети, версия ПО и серийный номер"
