@@ -260,15 +260,15 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	if (messegeInTelegram == "/start")
 	{
 		emit sendMessageRequested(message->chat->id, "Your ChatID: " + QString::number(message->chat->id).toStdString() + 
-			"\n<serial> - last daily and connection parameters"
-			"\n</serial> - current values"
-			"\n<*serial> - vector and identifications"
-			"\n<_serial> - relay on"
-			"\n<>serial> - relay off"
-			"\n<[date]serial> - daily tarrif archive"
-			"\n<[00]serial> - current tarrif values"
-			"\n<%serial> - test TCP connection for device"
-			"\n<&IP:PORT> - test TCP connection for host");
+			"\n<serial> - последние суточные показания, параметры подключения, ID"
+			"\n</serial> - текущие значения сети и энергий по направлениям"
+			"\n<*serial> - векторная диаграмма с параметрами сети, версия ПО и серийный номер"
+			"\n<_serial> - включение реле"
+			"\n<>serial> - выключение реле"
+			"\n<[date]serial> - суточные тарифные показания на определённую дату (до 31 дня от сегодня)"
+			"\n<[00]serial> - текущие тарифные показания"
+			"\n<%serial> - проверка доступности устройства (TCP)"
+			"\n<&IP:PORT> - проверка доступности хоста (TCP)");
 		myChat = message->chat->id;
 
 		messegeInTelegram = "";
@@ -289,17 +289,13 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	{
 		if (resultMassive.find(message->chat->id) != resultMassive.constEnd())
 		{
-			//messegeFromTcp = tcpObj->returnResultString();
-
 			if (resultMassive.find(message->chat->id).value()->returnResultString().toStdString() == "")
-
-				emit sendMessageRequested(message->chat->id, "empty");
+				emit sendMessageRequested(message->chat->id, "Нет данных");
 			else
-
 				emit sendMessageRequested(message->chat->id, resultMassive.find(message->chat->id).value()->returnResultString().toStdString());
 		}
 		else
-			emit sendMessageRequested(message->chat->id, "empty");
+			emit sendMessageRequested(message->chat->id, "Нет данных");
 
 		return;
 	}
@@ -307,14 +303,14 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 	if (messegeInTelegram.length() < 6) // Validation messege
 	{
 		messegeInTelegram = "";
-		emit sendMessageRequested(message->chat->id, "Incorrect length.Need more");
+		emit sendMessageRequested(message->chat->id, "Некорректная длина сообщения. Требуется больше.");
 		return;
 	}
 
 	if (messegeInTelegram.length() > 22) // Validation messege
 	{
 		messegeInTelegram = "";
-		emit sendMessageRequested(message->chat->id, "Incorrect length. Need less");
+		emit sendMessageRequested(message->chat->id, "Некорректная длина сообщения. Требуется меньше.");
 		return;
 	}
 
@@ -339,7 +335,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		{
 			if (chatIdMassive.indexOf(QString::number(message->chat->id)) == -1)
 			{
-				emit sendMessageRequested(message->chat->id, "Access for this command is not for you (_,_)");
+				emit sendMessageRequested(message->chat->id, "Доступ к этой команде не для Вас (_,_)");
 				return;
 			}
 
@@ -390,7 +386,7 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 		testConnect = false;
 		testConnectIpPort = false;
 
-		emit sendMessageRequested(message->chat->id, "Incorrect symbol in number");
+		emit sendMessageRequested(message->chat->id, "Некорректный символ в серийном номере");
 		return;
 	}
 
@@ -468,16 +464,16 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				QObject::connect(resultMassive.find(message->chat->id).value(), SIGNAL(messageError()), this, SLOT(setStopForVector())); // сигнал с ошибкой чтобы не выводить векторную диаграмму
 			}
 
-			emit sendMessageRequested(message->chat->id, "We started trying to test TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") connection " + (testConnectIpPort == true ? "" : ("for device " + forQuery->getAny().toStdString())) + ". Wait a 1 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+			emit sendMessageRequested(message->chat->id, "Началась попытка проверить TCP(" + ipFromDbTelegram.toStdString() + ":" + portFromDbTelegram.toStdString() + ") подключение " + (testConnectIpPort == true ? "" : ("к устройству " + forQuery->getAny().toStdString())) + ". Спустя минуту вы получите сообщение");
 
 			resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram, portFromDbTelegram);
 		}
 		else
 		{
 			if (testConnect)
-				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+				emit sendMessageRequested(message->chat->id, "Не найден IP адрес для этого устройства. Проверьте серийный номер и повторите");
 			else
-				emit sendMessageRequested(message->chat->id, "Incorrect format Host adress. Check your Host adress and try again");
+				emit sendMessageRequested(message->chat->id, "Некорректный формат для адреса хоста. Проверьте адрес хоста и повторите");
 		}
 	}
 
@@ -529,17 +525,17 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				}
 
 				if (currentNeed)
-					emit sendMessageRequested(message->chat->id, "We started trying to get current values ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 2-3 minute and you get a messege. Also you can get current if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "Началась попытка получения текущих параметров сети и энергий для устройства " + forQuery->getAny().toStdString() + ". Спустя 2-3 минуты вы поулчите сообщение. Также вы можете получить собранные значения отправив: /result. Повторите, если необходимо.");
 				else
-					emit sendMessageRequested(message->chat->id, "We started trying to get vector and identification parameters ​​from the device " + forQuery->getAny().toStdString() + ". Wait a 1-2 minute and you get a messege. Also you can get these if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "Началась попытка получения векторной диаграммы, серийного номера и версии ПО для устройства " + forQuery->getAny().toStdString() + ". Спустя 1-2 минуты вы поулчите сообщение. Также вы можете получить собранные значения отправив: /result. Повторите, если необходимо.");
 
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 			}
 			else
-				emit sendMessageRequested(message->chat->id, "#1 - Incorrect device for this command");
+				emit sendMessageRequested(message->chat->id, "#1 - некорректное устройство для этой команды");
 		}
 		else
-			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+			emit sendMessageRequested(message->chat->id, "Не найден IP адрес для этого устройства. Проверьте серийный номер и повторите");
 	}
 
 
@@ -594,17 +590,17 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				}
 
 				if (relayCounterOn)
-					emit sendMessageRequested(message->chat->id, "We started trying to connect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get status if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "Началась попытка включения реле для устройства " + forQuery->getAny().toStdString() + ". Спустя 1 минуту вы поулчите сообщение");
 				else
-					emit sendMessageRequested(message->chat->id, "We started trying to disconnect relay ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get status if you send: /result. Repeat if it needed.");
+					emit sendMessageRequested(message->chat->id, "Началась попытка отключения реле для устройства " + forQuery->getAny().toStdString() + ". Спустя 1 минуту вы поулчите сообщение");
 
 				resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 			}
 			else
-				emit sendMessageRequested(message->chat->id, "#2 - Incorrect device for this command");
+				emit sendMessageRequested(message->chat->id, "#2 - некорректное устройство для этой команды");
 		}
 		else
-			emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+			emit sendMessageRequested(message->chat->id, "Не найден IP адрес для этого устройства. Проверьте серийный номер и повторите");
 	}
 
 
@@ -658,24 +654,24 @@ void TelegramJacket::onMessageReceived(QSharedPointer<MyMessageObj>message)
 				if (dailyArchiveBool)
 				{
 					if (dailyArchiveString != "00")
-						emit sendMessageRequested(message->chat->id, "We started trying to get daily tarrif archive on " + dailyArchiveString.toStdString() + " ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get daily if you send: /result. Repeat if it needed.");
+						emit sendMessageRequested(message->chat->id, "Началась попытка получения суточного архива " + dailyArchiveString.toStdString() + " для устройства " + forQuery->getAny().toStdString() + ". Спустя 1 минуту вы поулчите сообщение. Также вы можете получить собранные значения отправив: /result. Повторите, если необходимо.");
 					else
-						emit sendMessageRequested(message->chat->id, "We started trying to get current tarrif values ​​for device " + forQuery->getAny().toStdString() + ". Wait a 1 minute and you get a messege. Also you can get current values if you send: /result. Repeat if it needed.");
+						emit sendMessageRequested(message->chat->id, "Началась попытка получения текущих показаний для устройства " + forQuery->getAny().toStdString() + ". Спустя 1 минуту вы поулчите сообщение. Также вы можете получить собранные значения отправив: /result. Повторите, если необходимо.");
 
 					resultMassive.find(message->chat->id).value()->setDailyArchive(dailyArchiveString);
 					resultMassive.find(message->chat->id).value()->startToConnect(ipFromDbTelegram);
 				}
 				else
-					emit sendMessageRequested(message->chat->id, "#3 - Incorrect device for this command");
+					emit sendMessageRequested(message->chat->id, "#3 - некорректное устройство для этой команды");
 			}
 			else
-				emit sendMessageRequested(message->chat->id, "Not found ip adress for this device. Check your number and try again");
+				emit sendMessageRequested(message->chat->id, "Не найден IP адрес для этого устройства. Проверьте серийный номер и повторите");
 		}
 	}
 
 	// Если нет активных специальных булквых то просто выводим данные из БД
 	if (!currentNeed && !relayCounterOn && !relayCounterOff && !vecNeed && !dailyArchiveBool && !testConnect && !testConnectIpPort)
-		emit sendMessageRequested(message->chat->id, "Your message is: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
+		emit sendMessageRequested(message->chat->id, "Ваше сообщение: " + forQuery->getAny().toStdString() + "\n" + forQuery->getResult().toStdString());
 
 	currentNeed = false;
 	relayCounterOn = false;

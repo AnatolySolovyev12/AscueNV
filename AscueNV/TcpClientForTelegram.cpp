@@ -44,7 +44,7 @@ void TcpClientForTelegram::onConnected()
 
 	if (serialStringForProtocol.contains('%'))
 	{
-		answerString = "Connected is done";
+		answerString = "Подключение успешно";
 		socket->close();
 		emit messageReceived(getKey());
 		return;
@@ -172,12 +172,12 @@ void TcpClientForTelegram::onReadyRead()
 
 	if ((serialStringForProtocol == "_101" || serialStringForProtocol == "_103" || serialStringForProtocol == "_102" || serialStringForProtocol == "_104" || serialStringForProtocol == "_109") && counterForResend == 4)
 	{
-		answerString += "Relay was connect";
+		answerString += "Реле было включено";
 	}
 
 	if ((serialStringForProtocol == ">101" || serialStringForProtocol == ">103" || serialStringForProtocol == ">102" || serialStringForProtocol == ">104" || serialStringForProtocol == ">109") && counterForResend == 4)
 	{
-		answerString += "Relay was disconnect";
+		answerString += "Реле было выключено";
 	}
 
 	if (serialStringForProtocol == "*101" || serialStringForProtocol == "*102" || serialStringForProtocol == "*103" || serialStringForProtocol == "*104" || serialStringForProtocol == "*106" || serialStringForProtocol == "*109")
@@ -206,7 +206,7 @@ void TcpClientForTelegram::onReadyRead()
 void TcpClientForTelegram::onErrorOccurred(QAbstractSocket::SocketError socketError)
 {
 	qDebug() << "\nSocket error:" << socketError << socket->errorString();
-	answerString += socket->errorString() + '.' + " No connection or bad signal";
+	answerString += socket->errorString() + '.' + " Отсутствует подключение или плохой сигнал";
 	emit messageError();
 	emit messageReceived(getKey());
 }
@@ -1094,7 +1094,7 @@ void TcpClientForTelegram::exchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 17;
-					answerString += "\nNo, stopped or incorrect responses from remote socket";
+					answerString += "\nНет, прекратились или некорректные ответы от устройства";
 				}
 
 				myTimer->start(20000);
@@ -1615,7 +1615,7 @@ void TcpClientForTelegram::exchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 31;
-					answerString += "\nNo or stopped responses from remote socket";
+					answerString += "\nНет, прекратились или некорректные ответы от устройства";
 				}
 
 				myTimer->start(20000);
@@ -1750,7 +1750,7 @@ void TcpClientForTelegram::exchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 5;
-					answerString += "\nNo, stopped or incorrect responses from remote socket";
+					answerString += "\nНет, прекратились или некорректные ответы от устройства";
 				}
 
 				myTimer->start(20000);
@@ -2018,7 +2018,7 @@ void TcpClientForTelegram::vecExchange()
 				if (reTransmitQuery >= 4)
 				{
 					counterForResend = 13;
-					answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+					answerString += "Нет, прекратились или некорректные ответы от устройства. Возможно версия ПО ниже 1.4.15";
 					emit messageError();
 				}
 
@@ -2122,7 +2122,7 @@ void TcpClientForTelegram::getDaily()
 			if (reTransmitQuery >= 4)
 			{
 				counterForResend = 4;
-				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15 or maybe havent daily archive on query date";
+				answerString += "Нет, прекратились или некорректные ответы от устройства. Возможно версия ПО ниже 1.4.15 или отсутствуют суточные архивы на запрашиваемую дату";
 			}
 
 			myTimer->start(20000);
@@ -2213,7 +2213,7 @@ void TcpClientForTelegram::getCurr()
 			if (reTransmitQuery >= 4)
 			{
 				counterForResend = 6;
-				answerString += "No or stopped responses from remote socket. Maybe soft version less then 1.4.15";
+				answerString += "Нет, прекратились или некорректные ответы от устройства. Возможно версия ПО ниже 1.4.15";
 			}
 
 			myTimer->start(20000);
